@@ -682,6 +682,14 @@ select.form-control {
   margin-bottom: var(--space-32);
 }
 
+.form-section .card {
+  margin-bottom: 2rem;
+}
+
+.form-section > h2 {
+  margin-bottom: var(--space-20);
+}
+
 /* Formulário */
 .salary-form {
   display: flex;
