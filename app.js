@@ -1,446 +1,927 @@
-// Controle de Salários Diários - Mobile App
-class SalaryControlApp {
+class SalaryTracker {
     constructor() {
-        // Dados simulados (em produção seria localStorage)
-        this.registros = [
+        // Flag para controlar se está inicializando
+        this.isInitializing = true;
+        
+        this.records = [];
+        this.currentPage = 1;
+        this.recordsPerPage = 8;
+        this.currentFilter = null; // null = todos, string = funcionário específico
+        this.editingId = null;
+        this.pendingAction = null;
+        
+        // Garantir que modais estão ocultos desde o início
+        this.forceHideModals();
+        
+        this.initializeData();
+        this.bindEvents();
+        
+        // Só renderizar após inicialização completa
+        setTimeout(() => {
+            this.isInitializing = false;
+            this.render();
+        }, 100);
+    }
+
+    forceHideModals() {
+        // Garantir que todos os modais estejam ocultos
+        const confirmModal = document.getElementById('confirmation-modal');
+        const editModal = document.getElementById('edit-modal');
+        
+        if (confirmModal) {
+            confirmModal.classList.add('hidden');
+            confirmModal.style.display = 'none';
+        }
+        if (editModal) {
+            editModal.classList.add('hidden');
+            editModal.style.display = 'none';
+        }
+        
+        // Garantir que o body não tenha overflow hidden
+        document.body.style.overflow = '';
+    }
+
+    initializeData() {
+        // Carregar dados do localStorage ou usar dados de exemplo
+        const stored = localStorage.getItem('salaryRecords');
+        if (stored) {
+            try {
+                this.records = JSON.parse(stored);
+            } catch (e) {
+                console.error('Erro ao carregar dados do localStorage:', e);
+                this.records = this.getInitialData();
+                this.saveData();
+            }
+        } else {
+            // Dados de exemplo iniciais
+            this.records = this.getInitialData();
+            this.saveData();
+        }
+    }
+
+    getInitialData() {
+        return [
             {
                 id: "1",
-                funcionario: "João Silva",
-                data: "2025-05-30",
-                valor: 120.00,
-                observacoes: "Trabalho normal 8h",
-                status: "pendente"
+                employee: "João Silva",
+                date: "2025-05-30",
+                amount: 120.00,
+                note: "Trabalho normal 8h",
+                paid: false,
+                timestamp: "2025-05-30T20:00:00.000Z"
             },
             {
                 id: "2", 
-                funcionario: "Maria Santos",
-                data: "2025-05-30",
-                valor: -20.00,
-                observacoes: "Desconto material",
-                status: "pendente"
+                employee: "Maria Santos",
+                date: "2025-05-30",
+                amount: -20.00,
+                note: "Desconto material",
+                paid: false,
+                timestamp: "2025-05-30T20:30:00.000Z"
             },
             {
                 id: "3",
-                funcionario: "João Silva",
-                data: "2025-05-29",
-                valor: 150.00,
-                observacoes: "Trabalho extra",
-                status: "pendente"
+                employee: "João Silva", 
+                date: "2025-05-29",
+                amount: 150.00,
+                note: "Trabalho extra",
+                paid: false,
+                timestamp: "2025-05-29T18:00:00.000Z"
+            },
+            {
+                id: "4",
+                employee: "Ana Costa",
+                date: "2025-05-28",
+                amount: 100.00,
+                note: "Meio período",
+                paid: false,
+                timestamp: "2025-05-28T15:00:00.000Z"
+            },
+            {
+                id: "5",
+                employee: "Maria Santos",
+                date: "2025-05-28",
+                amount: 130.00,
+                note: "Trabalho normal",
+                paid: false,
+                timestamp: "2025-05-28T16:00:00.000Z"
+            },
+            {
+                id: "6",
+                employee: "Pedro Lima",
+                date: "2025-05-27",
+                amount: 80.00,
+                note: "4 horas",
+                paid: false,
+                timestamp: "2025-05-27T14:00:00.000Z"
             }
         ];
-        
-        this.filtroAtual = "";
-        this.editandoId = null;
-        this.proximoId = 4;
-        this.acaoModal = null;
-        
-        this.init();
     }
-    
-    init() {
-        this.setupEventListeners();
-        this.setDataAtual();
-        this.atualizarInterface();
-    }
-    
-    setupEventListeners() {
-        // Formulário
-        document.getElementById('registroForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.salvarRegistro();
-        });
-        
-        // Filtro de funcionário
-        document.getElementById('filtroFuncionario').addEventListener('change', (e) => {
-            this.filtroAtual = e.target.value;
-            this.atualizarListaRegistros();
-        });
-        
-        // Modal
-        document.getElementById('modalCancelar').addEventListener('click', () => {
-            this.fecharModal();
-        });
-        
-        document.getElementById('modalConfirmar').addEventListener('click', () => {
-            // Executar a ação e fechar imediatamente
-            if (typeof this.acaoModal === 'function') {
-                this.acaoModal();
-            }
-            this.fecharModal();
-        });
-    }
-    
-    setDataAtual() {
-        const hoje = new Date().toISOString().split('T')[0];
-        document.getElementById('data').value = hoje;
-    }
-    
-    salvarRegistro() {
-        const funcionario = document.getElementById('funcionario').value.trim();
-        const data = document.getElementById('data').value;
-        const valorInput = document.getElementById('valor').value;
-        const observacoes = document.getElementById('observacoes').value.trim();
-        
-        if (!funcionario || !data || valorInput === '') {
-            this.mostrarFeedback('⚠️ Preencha os campos obrigatórios!', 'warning');
+
+    bindEvents() {
+        // Não adicionar eventos durante a inicialização para evitar disparos acidentais
+        if (this.isInitializing) {
             return;
         }
-        
-        const valor = parseFloat(valorInput);
-        
-        const registro = {
-            id: this.editandoId || this.proximoId.toString(),
-            funcionario: funcionario,
-            data: data,
-            valor: valor,
-            observacoes: observacoes,
-            status: "pendente"
-        };
-        
-        if (this.editandoId) {
-            // Editando registro existente
-            const index = this.registros.findIndex(r => r.id === this.editandoId);
-            if (index !== -1) {
-                this.registros[index] = registro;
-            }
-            this.editandoId = null;
-        } else {
-            // Novo registro
-            this.registros.push(registro);
-            this.proximoId++;
+
+        // Formulário de novo registro
+        const salaryForm = document.getElementById('salary-form');
+        if (salaryForm) {
+            salaryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.addRecord();
+            });
         }
+
+        // Exportação
+        const exportPdfBtn = document.getElementById('export-pdf');
+        const exportExcelBtn = document.getElementById('export-excel');
         
+        if (exportPdfBtn) {
+            exportPdfBtn.addEventListener('click', () => {
+                this.exportToPDF();
+            });
+        }
+
+        if (exportExcelBtn) {
+            exportExcelBtn.addEventListener('click', () => {
+                this.exportToExcel();
+            });
+        }
+
+        // Modais
+        this.bindModalEvents();
+    }
+
+    bindModalEvents() {
+        // Não configurar eventos de modal durante inicialização
+        if (this.isInitializing) {
+            return;
+        }
+
+        // Modal de confirmação
+        const confirmModal = document.getElementById('confirmation-modal');
+        const modalCancel = document.getElementById('modal-cancel');
+        const modalConfirm = document.getElementById('modal-confirm');
+        
+        if (modalCancel) {
+            modalCancel.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.cancelConfirmation();
+            });
+        }
+
+        if (modalConfirm) {
+            modalConfirm.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.executeConfirmation();
+            });
+        }
+
+        // Modal de edição
+        const editModal = document.getElementById('edit-modal');
+        const editCancel = document.getElementById('edit-cancel');
+        const editForm = document.getElementById('edit-form');
+        
+        if (editCancel) {
+            editCancel.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.cancelEdit();
+            });
+        }
+
+        if (editForm) {
+            editForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.saveEdit();
+            });
+        }
+
+        // Fechar modal clicando no overlay
+        if (confirmModal) {
+            confirmModal.addEventListener('click', (e) => {
+                if (e.target === confirmModal || e.target.classList.contains('modal__overlay')) {
+                    this.cancelConfirmation();
+                }
+            });
+        }
+
+        if (editModal) {
+            editModal.addEventListener('click', (e) => {
+                if (e.target === editModal || e.target.classList.contains('modal__overlay')) {
+                    this.cancelEdit();
+                }
+            });
+        }
+
+        // ESC para fechar modais
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (confirmModal && !confirmModal.classList.contains('hidden')) {
+                    this.cancelConfirmation();
+                }
+                if (editModal && !editModal.classList.contains('hidden')) {
+                    this.cancelEdit();
+                }
+            }
+        });
+    }
+
+    cancelConfirmation() {
+        this.pendingAction = null;
+        this.hideModal('confirmation-modal');
+    }
+
+    executeConfirmation() {
+        if (this.pendingAction) {
+            this.pendingAction();
+            this.pendingAction = null;
+        }
+        this.hideModal('confirmation-modal');
+    }
+
+    cancelEdit() {
+        this.editingId = null;
+        this.hideModal('edit-modal');
         // Limpar formulário
-        document.getElementById('registroForm').reset();
-        this.setDataAtual();
-        this.atualizarInterface();
-        
-        // Feedback visual
-        this.mostrarFeedback('✅ Registro salvo com sucesso!', 'success');
+        const editForm = document.getElementById('edit-form');
+        if (editForm) {
+            editForm.reset();
+        }
     }
-    
-    editarRegistro(id) {
-        const registro = this.registros.find(r => r.id === id);
-        if (!registro) return;
-        
-        this.editandoId = id;
-        document.getElementById('funcionario').value = registro.funcionario;
-        document.getElementById('data').value = registro.data;
-        document.getElementById('valor').value = registro.valor;
-        document.getElementById('observacoes').value = registro.observacoes;
-        
-        // Scroll para o formulário
-        document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+
+    normalizeEmployeeName(name) {
+        return name.toLowerCase().trim().split(' ').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
     }
-    
-    excluirRegistro(id) {
-        const registro = this.registros.find(r => r.id === id);
-        if (!registro) return;
+
+    addRecord() {
+        const form = document.getElementById('salary-form');
+        if (!form) return;
+
+        const formData = new FormData(form);
         
-        this.abrirModal(
-            `Tem certeza que deseja excluir este registro de ${registro.funcionario}?`,
+        const record = {
+            id: Date.now().toString(),
+            employee: this.normalizeEmployeeName(formData.get('employee')),
+            date: formData.get('date'),
+            amount: parseFloat(formData.get('amount')),
+            note: formData.get('note') || '',
+            paid: false,
+            timestamp: new Date().toISOString()
+        };
+
+        this.records.unshift(record);
+        this.saveData();
+        form.reset();
+        
+        // Definir data atual como padrão
+        const dateInput = document.getElementById('date');
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+        
+        // Adicione esta linha para mostrar o feedback
+        this.showFeedback('✅ Registro salvo com sucesso!', 'success');
+        this.render();
+    }
+
+    editRecord(id) {
+        // Não permitir edição durante inicialização
+        if (this.isInitializing) return;
+
+        const record = this.records.find(r => r.id === id);
+        if (!record) return;
+
+        this.editingId = id;
+        
+        const editEmployee = document.getElementById('edit-employee');
+        const editDate = document.getElementById('edit-date');
+        const editAmount = document.getElementById('edit-amount');
+        const editNote = document.getElementById('edit-note');
+
+        if (editEmployee) editEmployee.value = record.employee;
+        if (editDate) editDate.value = record.date;
+        if (editAmount) editAmount.value = record.amount;
+        if (editNote) editNote.value = record.note;
+        
+        this.showModal('edit-modal');
+    }
+
+    saveEdit() {
+        const form = document.getElementById('edit-form');
+        if (!form) return;
+
+        const formData = new FormData(form);
+        
+        const recordIndex = this.records.findIndex(r => r.id === this.editingId);
+        if (recordIndex === -1) return;
+
+        this.records[recordIndex] = {
+            ...this.records[recordIndex],
+            employee: this.normalizeEmployeeName(formData.get('employee')),
+            date: formData.get('date'),
+            amount: parseFloat(formData.get('amount')),
+            note: formData.get('note') || ''
+        };
+
+        this.saveData();
+        this.hideModal('edit-modal');
+        this.editingId = null;
+        this.render();
+    }
+
+    deleteRecord(id) {
+        // Não permitir exclusão durante inicialização
+        if (this.isInitializing) return;
+
+        this.showConfirmation(
+            '🗑️ Excluir Registro',
+            'Tem certeza que deseja excluir este registro?',
             () => {
-                this.registros = this.registros.filter(r => r.id !== id);
-                this.atualizarInterface();
-                this.mostrarFeedback('🗑️ Registro excluído com sucesso!', 'success');
+                this.records = this.records.filter(r => r.id !== id);
+                this.saveData();
+                this.showFeedback('🗑️ Registro excluído com sucesso!', 'success'); // <-- Adicione esta linha
+                this.render();
             }
         );
     }
-    
-    limparHistoricoFuncionario(funcionario) {
-        const registrosPendentes = this.registros.filter(
-            r => r.funcionario === funcionario && r.status === 'pendente'
-        );
-        
-        if (registrosPendentes.length === 0) {
-            this.mostrarFeedback('ℹ️ Não há registros pendentes para este funcionário', 'info');
-            return;
-        }
-        
-        this.abrirModal(
-            `Marcar todos os registros de "${funcionario}" como pagos?<br><small>Os registros serão movidos para o histórico.</small>`,
+
+    markAsPaid(employee) {
+        // Não permitir marcar como pago durante inicialização
+        if (this.isInitializing) return;
+
+        this.showConfirmation(
+            '💰 Marcar como Pago',
+            `Tem certeza que deseja marcar todos os registros de ${employee} como pagos?`,
             () => {
-                // Marca todos os registros como pagos
-                this.registros.forEach(registro => {
-                    if (registro.funcionario === funcionario && registro.status === 'pendente') {
-                        registro.status = 'pago';
+                this.records.forEach(record => {
+                    if (record.employee.toLowerCase() === employee.toLowerCase()) {
+                        record.paid = true;
                     }
                 });
-                
-                // Atualiza a interface após a alteração
-                this.atualizarInterface();
-                this.mostrarFeedback('💰 Registros marcados como pagos!', 'success');
+                this.saveData();
+                this.render();
             }
         );
     }
-    
-    atualizarInterface() {
-        this.atualizarFiltroFuncionarios();
-        this.atualizarResumoFuncionarios();
-        this.atualizarListaRegistros();
-        this.atualizarTotalGeral();
+
+    deleteEmployee(employee) {
+        // Não permitir exclusão durante inicialização
+        if (this.isInitializing) return;
+
+        this.showConfirmation(
+            '❌ Excluir Funcionário',
+            `Tem certeza que deseja excluir TODOS os registros de ${employee}?`,
+            () => {
+                this.records = this.records.filter(r => 
+                    r.employee.toLowerCase() !== employee.toLowerCase()
+                );
+                
+                // Se estava filtrando por este funcionário, voltar para todos
+                if (this.currentFilter && this.currentFilter.toLowerCase() === employee.toLowerCase()) {
+                    this.currentFilter = null;
+                }
+                
+                this.saveData();
+                this.render();
+            }
+        );
     }
-    
-    atualizarFiltroFuncionarios() {
-        const funcionarios = [...new Set(this.registros.map(r => r.funcionario))].sort();
-        const select = document.getElementById('filtroFuncionario');
+
+    showConfirmation(title, message, action) {
+        // NUNCA mostrar confirmação durante inicialização
+        if (this.isInitializing) return;
+
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+
+        if (modalTitle) modalTitle.textContent = title;
+        if (modalMessage) modalMessage.textContent = message;
         
-        // Preservar seleção atual
-        const valorAtual = select.value;
-        
-        select.innerHTML = '<option value="">Todos os funcionários</option>';
-        funcionarios.forEach(funcionario => {
-            const option = document.createElement('option');
-            option.value = funcionario;
-            option.textContent = funcionario;
-            select.appendChild(option);
-        });
-        
-        // Restaurar seleção
-        select.value = valorAtual;
+        this.pendingAction = action;
+        this.showModal('confirmation-modal');
     }
-    
-    atualizarResumoFuncionarios() {
-        const funcionarios = [...new Set(this.registros.map(r => r.funcionario))].sort();
-        const container = document.getElementById('resumoFuncionarios');
+
+    showModal(modalId) {
+        // NUNCA mostrar modal durante inicialização
+        if (this.isInitializing) return;
+
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
         
-        if (funcionarios.length === 0) {
-            container.innerHTML = '<div class="empty-state"><div class="empty-state__icon">👥</div><p class="empty-state__text">Nenhum funcionário cadastrado ainda</p></div>';
-            return;
+        // Focar no primeiro elemento focável do modal
+        setTimeout(() => {
+            const focusable = modal.querySelector('input, button, textarea, select');
+            if (focusable) {
+                focusable.focus();
+            }
+        }, 100);
+    }
+
+    hideModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    filterByEmployee(employee) {
+        this.currentFilter = employee;
+        this.currentPage = 1;
+        this.render();
+    }
+
+    getFilteredRecords() {
+        if (!this.currentFilter) {
+            return this.records;
         }
         
-        container.innerHTML = '';
+        return this.records.filter(record => 
+            record.employee.toLowerCase() === this.currentFilter.toLowerCase()
+        );
+    }
+
+    getEmployeeSummary() {
+        const summary = {};
         
-        funcionarios.forEach(funcionario => {
-            const registrosFuncionario = this.registros.filter(r => r.funcionario === funcionario);
-            const totalPendente = registrosFuncionario
-                .filter(r => r.status === 'pendente')
-                .reduce((sum, r) => sum + r.valor, 0);
-            const totalPago = registrosFuncionario
-                .filter(r => r.status === 'pago')
-                .reduce((sum, r) => sum + r.valor, 0);
+        this.records.forEach(record => {
+            const employee = record.employee;
+            if (!summary[employee]) {
+                summary[employee] = {
+                    total: 0,
+                    count: 0,
+                    unpaidTotal: 0,
+                    unpaidCount: 0
+                };
+            }
             
-            const card = document.createElement('div');
-            card.className = 'funcionario-card';
+            summary[employee].total += record.amount;
+            summary[employee].count++;
             
-            const valorClass = totalPendente > 0 ? 'valor-positivo' : 
-                             totalPendente < 0 ? 'valor-negativo' : 'valor-zero';
+            if (!record.paid) {
+                summary[employee].unpaidTotal += record.amount;
+                summary[employee].unpaidCount++;
+            }
+        });
+        
+        return summary;
+    }
+
+    renderEmployeeSummary() {
+        const container = document.getElementById('employee-summary');
+        if (!container) return;
+
+        const summary = this.getEmployeeSummary();
+        
+        let html = '';
+        
+        // Card "Todos"
+        const totalRecords = this.records.length;
+        const totalAmount = this.records
+            .filter(r => !r.paid)
+            .reduce((sum, r) => sum + r.amount, 0);
+        
+        html += `
+            <div class="employee-card employee-card--all ${!this.currentFilter ? 'employee-card--active' : ''}" 
+                 onclick="window.salaryTracker.filterByEmployee(null)">
+                <div class="employee-card__header">
+                    <h3 class="employee-card__name">📊 Total Geral</h3>
+                </div>
+                <div class="employee-card__total ${totalAmount >= 0 ? 'employee-card__total--positive' : 'employee-card__total--negative'}">
+                    R$ ${totalAmount.toFixed(2)}
+                </div>
+                <div class="employee-card__records">
+                    ${totalRecords} registro${totalRecords !== 1 ? 's' : ''}
+                </div>
+            </div>
+        `;
+        
+        // Cards dos funcionários
+        Object.entries(summary).forEach(([employee, data]) => {
+            const isActive = this.currentFilter && this.currentFilter.toLowerCase() === employee.toLowerCase();
             
-            card.innerHTML = `
-                <div class="funcionario-card__header">
-                    <h4 class="funcionario-card__name">👤 ${funcionario}</h4>
-                    <span class="status-badge status-badge--${registrosFuncionario.some(r => r.status === 'pendente') ? 'pendente' : 'pago'}">
-                        ${registrosFuncionario.some(r => r.status === 'pendente') ? 'Pendente' : 'Pago'}
-                    </span>
-                </div>
-                <div class="funcionario-card__total ${valorClass}">
-                    Pendente: ${this.formatarMoeda(totalPendente)}
-                </div>
-                <div class="funcionario-card__total valor-positivo" style="font-size: var(--font-size-base); margin-bottom: var(--space-16);">
-                    Histórico Pago: ${this.formatarMoeda(totalPago)}
-                </div>
-                <div class="funcionario-card__actions">
-                    <button class="btn btn--outline btn--small" onclick="app.filtrarPorFuncionario('${funcionario}')">
-                        🔍 Ver Registros
-                    </button>
-                    ${totalPendente !== 0 ? `
-                        <button class="btn btn--success btn--small" onclick="app.limparHistoricoFuncionario('${funcionario}')">
+            html += `
+                <div class="employee-card ${isActive ? 'employee-card--active' : ''}" 
+                     onclick="window.salaryTracker.filterByEmployee('${employee}')">
+                    <div class="employee-card__header">
+                        <h3 class="employee-card__name">👤 ${employee}</h3>
+                        <button class="employee-card__delete" 
+                                onclick="event.stopPropagation(); window.salaryTracker.deleteEmployee('${employee}')"
+                                title="Excluir funcionário">
+                            ✕
+                        </button>
+                    </div>
+                    <div class="employee-card__total ${data.unpaidTotal >= 0 ? 'employee-card__total--positive' : 'employee-card__total--negative'}">
+                        R$ ${data.unpaidTotal.toFixed(2)}
+                    </div>
+                    <div class="employee-card__records">
+                        ${data.unpaidCount} pendente${data.unpaidCount !== 1 ? 's' : ''} de ${data.count} total
+                    </div>
+                    ${data.unpaidCount > 0 ? `
+                        <button class="btn btn--sm btn--secondary" 
+                                onclick="event.stopPropagation(); window.salaryTracker.markAsPaid('${employee}')"
+                                style="margin-top: var(--space-12); width: 100%;">
                             💰 Marcar como Pago
                         </button>
                     ` : ''}
                 </div>
             `;
-            
-            container.appendChild(card);
         });
-    }
-    
-    filtrarPorFuncionario(funcionario) {
-        document.getElementById('filtroFuncionario').value = funcionario;
-        this.filtroAtual = funcionario;
-        this.atualizarListaRegistros();
         
-        // Scroll para a seção de registros
-        document.querySelector('.registros-section').scrollIntoView({ behavior: 'smooth' });
+        container.innerHTML = html;
     }
-    
-    atualizarListaRegistros() {
-        let registrosFiltrados = this.registros;
+
+    renderRecords() {
+        const container = document.getElementById('records-list');
+        const title = document.getElementById('records-title');
+        const count = document.getElementById('records-count');
         
-        if (this.filtroAtual) {
-            registrosFiltrados = this.registros.filter(r => r.funcionario === this.filtroAtual);
+        if (!container) return;
+
+        const filteredRecords = this.getFilteredRecords();
+        const startIndex = (this.currentPage - 1) * this.recordsPerPage;
+        const endIndex = startIndex + this.recordsPerPage;
+        const pageRecords = filteredRecords.slice(startIndex, endIndex);
+        
+        // Atualizar título e contador
+        if (title) {
+            if (this.currentFilter) {
+                title.textContent = `📋 Registros de ${this.currentFilter}`;
+            } else {
+                title.textContent = '📋 Todos os Registros';
+            }
         }
         
-        // Ordenar por data (mais recente primeiro)
-        registrosFiltrados.sort((a, b) => new Date(b.data) - new Date(a.data));
+        if (count) {
+            count.textContent = `${filteredRecords.length} registro${filteredRecords.length !== 1 ? 's' : ''}`;
+        }
         
-        const container = document.getElementById('listaRegistros');
-        
-        if (registrosFiltrados.length === 0) {
-            container.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📋</div><p class="empty-state__text">Nenhum registro encontrado</p></div>';
+        if (pageRecords.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <h3>📭 Nenhum registro encontrado</h3>
+                    <p>Adicione um novo registro usando o formulário acima.</p>
+                </div>
+            `;
             return;
         }
         
-        container.innerHTML = '';
-        
-        registrosFiltrados.forEach(registro => {
-            const item = document.createElement('div');
-            item.className = 'registro-item';
+        let html = '';
+        pageRecords.forEach(record => {
+            const date = new Date(record.date).toLocaleDateString('pt-BR');
+            const amount = record.amount;
+            const amountClass = amount >= 0 ? 'record-item__amount--positive' : 'record-item__amount--negative';
+            const timestamp = new Date(record.timestamp);
+            const hora = timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             
-            const valorClass = registro.valor > 0 ? 'valor-positivo' : 
-                             registro.valor < 0 ? 'valor-negativo' : 'valor-zero';
-            
-            const dataFormatada = this.formatarData(registro.data);
-            
-            item.innerHTML = `
-                <div class="registro-item__header">
-                    <div class="registro-item__info">
-                        <h4 class="registro-item__funcionario">${registro.funcionario}</h4>
-                        <div class="registro-item__data">📅 ${dataFormatada}</div>
+            html += `
+                <div class="record-item ${record.paid ? 'record-item--paid' : ''}">
+                    <div class="record-item__header">
+                        <div class="record-item__info">
+                            <div class="record-item__employee">👤 ${record.employee}</div>
+                            <div class="record-item__date">📅 ${date}</div>
+                        </div>
+                        <div class="record-item__amount ${amountClass}">
+                            R$ ${amount.toFixed(2)}
+                        </div>
                     </div>
-                    <div class="registro-item__valor ${valorClass}">
-                        ${this.formatarMoeda(registro.valor)}
-                    </div>
-                </div>
-                
-                ${registro.observacoes ? `
-                    <div class="registro-item__observacoes">
-                        💭 ${registro.observacoes}
-                    </div>
-                ` : ''}
-                
-                <div class="flex justify-between items-center" style="margin-top: var(--space-12);">
-                    <span class="status-badge status-badge--${registro.status}">
-                        ${registro.status === 'pendente' ? 'Pendente' : 'Pago'}
-                    </span>
-                    
-                    <div class="registro-item__actions">
-                        <button class="btn btn--outline btn--small" onclick="app.editarRegistro('${registro.id}')">
+                    ${record.note ? `<div class="record-item__note">📝 ${record.note}</div>` : ''}
+                    <div class="record-item__actions">
+                        <button class="btn btn--secondary" onclick="window.salaryTracker.editRecord('${record.id}')">
                             ✏️ Editar
                         </button>
-                        <button class="btn btn--danger btn--small" onclick="app.excluirRegistro('${registro.id}')">
+                        <button class="btn btn--outline" onclick="window.salaryTracker.deleteRecord('${record.id}')">
                             🗑️ Excluir
                         </button>
                     </div>
+                    <div class="record-time">
+                         Registro no horário ${hora} (${timestamp.toLocaleDateString('pt-BR')})
+                    </div>
                 </div>
             `;
-            
-            container.appendChild(item);
         });
-    }
-    
-    atualizarTotalGeral() {
-        let total = 0;
         
-        if (this.filtroAtual) {
-            total = this.registros
-                .filter(r => r.funcionario === this.filtroAtual && r.status === 'pendente')
-                .reduce((sum, r) => sum + r.valor, 0);
-        } else {
-            total = this.registros
-                .filter(r => r.status === 'pendente')
-                .reduce((sum, r) => sum + r.valor, 0);
+        container.innerHTML = html;
+    }
+
+    renderPagination() {
+        const container = document.getElementById('pagination');
+        if (!container) return;
+
+        const filteredRecords = this.getFilteredRecords();
+        const totalPages = Math.ceil(filteredRecords.length / this.recordsPerPage);
+        
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
         }
         
-        const elemento = document.getElementById('totalGeral');
-        elemento.textContent = this.formatarMoeda(total);
-        elemento.className = `total-value ${total > 0 ? 'valor-positivo' : total < 0 ? 'valor-negativo' : 'valor-zero'}`;
-    }
-    
-    formatarMoeda(valor) {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(valor);
-    }
-    
-    formatarData(data) {
-        return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR');
-    }
-    
-    abrirModal(mensagem, callback) {
-        document.getElementById('modalMensagem').innerHTML = mensagem;
-        document.getElementById('modalConfirmacao').classList.remove('hidden');
-        this.acaoModal = callback;
-    }
-    
-    fecharModal() {
-        document.getElementById('modalConfirmacao').classList.add('hidden');
-        this.acaoModal = null;
-    }
-    
-    mostrarFeedback(mensagem, tipo = 'success') {
-        // Definir cores baseadas no tipo
-        let backgroundColor, textColor;
+        let html = '';
         
-        switch(tipo) {
-            case 'success':
-                backgroundColor = 'var(--color-success)';
-                textColor = 'white';
-                break;
-            case 'warning':
-                backgroundColor = 'var(--color-warning)';
-                textColor = 'white';
-                break;
-            case 'error':
-                backgroundColor = 'var(--color-error)';
-                textColor = 'white';
-                break;
-            case 'info':
-                backgroundColor = 'var(--color-info)';
-                textColor = 'white';
-                break;
-            default:
-                backgroundColor = 'var(--color-success)';
-                textColor = 'white';
-        }
-        
-        // Criar elemento de feedback
-        const feedback = document.createElement('div');
-        feedback.className = 'feedback-toast';
-        feedback.textContent = mensagem;
-        feedback.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: ${backgroundColor};
-            color: ${textColor};
-            padding: var(--space-12) var(--space-20);
-            border-radius: var(--radius-base);
-            font-weight: var(--font-weight-medium);
-            z-index: 1001;
-            box-shadow: var(--shadow-lg);
-            font-size: var(--font-size-base);
-            max-width: 90%;
-            text-align: center;
+        // Botão anterior
+        html += `
+            <button class="pagination__button" 
+                    ${this.currentPage === 1 ? 'disabled' : ''} 
+                    onclick="window.salaryTracker.goToPage(${this.currentPage - 1})">
+                ← Anterior
+            </button>
         `;
         
-        document.body.appendChild(feedback);
+        // Números das páginas
+        const startPage = Math.max(1, this.currentPage - 2);
+        const endPage = Math.min(totalPages, this.currentPage + 2);
         
-        // Remover após 3 segundos
+        if (startPage > 1) {
+            html += `<button class="pagination__button" onclick="window.salaryTracker.goToPage(1)">1</button>`;
+            if (startPage > 2) {
+                html += `<span class="pagination__button">...</span>`;
+            }
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            html += `
+                <button class="pagination__button ${i === this.currentPage ? 'pagination__button--active' : ''}" 
+                        onclick="window.salaryTracker.goToPage(${i})">
+                    ${i}
+                </button>
+            `;
+        }
+        
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += `<span class="pagination__button">...</span>`;
+            }
+            html += `<button class="pagination__button" onclick="window.salaryTracker.goToPage(${totalPages})">${totalPages}</button>`;
+        }
+        
+        // Botão próximo
+        html += `
+            <button class="pagination__button" 
+                    ${this.currentPage === totalPages ? 'disabled' : ''} 
+                    onclick="window.salaryTracker.goToPage(${this.currentPage + 1})">
+                Próximo →
+            </button>
+        `;
+        
+        // Info da página
+        const startRecord = (this.currentPage - 1) * this.recordsPerPage + 1;
+        const endRecord = Math.min(this.currentPage * this.recordsPerPage, filteredRecords.length);
+        
+        html += `
+            <div class="pagination__info">
+                Página ${this.currentPage} de ${totalPages} • 
+                Registros ${startRecord}-${endRecord} de ${filteredRecords.length}
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+
+    goToPage(page) {
+        const filteredRecords = this.getFilteredRecords();
+        const totalPages = Math.ceil(filteredRecords.length / this.recordsPerPage);
+        
+        if (page >= 1 && page <= totalPages) {
+            this.currentPage = page;
+            this.renderRecords();
+            this.renderPagination();
+        }
+    }
+
+    exportToPDF() {
+        // Simular exportação PDF usando window.print
+        const printContent = this.generatePrintContent();
+        const printWindow = window.open('', '_blank');
+        
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Relatório de Salários</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h1 { color: #21808d; text-align: center; margin-bottom: 30px; }
+                        .summary { margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 8px; }
+                        .summary h2 { margin-top: 0; color: #21808d; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { padding: 12px 8px; border: 1px solid #ddd; text-align: left; }
+                        th { background: #21808d; color: white; font-weight: bold; }
+                        .positive { color: #21808d; font-weight: bold; }
+                        .negative { color: #c0152f; font-weight: bold; }
+                        .paid { opacity: 0.6; background: #f9f9f9; }
+                        .footer { margin-top: 30px; text-align: center; color: #666; font-size: 12px; }
+                        @media print { .no-print { display: none; } }
+                    </style>
+                </head>
+                <body>
+                    ${printContent}
+                    <div class="footer">
+                        Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}
+                    </div>
+                    <script>
+                        setTimeout(() => {
+                            window.print();
+                            setTimeout(() => window.close(), 1000);
+                        }, 500);
+                    </script>
+                </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+    }
+
+    exportToExcel() {
+        const filteredRecords = this.getFilteredRecords();
+        let csv = 'Funcionário,Data,Valor,Observações,Status\n';
+        
+        filteredRecords.forEach(record => {
+            const date = new Date(record.date).toLocaleDateString('pt-BR');
+            const amount = record.amount.toFixed(2).replace('.', ',');
+            const status = record.paid ? 'Pago' : 'Pendente';
+            const note = (record.note || '').replace(/,/g, ';').replace(/"/g, '""');
+            
+            csv += `"${record.employee}","${date}","R$ ${amount}","${note}","${status}"\n`;
+        });
+        
+        // Adicionar BOM para UTF-8
+        const BOM = '\uFEFF';
+        const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', `relatorio-salarios-${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Cleanup
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    generatePrintContent() {
+        const filteredRecords = this.getFilteredRecords();
+        const summary = this.getEmployeeSummary();
+        const totalAmount = this.records.reduce((sum, r) => sum + r.amount, 0);
+        
+        let content = `
+            <h1>💰 Relatório de Salários</h1>
+            <div class="summary">
+                <h2>Resumo Geral</h2>
+                <p><strong>Total de registros:</strong> ${this.records.length}</p>
+                <p><strong>Valor total:</strong> R$ ${totalAmount.toFixed(2)}</p>
+                <p><strong>Registros exibidos:</strong> ${filteredRecords.length}</p>
+                
+                <h3>Resumo por Funcionário</h3>
+        `;
+        
+        Object.entries(summary).forEach(([employee, data]) => {
+            content += `
+                <p><strong>${employee}:</strong> 
+                R$ ${data.unpaidTotal.toFixed(2)} 
+                (${data.unpaidCount} pendente${data.unpaidCount !== 1 ? 's' : ''} de ${data.count} total)</p>
+            `;
+        });
+        
+        content += `
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Funcionário</th>
+                        <th>Data</th>
+                        <th>Valor</th>
+                        <th>Observações</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        filteredRecords.forEach(record => {
+            const date = new Date(record.date).toLocaleDateString('pt-BR');
+            const amountClass = record.amount >= 0 ? 'positive' : 'negative';
+            const rowClass = record.paid ? 'paid' : '';
+            
+            content += `
+                <tr class="${rowClass}">
+                    <td>${record.employee}</td>
+                    <td>${date}</td>
+                    <td class="${amountClass}">R$ ${record.amount.toFixed(2)}</td>
+                    <td>${record.note || '-'}</td>
+                    <td>${record.paid ? 'Pago' : 'Pendente'}</td>
+                </tr>
+            `;
+        });
+        
+        content += `
+                </tbody>
+            </table>
+        `;
+        
+        return content;
+    }
+
+    showFeedback(message, type = 'success') {
+        let backgroundColor;
+        switch(type) {
+            case 'success':
+                backgroundColor = 'var(--color-success, #21808d)';
+                break;
+            case 'warning':
+                backgroundColor = 'var(--color-warning, #a84b2f)';
+                break;
+            case 'error':
+                backgroundColor = 'var(--color-error, #c0152f)';
+                break;
+            case 'info':
+                backgroundColor = 'var(--color-info, #626c71)';
+                break;
+            default:
+                backgroundColor = 'var(--color-success, #21808d)';
+        }
+
+        const feedback = document.createElement('div');
+        feedback.className = 'feedback-toast';
+        feedback.textContent = message;
+        feedback.style.background = backgroundColor;
+
+        document.body.appendChild(feedback);
+
         setTimeout(() => {
             feedback.style.opacity = '0';
-            feedback.style.transition = 'opacity 0.5s ease';
-            
+            feedback.style.transition = 'opacity 0.5s';
             setTimeout(() => {
                 feedback.remove();
             }, 500);
         }, 3000);
     }
+
+    saveData() {
+        try {
+            localStorage.setItem('salaryRecords', JSON.stringify(this.records));
+        } catch (e) {
+            console.error('Erro ao salvar dados no localStorage:', e);
+        }
+    }
+
+    render() {
+        // Só renderizar se não estiver inicializando
+        if (this.isInitializing) return;
+
+        this.renderEmployeeSummary();
+        this.renderRecords();
+        this.renderPagination();
+    }
 }
 
-// Inicializar a aplicação
-const app = new SalaryControlApp();
-
-// Prevenir zoom duplo-toque no mobile
-document.addEventListener('touchend', function (event) {
-    const now = (new Date()).getTime();
-    if (now - lastTouchEnd <= 300) {
-        event.preventDefault();
+// Inicializar aplicação com proteções contra modais automáticos
+document.addEventListener('DOMContentLoaded', function() {
+    // Garantir que todos os modais estejam forçadamente ocultos
+    const confirmModal = document.getElementById('confirmation-modal');
+    const editModal = document.getElementById('edit-modal');
+    
+    if (confirmModal) {
+        confirmModal.classList.add('hidden');
+        confirmModal.style.display = 'none';
     }
-    lastTouchEnd = now;
-}, false);
+    if (editModal) {
+        editModal.classList.add('hidden');
+        editModal.style.display = 'none';
+    }
+    
+    // Garantir que o body não tenha overflow hidden
+    document.body.style.overflow = '';
+    
+    // Aguardar um pouco antes de inicializar para garantir que DOM esteja pronto
+    setTimeout(() => {
+        // Inicializar a aplicação
+        window.salaryTracker = new SalaryTracker();
+        
+        // Definir data atual como padrão no formulário
+        const dateInput = document.getElementById('date');
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
 
-// Inicializar lastTouchEnd
-let lastTouchEnd = 0;
+        // Configurar eventos apenas após inicialização completa
+        setTimeout(() => {
+            if (window.salaryTracker && !window.salaryTracker.isInitializing) {
+                window.salaryTracker.bindEvents();
+            }
+        }, 200);
+    }, 50);
+});
