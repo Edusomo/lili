@@ -5,7 +5,7 @@
   --color-surface: rgba(255, 255, 253, 1);
   --color-text: rgba(19, 52, 59, 1);
   --color-text-secondary: rgba(98, 108, 113, 1);
-  --color-primary: rgba(33, 128, 141, 1);
+  --color-primary: rgba(33, 40, 141, 1);
   --color-primary-hover: rgba(29, 116, 128, 1);
   --color-primary-active: rgba(26, 104, 115, 1);
   --color-secondary: rgba(94, 82, 64, 0.12);
@@ -16,7 +16,7 @@
   --color-card-border: rgba(94, 82, 64, 0.12);
   --color-card-border-inner: rgba(94, 82, 64, 0.12);
   --color-error: rgba(192, 21, 47, 1);
-  --color-success: rgba(50, 20, 141, 1);
+  --color-success: rgba(33, 128, 141, 1);
   --color-warning: rgba(168, 75, 47, 1);
   --color-info: rgba(98, 108, 113, 1);
   --color-focus-ring: rgba(33, 128, 141, 0.4);
