@@ -579,7 +579,7 @@ class SalaryTracker {
         
         let html = '';
         pageRecords.forEach(record => {
-            const date = new Date(record.date).toLocaleDateString('pt-BR');
+            const date = record.date.split('-').reverse().join('/');
             const amount = record.amount;
             const amountClass = amount >= 0 ? 'record-item__amount--positive' : 'record-item__amount--negative';
             const timestamp = new Date(record.timestamp);
@@ -746,7 +746,7 @@ class SalaryTracker {
         let csv = 'Funcionário,Data,Valor,Observações,Status\n';
         
         filteredRecords.forEach(record => {
-            const date = new Date(record.date).toLocaleDateString('pt-BR');
+            const date = record.date.split('-').reverse().join('/');
             const amount = record.amount.toFixed(2).replace('.', ',');
             const status = record.paid ? 'Pago' : 'Pendente';
             const note = (record.note || '').replace(/,/g, ';').replace(/"/g, '""');
@@ -812,7 +812,7 @@ class SalaryTracker {
         `;
         
         filteredRecords.forEach(record => {
-            const date = new Date(record.date).toLocaleDateString('pt-BR');
+            const date = record.date.split('-').reverse().join('/');
             const amountClass = record.amount >= 0 ? 'positive' : 'negative';
             const rowClass = record.paid ? 'paid' : '';
             
