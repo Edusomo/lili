@@ -4,6 +4,7 @@ class SalaryTracker {
         this.isInitializing = true;
         
         this.records = [];
+        this.employees = [];
         this.currentPage = 1;
         this.recordsPerPage = 8;
         this.currentFilter = null; // null = todos, string = funcionário específico
@@ -56,6 +57,11 @@ class SalaryTracker {
             // Dados de exemplo iniciais
             this.records = this.getInitialData();
             this.saveData();
+        }
+
+        const savedEmployees = localStorage.getItem('employees');
+        if (savedEmployees) {
+            this.employees = JSON.parse(savedEmployees);
         }
     }
 
@@ -264,10 +270,30 @@ class SalaryTracker {
         if (!form) return;
 
         const formData = new FormData(form);
-        
+        const employeeName = this.normalizeEmployeeName(formData.get('employee'));
+        if (!this.employees.includes(employeeName)) {
+            this.employees.push(employeeName);
+            localStorage.setItem('employees', JSON.stringify(this.employees));
+        }
+
+        // Verifica se é um novo funcionário (não existe nenhum registro, nem invisível)
+        const jaExiste = this.records.some(r => r.employee === employeeName);
+        if (!jaExiste) {
+            this.records.unshift({
+                id: 'ghost-' + Date.now(),
+                employee: employeeName,
+                date: new Date().toISOString().split('T')[0],
+                amount: 0,
+                note: '',
+                paid: false,
+                timestamp: new Date().toISOString(),
+                invisivel: true
+            });
+        }
+
         const record = {
             id: Date.now().toString(),
-            employee: this.normalizeEmployeeName(formData.get('employee')),
+            employee: employeeName,
             date: formData.get('date'),
             amount: parseFloat(formData.get('amount')),
             note: formData.get('note') || '',
@@ -278,14 +304,13 @@ class SalaryTracker {
         this.records.unshift(record);
         this.saveData();
         form.reset();
-        
+
         // Definir data atual como padrão
         const dateInput = document.getElementById('date');
         if (dateInput) {
             dateInput.value = new Date().toISOString().split('T')[0];
         }
-        
-        // Adicione esta linha para mostrar o feedback
+
         this.showFeedback('✅ Registro salvo com sucesso!', 'success');
         this.render();
     }
@@ -378,9 +403,9 @@ class SalaryTracker {
             '❌ Excluir Funcionário',
             `Tem certeza que deseja excluir TODOS os registros de ${employee}?`,
             () => {
-                this.records = this.records.filter(r => 
-                    r.employee.toLowerCase() !== employee.toLowerCase()
-                );
+                this.records = this.records.filter(r => r.employee.toLowerCase() !== employee.toLowerCase());
+                this.employees = this.employees.filter(e => e.toLowerCase() !== employee.toLowerCase());
+                localStorage.setItem('employees', JSON.stringify(this.employees));
                 
                 // Se estava filtrando por este funcionário, voltar para todos
                 if (this.currentFilter && this.currentFilter.toLowerCase() === employee.toLowerCase()) {
@@ -444,18 +469,19 @@ class SalaryTracker {
 
     getFilteredRecords() {
         if (!this.currentFilter) {
-            return this.records;
+            // Só mostra registros não invisíveis
+            return this.records.filter(r => !r.invisivel);
         }
-        
-        return this.records.filter(record => 
-            record.employee.toLowerCase() === this.currentFilter.toLowerCase()
+        return this.records.filter(record =>
+            record.employee.toLowerCase() === this.currentFilter.toLowerCase() && !record.invisivel
         );
     }
 
     getEmployeeSummary() {
         const summary = {};
-        
+
         this.records.forEach(record => {
+            if (record.invisivel) return; // Pula registros invisíveis
             const employee = record.employee;
             if (!summary[employee]) {
                 summary[employee] = {
@@ -465,16 +491,16 @@ class SalaryTracker {
                     unpaidCount: 0
                 };
             }
-            
+
             summary[employee].total += record.amount;
             summary[employee].count++;
-            
+
             if (!record.paid) {
                 summary[employee].unpaidTotal += record.amount;
                 summary[employee].unpaidCount++;
             }
         });
-        
+
         return summary;
     }
 
@@ -508,8 +534,10 @@ class SalaryTracker {
         `;
         
         // Cards dos funcionários
-        Object.entries(summary).forEach(([employee, data]) => {
+        this.employees.forEach(employee => {
+            const registros = this.records.filter(r => r.employee === employee && !r.invisivel);
             const isActive = this.currentFilter && this.currentFilter.toLowerCase() === employee.toLowerCase();
+            const data = summary[employee] || { unpaidTotal: 0, unpaidCount: 0, count: 0 };
             
             html += `
                 <div class="employee-card ${isActive ? 'employee-card--active' : ''}" 
@@ -746,7 +774,7 @@ class SalaryTracker {
         let csv = 'Funcionário,Data,Valor,Observações,Status\n';
         
         filteredRecords.forEach(record => {
-            const date = record.date.split('-').reverse().join('/');
+            const date = new Date(record.date).toLocaleDateString('pt-BR');
             const amount = record.amount.toFixed(2).replace('.', ',');
             const status = record.paid ? 'Pago' : 'Pendente';
             const note = (record.note || '').replace(/,/g, ';').replace(/"/g, '""');
@@ -812,7 +840,7 @@ class SalaryTracker {
         `;
         
         filteredRecords.forEach(record => {
-            const date = record.date.split('-').reverse().join('/');
+            const date = new Date(record.date).toLocaleDateString('pt-BR');
             const amountClass = record.amount >= 0 ? 'positive' : 'negative';
             const rowClass = record.paid ? 'paid' : '';
             
@@ -924,4 +952,37 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 200);
     }, 50);
+
+    // Função para atualizar sugestões de funcionários
+    function updateEmployeeSuggestions() {
+        const suggestionsDiv = document.getElementById('employee-suggestions');
+        if (!suggestionsDiv || !window.salaryTracker) return;
+        // Pega nomes únicos dos funcionários já cadastrados
+        const employees = window.salaryTracker.employees;
+        suggestionsDiv.innerHTML = '';
+        employees.forEach(name => {
+            const btn = document.createElement('button');
+            btn.className = 'employee-suggestion-btn';
+            btn.title = name;
+            btn.textContent = name;
+            btn.onclick = () => {
+                document.getElementById('employee').value = name;
+                document.getElementById('employee').focus();
+            };
+            suggestionsDiv.appendChild(btn);
+        });
+    }
+
+    // Atualiza sugestões ao inicializar e sempre que renderizar
+    setTimeout(() => {
+        if (window.salaryTracker) {
+            updateEmployeeSuggestions();
+            // Atualize também após adicionar novo registro
+            const originalRender = window.salaryTracker.render.bind(window.salaryTracker);
+            window.salaryTracker.render = function() {
+                originalRender();
+                updateEmployeeSuggestions();
+            };
+        }
+    }, 300);
 });
