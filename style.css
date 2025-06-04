@@ -40,15 +40,15 @@
     BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo,
     Monaco, Consolas, monospace;
-  --font-size-xs: 11px;
-  --font-size-sm: 12px;
-  --font-size-base: 14px;
-  --font-size-md: 14px;
-  --font-size-lg: 16px;
-  --font-size-xl: 18px;
-  --font-size-2xl: 20px;
-  --font-size-3xl: 24px;
-  --font-size-4xl: 30px;
+  --font-size-xs: 13px;
+  --font-size-sm: 15px;
+  --font-size-base: 18px;
+  --font-size-md: 18px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 28px;
+  --font-size-3xl: 34px;
+  --font-size-4xl: 42px;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 550;
@@ -1091,4 +1091,160 @@ select.form-control {
   max-width: 90%;
   text-align: center;
   transition: opacity 0.5s;
+}
+
+.employee-suggestions {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.employee-suggestion-btn {
+  padding: 0 18px;
+  min-width: 0;
+  height: 38px;
+  border-radius: 999px;
+  background: rgba(33,128,141,0.08); /* transparente */
+  color: var(--color-primary, #21808d);
+  border: 2px solid var(--color-primary, #21808d);
+  font-weight: 500;
+  font-size: 1em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  outline: none;
+}
+.employee-suggestion-btn:hover,
+.employee-suggestion-btn:focus {
+  background: rgba(33,128,141,0.18);
+  border-color: var(--color-primary-hover, #1d7480);
+}
+
+.tab-content {
+  display: none;
+}
+.tab-content--active {
+  display: block;
+}
+
+/* Abas customizadas */
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+}
+.tab-btn {
+  padding: 12px 32px;
+  border: none;
+  background: linear-gradient(90deg, var(--color-primary) 60%, var(--color-primary-hover) 100%);
+  color: #fff;
+  font-size: 1.15em;
+  font-weight: 600;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 2px 8px rgba(33,128,141,0.08);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  outline: none;
+  letter-spacing: 0.02em;
+  opacity: 0.7;
+}
+.tab-btn--active {
+  background: linear-gradient(90deg, var(--color-primary-hover) 60%, var(--color-primary) 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(33,128,141,0.12);
+  opacity: 1;
+  z-index: 2;
+}
+
+/* Parceiros */
+.parceiro-bloco {
+  margin-bottom: 32px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+}
+.parceiro-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  font-weight: 600;
+  padding: 18px 24px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-primary);
+  background: var(--color-secondary);
+  transition: background 0.2s;
+}
+.parceiro-toggle:hover {
+  background: var(--color-secondary-hover);
+}
+.parceiro-seta {
+  font-size: 1.2em;
+  transition: transform 0.2s;
+}
+.parceiro-conteudo {
+  padding: 20px 24px;
+  background: var(--color-surface);
+}
+.parceiro-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 18px;
+}
+.parceiro-form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 1em;
+  font-weight: 500;
+  margin-right: 16px;
+}
+.btn-mudar-preco {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+.parceiro-registros {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.parceiro-registros li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-secondary);
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  font-size: 1em;
+}
+.parceiro-registros .btn-excluir {
+  background: var(--color-error);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.95em;
+  margin-left: 12px;
+  transition: background 0.2s;
+}
+.parceiro-registros .btn-excluir:hover {
+  background: var(--color-error);
+  opacity: 0.8;
+}
+.seta-group {
+  display: inline-block;
+  transition: transform 0.2s;
+  transform: rotate(90deg); /* Inicialmente para baixo */
 }
