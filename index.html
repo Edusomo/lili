@@ -134,7 +134,7 @@
     <input type="date" name="data" required class="form-control" style="min-width:120px;">
   </label>
   <label style="display:flex;flex-direction:column;font-weight:500;width:70px;">
-    Qtde
+    🔢 Qtde
     <input type="number" name="quantidade" min="1" required class="form-control" style="width:100%;">
   </label>
   <label style="display:flex;flex-direction:column;font-weight:500;width:110px;">
@@ -168,7 +168,7 @@
     <input type="date" name="data" required class="form-control" style="min-width:120px;">
   </label>
   <label style="display:flex;flex-direction:column;font-weight:500;width:70px;">
-     Qtde
+    🔢 Qtde
     <input type="number" name="quantidade" min="1" required class="form-control" style="width:100%;">
   </label>
   <label style="display:flex;flex-direction:column;font-weight:500;width:110px;">
@@ -209,7 +209,7 @@
     <input type="date" name="data" required class="form-control" style="min-width:120px;">
   </label>
   <label style="display:flex;flex-direction:column;font-weight:500;width:70px;">
-    Qtde
+    🔢 Qtde
     <input type="number" name="quantidade" min="1" required class="form-control" style="width:100%;">
   </label>
   <label style="display:flex;flex-direction:column;font-weight:500;width:110px;">
@@ -366,6 +366,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const savedRegistros = localStorage.getItem('parceiroRegistros');
 if (savedRegistros) registrosParceiros = JSON.parse(savedRegistros);
+
+if (!savedRegistros) {
+  // Exemplo inicial para novos usuários
+  registrosParceiros.Coco.push({
+    data: "2025-01-01",
+    quantidade: 1,
+    preco: 6.00,
+    observacao: ""
+  });
+  registrosParceiros.Pastel.push({
+    data: "2025-01-01",
+    quantidade: 1,
+    preco: 34.00,
+    observacao: ""
+  });
+  registrosParceiros.Gelo.push({
+    tipo: "Triturado",
+    data: "2025-01-01",
+    quantidade: 1,
+    preco: 35.00,
+    observacao: ""
+  });
+  localStorage.setItem('parceiroRegistros', JSON.stringify(registrosParceiros));
+}
 
 const savedPrecos = localStorage.getItem('parceiroPrecos');
 if (savedPrecos) precosParceiros = JSON.parse(savedPrecos);
