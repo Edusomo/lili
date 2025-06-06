@@ -408,7 +408,7 @@ if (savedFuncionarios) funcionarios = JSON.parse(savedFuncionarios);
     ul.innerHTML = '';
 
     // Ordena por data
-    const sorted = [...registrosParceiros[parceiro]].sort((a, b) => new Date(a.data) - new Date(b.data));
+    const sorted = [...registrosParceiros[parceiro]].sort((a, b) => new Date(b.data) - new Date(a.data));
     // Agrupa por data
     const grupos = {};
     sorted.forEach((reg, idx) => {
@@ -416,59 +416,60 @@ if (savedFuncionarios) funcionarios = JSON.parse(savedFuncionarios);
       grupos[reg.data].push({ ...reg, idx });
     });
 
-    Object.keys(grupos).sort().forEach(data => {
-      const dataObj = new Date(data + 'T00:00:00');
-      let dataFormatada = dataObj.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+    // Ordena datas em ordem decrescente
+const datasOrdenadas = Object.keys(grupos).sort((a, b) => new Date(b) - new Date(a));
+datasOrdenadas.forEach((data, idx) => {
+  const dataObj = new Date(data + 'T00:00:00');
+  let dataFormatada = dataObj.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
 
-      // Calcule o total do dia
-      const totalDia = grupos[data].reduce((soma, reg) => soma + (parseFloat(reg.quantidade) || 0) * (parseFloat(reg.preco) || 0), 0);
+  // Calcule o total do dia
+  const totalDia = grupos[data].reduce((soma, reg) => soma + (parseFloat(reg.quantidade) || 0) * (parseFloat(reg.preco) || 0), 0);
 
-      const groupId = parceiro + '-' + data.replace(/[^a-zA-Z0-9]/g, '');
-      // Cabeçalho do grupo com seta e total do dia
-      const groupHeader = document.createElement('div');
-      groupHeader.className = 'registros-group-header';
-      groupHeader.innerHTML = `<button class="group-toggle" data-target="${groupId}" style="background:none;border:none;cursor:pointer;font-size:1em;">
-        <span class="seta-group">&#9654;</span>
-        <strong>${dataFormatada}</strong>
-        <span style="color:#888; font-size:0.95em;">(R$ ${totalDia.toLocaleString('pt-BR', {minimumFractionDigits:2})})</span>
-      </button>`;
-      ul.appendChild(groupHeader);
+  const groupId = parceiro + '-' + data.replace(/[^a-zA-Z0-9]/g, '');
+  // Cabeçalho do grupo com seta e total do dia
+  const groupHeader = document.createElement('div');
+  groupHeader.className = 'registros-group-header';
+  groupHeader.innerHTML = `<button class="group-toggle" data-target="${groupId}" style="background:none;border:none;cursor:pointer;font-size:1em;">
+    <span class="seta-group">&#9654;</span>
+    <strong>${dataFormatada}</strong>
+    <span style="color:#888; font-size:0.95em;">(R$ ${totalDia.toLocaleString('pt-BR', {minimumFractionDigits:2})})</span>
+  </button>`;
+  ul.appendChild(groupHeader);
 
-      // Lista dos registros do grupo
-      const groupList = document.createElement('ul');
-      groupList.id = groupId;
-      groupList.className = 'registros-group-list';
-      groupList.style.display = 'block'; // ou 'none' se quiser fechado por padrão
-      ul.appendChild(groupList);
+  // Lista dos registros do grupo
+  const groupList = document.createElement('ul');
+  groupList.id = groupId;
+  groupList.className = 'registros-group-list';
+  // Só o grupo mais recente fica aberto
+  groupList.style.display = idx === 0 ? 'block' : 'none';
+  ul.appendChild(groupList);
 
-      // Ajusta a seta conforme o estado inicial
-      const seta = groupHeader.querySelector('.seta-group');
-      if (groupList.style.display === 'block') {
-        seta.style.transform = 'rotate(90deg)';
-      } else {
-        seta.style.transform = 'rotate(0deg)';
-      }
+  // Ajusta a seta conforme o estado inicial
+  const seta = groupHeader.querySelector('.seta-group');
+  if (groupList.style.display === 'block') {
+    seta.style.transform = 'rotate(90deg)';
+  } else {
+    seta.style.transform = 'rotate(0deg)';
+  }
 
-      grupos[data].forEach(reg => {
-        const li = document.createElement('li');
-        // Exibe tipo só para Gelo
-        li.innerHTML = `
-          <span>
-            ${reg.quantidade ? `${reg.quantidade} x R$ ${reg.preco.toFixed(2)} = <strong>R$ ${(reg.quantidade*reg.preco).toFixed(2)}</strong>` : ''}
-            ${reg.tipo ? `<br>Tipo: <strong>${reg.tipo}</strong>` : ''}
-            ${reg.observacao ? `<br><span class="reg-observacao">📝 ${reg.observacao}</span>` : ''}
-          </span>
-          <div class="reg-acoes">
-            <button class="btn btn--secondary btn-editar" data-parceiro="${parceiro}" data-idx="${reg.idx}">✏️ Editar</button>
-            <button class="btn btn--danger btn-excluir-parceiro" data-parceiro="${parceiro}" data-idx="${reg.idx}">🗑️ Excluir</button>
-          </div>
-        `;
-        groupList.appendChild(li);
-      });
-      ul.appendChild(groupList);
-    });
-
+  grupos[data].forEach(reg => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span>
+        ${reg.quantidade ? `${reg.quantidade} x R$ ${reg.preco.toFixed(2)} = <strong>R$ ${(reg.quantidade*reg.preco).toFixed(2)}</strong>` : ''}
+        ${reg.tipo ? `<br>Tipo: <strong>${reg.tipo}</strong>` : ''}
+        ${reg.observacao ? `<br><span class="reg-observacao">📝 ${reg.observacao}</span>` : ''}
+      </span>
+      <div class="reg-acoes">
+        <button class="btn btn--secondary btn-editar" data-parceiro="${parceiro}" data-idx="${reg.idx}">✏️ Editar</button>
+        <button class="btn btn--danger btn-excluir-parceiro" data-parceiro="${parceiro}" data-idx="${reg.idx}">🗑️ Excluir</button>
+      </div>
+    `;
+    groupList.appendChild(li);
+  });
+  ul.appendChild(groupList);
+});
     // Setas para expandir/recolher grupos
     ul.querySelectorAll('.group-toggle').forEach(btn => {
       btn.onclick = function() {
