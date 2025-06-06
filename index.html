@@ -362,12 +362,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Dados dos parceiros
   let precosParceiros = { Coco: 6.00, Pastel: 34.00 };
-let precosGelo = { Cubo: 10.00, Triturado: 35.00 };
+  let precosGelo = { Cubo: 10.00, Triturado: 35.00 };
 
-// ADICIONE ESTA LINHA:
-let registrosParceiros = { Coco: [], Pastel: [], Gelo: [] };
-
-const savedRegistros = localStorage.getItem('parceiroRegistros');
+  const savedRegistros = localStorage.getItem('parceiroRegistros');
 if (savedRegistros) registrosParceiros = JSON.parse(savedRegistros);
 
 if (!savedRegistros) {
