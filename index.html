@@ -362,9 +362,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Dados dos parceiros
   let precosParceiros = { Coco: 6.00, Pastel: 34.00 };
-  let precosGelo = { Cubo: 10.00, Triturado: 35.00 };
+let precosGelo = { Cubo: 10.00, Triturado: 35.00 };
 
-  const savedRegistros = localStorage.getItem('parceiroRegistros');
+// ADICIONE ESTA LINHA:
+let registrosParceiros = { Coco: [], Pastel: [], Gelo: [] };
+
+const savedRegistros = localStorage.getItem('parceiroRegistros');
 if (savedRegistros) registrosParceiros = JSON.parse(savedRegistros);
 
 if (!savedRegistros) {
@@ -385,7 +388,7 @@ if (!savedRegistros) {
     tipo: "Triturado",
     data: "2025-01-01",
     quantidade: 1,
-    preco: 36.00,
+    preco: 35.00,
     observacao: ""
   });
   localStorage.setItem('parceiroRegistros', JSON.stringify(registrosParceiros));
