@@ -333,7 +333,39 @@ class SalaryTracker {
         if (editDate) editDate.value = record.date;
         if (editAmount) editAmount.value = record.amount;
         if (editNote) editNote.value = record.note;
-        
+
+        // --- HABILITAR BOTÃO SALVAR APENAS SE HOUVER ALTERAÇÃO ---
+        const saveBtn = document.querySelector('#edit-form button[type="submit"]');
+        if (saveBtn) {
+            // Estado original
+            const original = {
+                employee: editEmployee ? editEmployee.value : '',
+                date: editDate ? editDate.value : '',
+                amount: editAmount ? editAmount.value : '',
+                note: editNote ? editNote.value : ''
+            };
+            function shallowEqual(obj1, obj2) {
+                return Object.keys(obj1).every(k => obj1[k] == obj2[k]) &&
+                       Object.keys(obj2).every(k => obj1[k] == obj2[k]);
+            }
+            function updateState() {
+                const current = {
+                    employee: editEmployee ? editEmployee.value : '',
+                    date: editDate ? editDate.value : '',
+                    amount: editAmount ? editAmount.value : '',
+                    note: editNote ? editNote.value : ''
+                };
+                saveBtn.disabled = shallowEqual(current, original);
+            }
+            // Inicializa estado do botão
+            updateState();
+            // Observa mudanças
+            ['input', 'change'].forEach(ev =>
+                document.getElementById('edit-form').addEventListener(ev, updateState)
+            );
+        }
+        // --------------------------------------------------------
+
         this.showModal('edit-modal');
     }
 
@@ -358,6 +390,9 @@ class SalaryTracker {
         this.hideModal('edit-modal');
         this.editingId = null;
         this.render();
+
+        // --- AVISO DE EDIÇÃO ---
+        this.showFeedback('✏️ Registro editado com sucesso!', 'success');
     }
 
     deleteRecord(id) {
@@ -520,15 +555,12 @@ class SalaryTracker {
         
         html += `
             <div class="employee-card employee-card--all ${!this.currentFilter ? 'employee-card--active' : ''}" 
-                 onclick="window.salaryTracker.filterByEmployee(null)">
+                onclick="window.salaryTracker.filterByEmployee(null)">
                 <div class="employee-card__header">
                     <h3 class="employee-card__name">📊 Total Geral</h3>
                 </div>
                 <div class="employee-card__total ${totalAmount >= 0 ? 'employee-card__total--positive' : 'employee-card__total--negative'}">
                     R$ ${totalAmount.toFixed(2)}
-                </div>
-                <div class="employee-card__records">
-                    ${totalRecords} registro${totalRecords !== 1 ? 's' : ''}
                 </div>
             </div>
         `;
