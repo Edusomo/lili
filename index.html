@@ -52,7 +52,7 @@
                             
                             <div class="form-group">
                                 <label class="form-label" for="note">📝 Observações</label>
-                                <textarea id="note" name="note" class="form-control" rows="3" placeholder="Descrição do trabalho ou observações"></textarea>
+                                <textarea id="note" name="note" class="form-control" rows="3" placeholder="Descrição do trabalho ou observações."></textarea>
                             </div>
                             
                             <button type="submit" class="btn btn--primary btn--full-width">
@@ -118,109 +118,147 @@
 
           <div class="parceiro-bloco" id="bloco-coco">
   <div class="parceiro-toggle" data-target="coco" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-    <span class="parceiro-seta" id="seta-coco">&#9654;</span>
-    <span>Coco</span>
-    <span id="total-coco-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
-    <!-- Botões individuais -->
-  <button type="button" class="btn btn--icon btn-export-pdf" data-parceiro="Coco" title="Exportar PDF">📄</button>
-  <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Coco" title="Exportar Planilha">📊</button>
-    <button type="button" class="btn btn--primary btn-pago-parceiro" data-parceiro="Coco">Pago</button>
+  <span class="parceiro-seta" id="seta-coco">&#9654;</span>
+  <span>Coco</span>
+  <span id="total-coco-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
+  <button type="button" class="btn btn--primary btn-pago-parceiro" data-parceiro="Coco">Pago</button>
+  <div class="export-dropdown" style="position:relative;">
+    <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
+    <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
+      <button type="button" class="btn btn--icon btn-export-pdf" data-parceiro="Coco" style="width:100%;text-align:left;">📄 PDF</button>
+      <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Coco" style="width:100%;text-align:left;">📊 Planilha</button>
+    </div>
   </div>
+</div>
   <div class="parceiro-conteudo" id="conteudo-coco" style="display:none;">
-    <!-- Exemplo para Coco, faça igual para Pastel -->
+    <!-- Exemplo para Coco -->
 <form class="parceiro-form" data-parceiro="Coco" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
-  <label style="display:flex;flex-direction:column;font-weight:500;">
+  <label style="flex:1;min-width:120px;">
     📅 Data
-    <input type="date" name="data" required class="form-control" style="min-width:120px;">
+    <input type="date" name="data" required class="form-control">
   </label>
-  <label style="display:flex;flex-direction:column;font-weight:500;width:70px;">
-    🔢 Qtde
-    <input type="number" name="quantidade" min="1" required class="form-control" style="width:100%;">
-  </label>
-  <label style="display:flex;flex-direction:column;font-weight:500;width:110px;">
-    💵 Preço
-    <input type="number" name="preco" min="0" step="0.01" required class="form-control" style="width:100%;">
-  </label>
-  <label style="display:flex;flex-direction:column;font-weight:500;flex:1;">
-    📝 Obs.
-    <input type="text" name="observacao" maxlength="100" class="form-control" style="width:100%;">
-  </label>
-  <button type="submit" class="btn btn--primary" style="margin-left:8px;">Registrar</button>
+  <div class="form-row" style="display:flex;gap:8px;width:100%;">
+    <label style="flex:1;">
+      🔢 Qtde
+      <input type="number" name="quantidade" min="1" required class="form-control">
+    </label>
+    <label style="flex:1;">
+      💵 Preço (R$)
+      <input type="number" name="preco" min="0" step="0.01" required class="form-control">
+    </label>
+  </div>
+  <div class="form-row" style="display:flex;gap:8px;width:100%;">
+    <label style="flex:2;">
+      📝 Observações
+      <input type="text" name="observacao" maxlength="100" class="form-control">
+    </label>
+    <div class="form-actions" style="display:flex;gap:8px;flex:1;">
+      <button type="submit" class="btn btn--primary" style="flex:1;">Registrar</button>
+    </div>
+  </div>
 </form>
               <ul class="parceiro-registros" id="registros-coco"></ul>
             </div>
           </div>
           <div class="parceiro-bloco" id="bloco-pastel">
   <div class="parceiro-toggle" data-target="pastel" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-    <span class="parceiro-seta" id="seta-pastel">&#9654;</span>
-    <span>Pastel</span>
-    <span id="total-pastel-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
-      <!-- Botões individuais -->
-  <button type="button" class="btn btn--icon btn-export-pdf" data-parceiro="Pastel" title="Exportar PDF">📄</button>
-  <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Pastel" title="Exportar Planilha">📊</button>
-    <button type="button" class="btn btn--primary btn-pago-parceiro" data-parceiro="Pastel">Pago</button>
+  <span class="parceiro-seta" id="seta-pastel">&#9654;</span>
+  <span>Pastel</span>
+  <span id="total-pastel-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
+  <button type="button" class="btn btn--primary btn-pago-parceiro" data-parceiro="Pastel">Pago</button>
+<div class="export-dropdown" style="position:relative;">
+    <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
+    <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
+      <button type="button" class="btn btn--icon btn-export-pdf" data-parceiro="Pastel" style="width:100%;text-align:left;">📄 PDF</button>
+      <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Pastel" style="width:100%;text-align:left;">📊 Planilha</button>
+    </div>
   </div>
+</div>
   <div class="parceiro-conteudo" id="conteudo-pastel" style="display:none;">
     <!-- Exemplo para Coco, faça igual para Pastel -->
 <form class="parceiro-form" data-parceiro="Pastel" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
-  <label style="display:flex;flex-direction:column;font-weight:500;">
+  <label style="flex:1;min-width:120px;">
     📅 Data
-    <input type="date" name="data" required class="form-control" style="min-width:120px;">
+    <input type="date" name="data" required class="form-control">
   </label>
-  <label style="display:flex;flex-direction:column;font-weight:500;width:70px;">
-    🔢 Qtde
-    <input type="number" name="quantidade" min="1" required class="form-control" style="width:100%;">
-  </label>
-  <label style="display:flex;flex-direction:column;font-weight:500;width:110px;">
-    💵 Preço
-    <input type="number" name="preco" min="0" step="0.01" required class="form-control" style="width:100%;">
-  </label>
-  <label style="display:flex;flex-direction:column;font-weight:500;flex:1;">
-    📝 Obs.
-    <input type="text" name="observacao" maxlength="100" class="form-control" style="width:100%;">
-  </label>
-  <button type="submit" class="btn btn--primary" style="margin-left:8px;">Registrar</button>
+  <div class="form-row" style="display:flex;gap:8px;width:100%;">
+    <label style="flex:1;">
+      🔢 Qtde
+      <input type="number" name="quantidade" min="1" required class="form-control">
+    </label>
+    <label style="flex:1;">
+      💵 Preço (R$)
+      <input type="number" name="preco" min="0" step="0.01" required class="form-control">
+    </label>
+  </div>
+  <div class="form-row" style="display:flex;gap:8px;width:100%;">
+    <label style="flex:2;">
+      📝 Observações
+      <input type="text" name="observacao" maxlength="100" class="form-control">
+    </label>
+    <div class="form-actions" style="display:flex;gap:8px;flex:1;">
+      <!-- Botão Exportar Dropdown -->
+      <button type="submit" class="btn btn--primary" style="flex:1;">Registrar</button>
+    </div>
+  </div>
 </form>
               <ul class="parceiro-registros" id="registros-pastel"></ul>
             </div>
           </div>
           <div class="parceiro-bloco" id="bloco-gelo">
-  <div class="parceiro-toggle" data-target="gelo" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-    <span class="parceiro-seta" id="seta-gelo">&#9654;</span>
-    <span>Gelo</span>
-    <span id="total-gelo-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
-      <!-- Botões individuais -->
-  <button type="button" class="btn btn--icon btn-export-pdf" data-parceiro="Gelo" title="Exportar PDF">📄</button>
-  <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Gelo" title="Exportar Planilha">📊</button>
-    <button type="button" class="btn btn--primary btn-pago-parceiro" data-parceiro="Gelo">Pago</button>
+<div class="parceiro-toggle" data-target="gelo" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+  <span class="parceiro-seta" id="seta-gelo">&#9654;</span>
+  <span>Gelo</span>
+  <span id="total-gelo-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
+  <button type="button" class="btn btn--primary btn-pago-parceiro" data-parceiro="Gelo">Pago</button>
+  <div class="export-dropdown" style="position:relative;">
+    <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
+    <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
+      <button type="button" class="btn btn--icon btn-export-pdf" data-parceiro="Gelo" style="width:100%;text-align:left;">📄 PDF</button>
+      <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Gelo" style="width:100%;text-align:left;">📊 Planilha</button>
+    </div>
   </div>
+</div>
   <div class="parceiro-conteudo" id="conteudo-gelo" style="display:none;">
-    <form class="parceiro-form" data-parceiro="Gelo" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
-  <label style="display:flex;align-items:center;font-weight:500;gap:4px;">
-    <input type="radio" name="tipo-gelo" value="Cubo" required>
-    Cubo
-  </label>
-  <label style="display:flex;align-items:center;font-weight:500;gap:4px;">
-    <input type="radio" name="tipo-gelo" value="Triturado" required>
-    Triturado
-  </label>
-  <label style="display:flex;flex-direction:column;font-weight:500;">
-    📅 Data
-    <input type="date" name="data" required class="form-control" style="min-width:120px;">
-  </label>
-  <label style="display:flex;flex-direction:column;font-weight:500;width:70px;">
-    🔢 Qtde
-    <input type="number" name="quantidade" min="1" required class="form-control" style="width:100%;">
-  </label>
-  <label style="display:flex;flex-direction:column;font-weight:500;width:110px;">
-    💵 Preço
-    <input type="number" name="preco" min="0" step="0.01" required class="form-control" style="width:100%;">
-  </label>
-  <label style="display:flex;flex-direction:column;font-weight:500;flex:1;">
-    📝 Obs.
-    <input type="text" name="observacao" maxlength="100" class="form-control" style="width:100%;">
-  </label>
-  <button type="submit" class="btn btn--primary" style="margin-left:8px;">Registrar</button>
+    <form class="parceiro-form" data-parceiro="Gelo" style="display:flex;flex-direction:column;gap:8px;">
+  <div class="form-row" style="display:flex;flex-direction:column;gap:4px;">
+    <span style="font-weight:600; font-size:1.05em; margin-bottom:2px;">🧊 Tipos</span>
+    <div style="display:flex;gap:32px;justify-content:center;">
+      <label style="display:flex;flex-direction:column;align-items:center;font-weight:500;gap:4px;margin-bottom:0;">
+        <input type="radio" name="tipo-gelo" value="Cubo" required>
+        Cubo
+      </label>
+      <label style="display:flex;flex-direction:column;align-items:center;font-weight:500;gap:4px;margin-bottom:0;">
+        <input type="radio" name="tipo-gelo" value="Triturado" required>
+        Triturado
+      </label>
+    </div>
+  </div>
+  <div class="form-row" style="display:flex;gap:8px;">
+    <label style="flex:1;min-width:120px;">
+      📅 Data
+      <input type="date" name="data" required class="form-control">
+    </label>
+  </div>
+  <div class="form-row" style="display:flex;gap:8px;">
+    <label style="flex:1;">
+      🔢 Qtde
+      <input type="number" name="quantidade" min="1" required class="form-control">
+    </label>
+    <label style="flex:1;">
+      💵 Preço (R$)
+      <input type="number" name="preco" min="0" step="0.01" required class="form-control">
+    </label>
+  </div>
+  <div class="form-row" style="display:flex;gap:8px;">
+    <label style="flex:2;">
+      📝 Observações
+      <input type="text" name="observacao" maxlength="100" class="form-control">
+    </label>
+    <div class="form-actions" style="display:flex;gap:8px;flex:1;">
+      <button type="submit" class="btn btn--primary" style="flex:1;">Registrar</button>
+    </div>
+  </div>
 </form>
     <ul class="parceiro-registros" id="registros-gelo"></ul>
   </div>
@@ -319,10 +357,10 @@
     <div class="modal__content">
       <h3>Configurar Preços dos Parceiros</h3>
       <form id="form-config-parceiros">
-        <label>Coco: <input type="number" step="0.01" min="0" id="preco-coco-config"></label>
-        <label>Pastel: <input type="number" step="0.01" min="0" id="preco-pastel-config"></label>
-        <label>Gelo Cubo: <input type="number" step="0.01" min="0" id="preco-gelo-cubo-config"></label>
-        <label>Gelo Triturado: <input type="number" step="0.01" min="0" id="preco-gelo-triturado-config"></label>
+        <label>Coco (R$): <input type="number" step="0.01" min="0" id="preco-coco-config"></label>
+        <label>Pastel (R$): <input type="number" step="0.01" min="0" id="preco-pastel-config"></label>
+        <label>Gelo Cubo (R$): <input type="number" step="0.01" min="0" id="preco-gelo-cubo-config"></label>
+        <label>Gelo Triturado (R$): <input type="number" step="0.01" min="0" id="preco-gelo-triturado-config"></label>
         <div class="modal__actions" style="margin-top:12px;">
           <button type="button" id="cancelar-config-parceiros" class="btn btn--secondary">Cancelar</button>
           <button type="submit" class="btn btn--primary">Salvar</button>
@@ -408,15 +446,16 @@ if (savedFuncionarios) funcionarios = JSON.parse(savedFuncionarios);
     ul.innerHTML = '';
 
     // Ordena por data
-    const sorted = [...registrosParceiros[parceiro]].sort((a, b) => new Date(b.data) - new Date(a.data));
-    // Agrupa por data
-    const grupos = {};
-    sorted.forEach((reg, idx) => {
-      if (!grupos[reg.data]) grupos[reg.data] = [];
-      grupos[reg.data].push({ ...reg, idx });
-    });
+    const sorted = [...registrosParceiros[parceiro]].map((reg, i) => ({ ...reg, _originalIdx: i }))
+  .sort((a, b) => new Date(b.data) - new Date(a.data));
+// Agrupa por data
+const grupos = {};
+sorted.forEach(reg => {
+  if (!grupos[reg.data]) grupos[reg.data] = [];
+  grupos[reg.data].push(reg);
+});
 
-    // Ordena datas em ordem decrescente
+// Ordena datas em ordem decrescente
 const datasOrdenadas = Object.keys(grupos).sort((a, b) => new Date(b) - new Date(a));
 datasOrdenadas.forEach((data, idx) => {
   const dataObj = new Date(data + 'T00:00:00');
@@ -462,8 +501,8 @@ datasOrdenadas.forEach((data, idx) => {
         ${reg.observacao ? `<br><span class="reg-observacao">📝 ${reg.observacao}</span>` : ''}
       </span>
       <div class="reg-acoes">
-        <button class="btn btn--secondary btn-editar" data-parceiro="${parceiro}" data-idx="${reg.idx}">✏️ Editar</button>
-        <button class="btn btn--danger btn-excluir-parceiro" data-parceiro="${parceiro}" data-idx="${reg.idx}">🗑️ Excluir</button>
+        <button class="btn btn--secondary btn-editar" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">✏️ Editar</button>
+        <button class="btn btn--danger btn-excluir-parceiro" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">🗑️ Excluir</button>
       </div>
     `;
     groupList.appendChild(li);
@@ -604,11 +643,15 @@ let pagarParceiroInfo = null;
       salvarParceiros();
       renderRegistros(excluirParceiroInfo.parceiro);
       excluirParceiroInfo = null;
+      // Adicione:
+      if (window.salaryTracker) window.salaryTracker.showFeedback('🗑️ Registro excluído com sucesso!', 'success');
     } else if (pagarParceiroInfo) {
       registrosParceiros[pagarParceiroInfo] = [];
       salvarParceiros();
       renderRegistros(pagarParceiroInfo);
       atualizarTotalParceiros();
+      // Adicione esta linha:
+      if (window.salaryTracker) window.salaryTracker.showFeedback('💰 Registros marcados como pagos!', 'success');
       pagarParceiroInfo = null;
     }
     document.getElementById('confirmation-modal').classList.add('hidden');
@@ -669,6 +712,8 @@ let pagarParceiroInfo = null;
     btn.addEventListener('click', function(e) {
       // Só expande/recolhe se não clicar no botão "Pago"
       if (e.target.classList.contains('btn-pago-parceiro')) return;
+      // ADICIONE ESTA LINHA:
+      if (e.target.closest('.export-dropdown')) return;
       const target = this.dataset.target;
       const conteudo = document.getElementById('conteudo-' + target);
       const seta = document.getElementById('seta-' + target);
@@ -726,6 +771,7 @@ let pagarParceiroInfo = null;
       renderRegistros(parceiro);
       form.reset();
       form.preco.value = precosParceiros[parceiro].toFixed(2); // Sempre repõe o padrão
+if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicionado com sucesso!', 'success');
     });
   }
 });
@@ -829,6 +875,8 @@ document.getElementById('edit-form-parceiro').onsubmit = function(ev) {
   document.getElementById('edit-modal-parceiro').classList.add('hidden');
   document.getElementById('edit-modal-parceiro').style.display = 'none';
   editParceiroInfo = null;
+  // Adicione:
+  if (window.salaryTracker) window.salaryTracker.showFeedback('✏️ Registro editado com sucesso!', 'success');
 };
 
 // Abrir modal de configuração
@@ -941,6 +989,32 @@ document.querySelectorAll('.btn-export-excel').forEach(btn => {
     a.download = `${parceiro}.csv`;
     a.click();
   };
+});
+
+// Dropdown exportação individual
+document.addEventListener('click', function(e) {
+  // Dropdown exportação individual
+  if (e.target.classList.contains('btn-export-dropdown')) {
+    e.stopPropagation();
+    const menu = e.target.parentElement.querySelector('.export-menu');
+    // Alterna o menu deste botão
+    if (menu) {
+      const aberto = menu.style.display === 'block';
+      // Fecha todos os menus antes
+      document.querySelectorAll('.export-menu').forEach(m => m.style.display = 'none');
+      menu.style.display = aberto ? 'none' : 'block';
+    }
+  } else if (
+    e.target.classList.contains('btn-export-pdf') ||
+    e.target.classList.contains('btn-export-excel') ||
+    e.target.closest('.export-menu')
+  ) {
+    // Impede que clique no menu de exportação feche/abra o card
+    e.stopPropagation();
+  } else {
+    // Fecha menus se clicar fora
+    document.querySelectorAll('.export-menu').forEach(menu => menu.style.display = 'none');
+  }
 });
 </script>
 </body>
