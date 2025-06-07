@@ -13,7 +13,7 @@
         <!-- Header -->
         <header class="header">
             <h1>Controle de Salários & Parceiros</h1>
-            <p class="header__subtitle">📊errew Gerencie pagamentos e registros de funcionários</p>
+            <p class="header__subtitle">📊 Gerencie pagamentos e registros de funcionários</p>
         </header>
 
         <!-- Navegação por Abas -->
@@ -941,35 +941,8 @@ if (geloForm) {
 }
 });
 // Exportação individual de parceiros (PDF e Planilha)
-document.querySelectorAll('.btn-export-pdf').forEach(btn => {
-  btn.onclick = function(e) {
-    e.stopPropagation();
-    const parceiro = btn.dataset.parceiro;
-    let win = window.open('', '', 'width=800,height=600');
-    win.document.write(`<h2>Registros de ${parceiro}</h2><ul>`);
-    if (parceiro === 'Gelo') {
-      registrosParceiros.Gelo.forEach(reg => {
-        win.document.write(
-          `<li>
-            ${reg.data ? reg.data + ' — ' : ''}
-            ${reg.quantidade ? reg.quantidade + ' x R$ ' + (reg.preco || 0).toFixed(2) + ' = R$ ' + ((reg.quantidade||0)*(reg.preco||0)).toFixed(2) : ''}
-            <br>Tipo: <strong>${reg.tipo || ''}</strong>
-            ${reg.observacao ? '<br>📝 ' + reg.observacao : ''}
-          </li>`
-        );
-      });
-    } else {
-      registrosParceiros[parceiro].forEach(reg => {
-        win.document.write(
-          `<li>${reg.data} — ${reg.quantidade} x R$ ${reg.preco.toFixed(2)}${reg.observacao ? ' — ' + reg.observacao : ''}</li>`
-        );
-      });
-    }
-    win.document.write('</ul>');
-    win.print();
-    win.close();
-  };
-});
+// Remova ou comente este bloco!
+
 
 document.querySelectorAll('.btn-export-excel').forEach(btn => {
   btn.onclick = function(e) {
