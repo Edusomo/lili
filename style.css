@@ -839,6 +839,7 @@ select.form-control {
   border-radius: var(--radius-base);
   padding: var(--space-16);
   transition: all var(--duration-fast) var(--ease-standard);
+  margin-bottom: 18px;
 }
 
 .record-item:hover {
@@ -1074,6 +1075,68 @@ select.form-control {
   }
 }
 
+/* Responsividade para formulário dos parceiros */
+@media (max-width: 600px) {
+  .parceiro-form {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+  }
+  .parceiro-form label {
+    width: 100% !important;
+    margin-bottom: 8px;
+  }
+  .parceiro-form .form-row {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    width: 100%;
+  }
+  .parceiro-form .form-row > * {
+    flex: 1;
+  }
+  .parceiro-form .form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-direction: row;
+    width: 100%;
+  }
+  .parceiro-form button[type="submit"] {
+    flex: 1;
+    width: 100%;
+    margin: 0 !important;
+  }
+  .parceiro-form .export-dropdown {
+    flex: 1;
+    width: 100%;
+  }
+}
+
+#form-config-parceiros {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#form-config-parceiros label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between; /* Alinha texto à esquerda e input à direita */
+  width: 100%;
+  font-weight: 500;
+}
+
+#form-config-parceiros input[type="number"] {
+  min-width: 60px;
+  max-width: 90px;
+  width: 100%;
+  margin-left: 16px;
+  text-align: right;
+  box-sizing: border-box;
+}
+
 /* Feedback Toast */
 .feedback-toast {
   position: fixed;
@@ -1166,7 +1229,7 @@ select.form-control {
   border-radius: 12px;
   background: var(--color-surface);
   box-shadow: var(--shadow-xs);
-  overflow: hidden;
+  position: relative; /* Para contexto de z-index */
 }
 .parceiro-toggle {
   width: 100%;
@@ -1219,14 +1282,16 @@ select.form-control {
   margin: 0;
 }
 .parceiro-registros li {
+  background: #e7e6e2;
+  border-radius: 12px;
+  margin: 8px 0;
+  padding: 16px 18px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  background: var(--color-secondary);
-  border-radius: 8px;
-  padding: 10px 16px;
-  margin-bottom: 8px;
-  font-size: 1em;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 .parceiro-registros .btn-excluir {
   background: var(--color-error);
@@ -1247,4 +1312,30 @@ select.form-control {
   display: inline-block;
   transition: transform 0.2s;
   transform: rotate(90deg); /* Inicialmente para baixo */
+}
+
+.export-menu {
+  display: none;
+  position: absolute;
+  z-index: 9999 !important;
+  left: 0;
+  top: 110%;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px #0001;
+  min-width: 140px;
+}
+
+.export-menu--active {
+  display: block;
+  z-index: 10001 !important;
+}
+
+.reg-acoes {
+  display: flex;
+  flex-direction: row;   /* <-- De coluna para linha */
+  gap: 8px;
+  margin: 16px 0 0 0;   /* Espaço acima, sem margem lateral */
+  justify-content: flex-end; /* Opcional: alinha à direita */
 }
