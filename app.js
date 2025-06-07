@@ -570,55 +570,77 @@ class SalaryTracker {
         container.innerHTML = html;
     }
 
-    renderRecords() {
-        const container = document.getElementById('records-list');
-        const title = document.getElementById('records-title');
-        const count = document.getElementById('records-count');
-        
-        if (!container) return;
+renderRecords() {
+    const container = document.getElementById('records-list');
+    const title = document.getElementById('records-title');
+    const count = document.getElementById('records-count');
+    if (!container) return;
 
-        const filteredRecords = this.getFilteredRecords();
-        const startIndex = (this.currentPage - 1) * this.recordsPerPage;
-        const endIndex = startIndex + this.recordsPerPage;
-        const pageRecords = filteredRecords.slice(startIndex, endIndex);
-        
-        // Atualizar título e contador
-        if (title) {
-            if (this.currentFilter) {
-                title.textContent = `📋 Registros de ${this.currentFilter}`;
-            } else {
-                title.textContent = '📋 Todos os Registros';
-            }
+    const filteredRecords = this.getFilteredRecords();
+    const startIndex = (this.currentPage - 1) * this.recordsPerPage;
+    const endIndex = startIndex + this.recordsPerPage;
+    const pageRecords = filteredRecords.slice(startIndex, endIndex);
+
+    // Atualizar título e contador
+    if (title) {
+        if (this.currentFilter) {
+            title.textContent = `📋 Registros de ${this.currentFilter}`;
+        } else {
+            title.textContent = '📋 Todos os Registros';
         }
-        
-        if (count) {
-            count.textContent = `${filteredRecords.length} registro${filteredRecords.length !== 1 ? 's' : ''}`;
-        }
-        
-        if (pageRecords.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <h3>📭 Nenhum registro encontrado</h3>
-                    <p>Adicione um novo registro usando o formulário acima.</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        pageRecords.forEach(record => {
-            const date = record.date.split('-').reverse().join('/');
+    }
+    if (count) {
+        count.textContent = `${filteredRecords.length} registro${filteredRecords.length !== 1 ? 's' : ''}`;
+    }
+
+    if (pageRecords.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <h3>📭 Nenhum registro encontrado</h3>
+                <p>Adicione um novo registro usando o formulário acima.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Agrupar por data
+    const grupos = {};
+    pageRecords.forEach(record => {
+        if (!grupos[record.date]) grupos[record.date] = [];
+        grupos[record.date].push(record);
+    });
+    // Ordenar datas decrescente
+    const datasOrdenadas = Object.keys(grupos).sort((a, b) => new Date(b) - new Date(a));
+
+    let html = '';
+    datasOrdenadas.forEach((date, idx) => {
+        // Cabeçalho da data com botão de expandir/recolher
+        const dataObj = new Date(date + 'T00:00:00');
+        let dataFormatada = dataObj.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+
+        const groupId = `group-${date.replace(/[^a-zA-Z0-9]/g, '')}`;
+        html += `
+            <div class="registros-group-header" style="margin-top:24px;margin-bottom:8px;">
+                <button class="group-toggle" data-target="${groupId}" style="background:none;border:none;cursor:pointer;font-size:1em;">
+                    <span class="seta-group" style="display:inline-block;transition:transform .2s;transform:rotate(0deg);">&#9654;</span>
+                    <strong>${dataFormatada}</strong>
+                </button>
+            </div>
+            <div id="${groupId}" class="registros-group-list" style="display:none;">
+        `;
+
+        grupos[date].forEach(record => {
             const amount = record.amount;
             const amountClass = amount >= 0 ? 'record-item__amount--positive' : 'record-item__amount--negative';
             const timestamp = new Date(record.timestamp);
             const hora = timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            
             html += `
                 <div class="record-item ${record.paid ? 'record-item--paid' : ''}">
                     <div class="record-item__header">
                         <div class="record-item__info">
                             <div class="record-item__employee">👤 ${record.employee}</div>
-                            <div class="record-item__date">📅 ${date}</div>
+                            <div class="record-item__date">📅 ${date.split('-').reverse().join('/')}</div>
                         </div>
                         <div class="record-item__amount ${amountClass}">
                             R$ ${amount.toFixed(2)}
@@ -639,9 +661,27 @@ class SalaryTracker {
                 </div>
             `;
         });
-        
-        container.innerHTML = html;
-    }
+        html += `</div>`;
+    });
+
+    container.innerHTML = html;
+
+    // Adiciona eventos para expandir/recolher grupos
+    container.querySelectorAll('.group-toggle').forEach(btn => {
+        btn.onclick = function() {
+            const target = btn.dataset.target;
+            const list = document.getElementById(target);
+            const seta = btn.querySelector('.seta-group');
+            if (list.style.display === 'none') {
+                list.style.display = 'block';
+                seta.style.transform = 'rotate(90deg)';
+            } else {
+                list.style.display = 'none';
+                seta.style.transform = 'rotate(0deg)';
+            }
+        };
+    });
+}
 
     renderPagination() {
         const container = document.getElementById('pagination');
