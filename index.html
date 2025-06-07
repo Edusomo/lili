@@ -13,7 +13,6 @@
         <!-- Header -->
         <header class="header">
             <h1>Controle de Salários & Parceiros</h1>
-            <p class="header__subtitle">📊 Gerencie pagamentos e registros de funcionários</p>
         </header>
 
         <!-- Navegação por Abas -->
@@ -26,7 +25,7 @@
         <div id="tab-funcionarios" class="tab-content tab-content--active">
             <!-- Formulário de Novo Registro -->
             <section class="form-section">
-                <h2>➕ Adicionar Novo Registro</h2>
+                <h2>➕ Adicionar</h2>
                 <div class="card">
                     <div class="card__body">
                         <form id="salary-form" class="salary-form">
@@ -58,7 +57,7 @@
                             </div>
                             
                             <button type="submit" class="btn btn--primary btn--full-width">
-                                ✅ Adicionar Registro
+                                Adicionar Registro
                             </button>
                         </form>
                     </div>
@@ -67,7 +66,7 @@
 
             <!-- Resumo por Funcionário -->
             <section class="summary-section">
-                <h2>👥 Resumo por Funcionário</h2>
+                <h2>👥 Funcionários</h2>
                 <div id="employee-summary" class="employee-grid">
                     <!-- Cards de funcionários serão gerados dinamicamente -->
                 </div>
@@ -855,6 +854,15 @@ document.addEventListener('click', function(e) {
   }
 });
 
+// Fechar modal de edição do parceiro ao clicar fora
+document.querySelector('#edit-modal-parceiro .modal__overlay').onclick = function(e) {
+  if (e.target === this) {
+    editParceiroInfo = null;
+    document.getElementById('edit-modal-parceiro').classList.add('hidden');
+    document.getElementById('edit-modal-parceiro').style.display = 'none';
+  }
+};
+
 // Cancelar edição
 document.getElementById('edit-cancel-parc').onclick = function() {
   editParceiroInfo = null;
@@ -917,6 +925,8 @@ document.getElementById('form-config-parceiros').onsubmit = function(e) {
   }
   document.getElementById('modal-config-parceiros').classList.add('hidden');
   document.getElementById('modal-config-parceiros').style.display = 'none';
+  // Adicione:
+  if (window.salaryTracker) window.salaryTracker.showFeedback('💾 Preços atualizados com sucesso!', 'success');
 };
 
 // Define a data de hoje nos inputs de data ao carregar a página
@@ -972,25 +982,176 @@ document.addEventListener('click', function(e) {
   if (e.target.classList.contains('btn-export-dropdown')) {
     e.stopPropagation();
     const menu = e.target.parentElement.querySelector('.export-menu');
-    // Alterna o menu deste botão
     if (menu) {
       const aberto = menu.style.display === 'block';
-      // Fecha todos os menus antes
       document.querySelectorAll('.export-menu').forEach(m => m.style.display = 'none');
       menu.style.display = aberto ? 'none' : 'block';
     }
-  } else if (
-    e.target.classList.contains('btn-export-pdf') ||
-    e.target.classList.contains('btn-export-excel') ||
-    e.target.closest('.export-menu')
-  ) {
-    // Impede que clique no menu de exportação feche/abra o card
-    e.stopPropagation();
-  } else {
-    // Fecha menus se clicar fora
-    document.querySelectorAll('.export-menu').forEach(menu => menu.style.display = 'none');
+    return;
   }
+
+  // Exportação individual PDF
+  if (e.target.classList.contains('btn-export-pdf')) {
+    e.stopPropagation();
+    const parceiro = e.target.dataset.parceiro;
+    let win = window.open('', '', 'width=800,height=600');
+    win.document.write(`<h2>Registros de ${parceiro}</h2><ul>`);
+    if (parceiro === 'Gelo') {
+      registrosParceiros.Gelo.forEach(reg => {
+        win.document.write(
+          `<li>
+            ${reg.data ? reg.data + ' — ' : ''}
+            ${reg.quantidade ? reg.quantidade + ' x R$ ' + (reg.preco || 0).toFixed(2) + ' = R$ ' + ((reg.quantidade||0)*(reg.preco||0)).toFixed(2) : ''}
+            <br>Tipo: <strong>${reg.tipo || ''}</strong>
+            ${reg.observacao ? '<br>📝 ' + reg.observacao : ''}
+          </li>`
+        );
+      });
+    } else {
+      registrosParceiros[parceiro].forEach(reg => {
+        win.document.write(
+          `<li>${reg.data} — ${reg.quantidade} x R$ ${reg.preco.toFixed(2)}${reg.observacao ? ' — ' + reg.observacao : ''}</li>`
+        );
+      });
+    }
+    win.document.write('</ul>');
+    win.print();
+    win.close();
+    return;
+  }
+
+  // Exportação individual Excel (já existe, pode remover o forEach antigo)
+  if (e.target.classList.contains('btn-export-excel')) {
+    e.stopPropagation();
+    const parceiro = e.target.dataset.parceiro;
+    let csv = 'Parceiro,Data,Quantidade,Preço,Observação,Tipo\n';
+    if (parceiro === 'Gelo') {
+      registrosParceiros.Gelo.forEach(reg => {
+        csv += `Gelo,"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${reg.observacao || ''}","${reg.tipo || ''}"\n`;
+      });
+    } else {
+      registrosParceiros[parceiro].forEach(reg => {
+        csv += `${parceiro},"${reg.data}",${reg.quantidade},${reg.preco},"${reg.observacao||''}",\n`;
+      });
+    }
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${parceiro}.csv`;
+    a.click();
+    return;
+  }
+
+  // ...restante do código...
 });
+
+// Função utilitária para comparar objetos simples
+function shallowEqual(obj1, obj2) {
+  return Object.keys(obj1).every(k => obj1[k] == obj2[k]) &&
+         Object.keys(obj2).every(k => obj1[k] == obj2[k]);
+}
+
+// --- MODAL DE EDIÇÃO DE FUNCIONÁRIO ---
+(function() {
+  const form = document.getElementById('edit-form');
+  if (!form) return;
+  let original = {};
+  const saveBtn = form.querySelector('button[type="submit"]');
+  function updateState() {
+    const current = {
+      employee: form.employee.value,
+      date: form.date.value,
+      amount: form.amount.value,
+      note: form.note.value
+    };
+    saveBtn.disabled = shallowEqual(current, original);
+  }
+  form.addEventListener('input', updateState);
+  form.addEventListener('change', updateState);
+  // Ao abrir o modal, salve o estado original
+  document.getElementById('edit-modal').addEventListener('show', function() {
+    original = {
+      employee: form.employee.value,
+      date: form.date.value,
+      amount: form.amount.value,
+      note: form.note.value
+    };
+    updateState();
+  });
+  // Dispara evento customizado ao abrir
+  const oldShow = form.parentElement.parentElement.parentElement.style.display;
+  new MutationObserver(() => {
+    if (form.parentElement.parentElement.parentElement.style.display === 'block') {
+      form.parentElement.parentElement.parentElement.dispatchEvent(new Event('show'));
+    }
+  }).observe(form.parentElement.parentElement.parentElement, { attributes: true, attributeFilter: ['style'] });
+})();
+
+// --- MODAL DE EDIÇÃO DE PARCEIRO ---
+(function() {
+  const form = document.getElementById('edit-form-parceiro');
+  if (!form) return;
+  let original = {};
+  const saveBtn = form.querySelector('button[type="submit"]');
+  function updateState() {
+    const current = {
+      data: form.data.value,
+      quantidade: form.quantidade.value,
+      preco: form.preco.value,
+      observacao: form.observacao.value
+    };
+    saveBtn.disabled = shallowEqual(current, original);
+  }
+  form.addEventListener('input', updateState);
+  form.addEventListener('change', updateState);
+  document.getElementById('edit-modal-parceiro').addEventListener('show', function() {
+    original = {
+      data: form.data.value,
+      quantidade: form.quantidade.value,
+      preco: form.preco.value,
+      observacao: form.observacao.value
+    };
+    updateState();
+  });
+  new MutationObserver(() => {
+    if (form.parentElement.parentElement.parentElement.style.display === 'block') {
+      form.parentElement.parentElement.parentElement.dispatchEvent(new Event('show'));
+    }
+  }).observe(form.parentElement.parentElement.parentElement, { attributes: true, attributeFilter: ['style'] });
+})();
+
+// --- MODAL DE CONFIGURAÇÃO DE PREÇOS ---
+(function() {
+  const form = document.getElementById('form-config-parceiros');
+  if (!form) return;
+  let original = {};
+  const saveBtn = form.querySelector('button[type="submit"]');
+  function updateState() {
+    const current = {
+      coco: form['preco-coco-config'].value,
+      pastel: form['preco-pastel-config'].value,
+      cubo: form['preco-gelo-cubo-config'].value,
+      triturado: form['preco-gelo-triturado-config'].value
+    };
+    saveBtn.disabled = shallowEqual(current, original);
+  }
+  form.addEventListener('input', updateState);
+  form.addEventListener('change', updateState);
+  document.getElementById('modal-config-parceiros').addEventListener('show', function() {
+    original = {
+      coco: form['preco-coco-config'].value,
+      pastel: form['preco-pastel-config'].value,
+      cubo: form['preco-gelo-cubo-config'].value,
+      triturado: form['preco-gelo-triturado-config'].value
+    };
+    updateState();
+  });
+  new MutationObserver(() => {
+    if (form.parentElement.parentElement.parentElement.style.display === 'block') {
+      form.parentElement.parentElement.parentElement.dispatchEvent(new Event('show'));
+    }
+  }).observe(form.parentElement.parentElement.parentElement, { attributes: true, attributeFilter: ['style'] });
+})();
 </script>
 </body>
 </html>
