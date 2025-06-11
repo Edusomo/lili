@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
     <link rel="manifest" href="manifest.json">
+    <!-- Adicionei a biblioteca jsPDF aqui -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -19,6 +21,7 @@
         <div class="tabs">
             <button class="tab-btn tab-btn--active" data-tab="funcionarios">Funcionários</button>
             <button class="tab-btn" data-tab="parceiros">Parceiros</button>
+            <button class="tab-btn" data-tab="notas">Bloco de Notas</button> <!-- NOVA ABA -->
         </div>
 
         <!-- Conteúdo das Abas -->
@@ -265,6 +268,18 @@
   </div>
 </div>
         </div>
+
+        <!-- NOVO BLOCO DE NOTAS -->
+        <div id="tab-notas" class="tab-content">
+    <section class="notas-section" style="max-width:600px;margin:32px auto;">
+        <h2>📝 Bloco de Notas</h2>
+        <div style="height:16px;"></div> <!-- Espaço extra entre título e textarea -->
+        <textarea id="bloco-notas" rows="12" style="width:100%;resize:vertical;font-size:1.1em;padding:12px;border-radius:8px;border:1px solid #ccc;"></textarea>
+        <div style="margin-top:8px;text-align:right;">
+            <span id="notas-status" style="margin-left:12px;color:#888;font-size:0.95em;"></span>
+        </div>
+    </section>
+</div>
     </div>
 
     <!-- Modal de Confirmação - SEMPRE COMEÇA OCULTO -->
@@ -399,9 +414,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Dados dos parceiros
-  let precosParceiros = { Coco: 6.00, Pastel: 34.00 };
-  let precosGelo = { Cubo: 10.00, Triturado: 35.00 };
+  // --- BLOCO DE NOTAS ---
+    const textarea = document.getElementById('bloco-notas');
+    const status = document.getElementById('notas-status');
+    // Carrega ao abrir
+    if (textarea) {
+        textarea.value = localStorage.getItem('blocoNotas') || '';
+        status.textContent = '';
+        // Salva automaticamente ao digitar
+        textarea.addEventListener('input', function() {
+            localStorage.setItem('blocoNotas', textarea.value);
+            status.textContent = 'Salvo!';
+            setTimeout(() => { status.textContent = ''; }, 1000);
+        });
+    }
+
+    // Dados dos parceiros
+    let precosParceiros = { Coco: 6.00, Pastel: 34.00 };
+    let precosGelo = { Cubo: 10.00, Triturado: 35.00 };
 
   const savedRegistros = localStorage.getItem('parceiroRegistros');
 if (savedRegistros) registrosParceiros = JSON.parse(savedRegistros);
@@ -1152,6 +1182,19 @@ function shallowEqual(obj1, obj2) {
     }
   }).observe(form.parentElement.parentElement.parentElement, { attributes: true, attributeFilter: ['style'] });
 })();
+</script>
+<script>
+document.getElementById('export-pdf').addEventListener('click', function() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Exemplo: Adicione o conteúdo que quiser no PDF
+  doc.text("Relatório de Funcionários", 10, 10);
+  // Adicione mais conteúdo conforme necessário...
+
+  // Força o download do PDF, sem abrir pop-up de impressão
+  doc.save('relatorio-funcionarios.pdf');
+});
 </script>
 </body>
 </html>
