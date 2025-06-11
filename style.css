@@ -1339,3 +1339,28 @@ select.form-control {
   margin: 16px 0 0 0;   /* Espaço acima, sem margem lateral */
   justify-content: flex-end; /* Opcional: alinha à direita */
 }
+
+/* Responsivo: export-controls em linha no mobile */
+.export-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@media (max-width: 600px) {
+  .export-controls {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .export-controls .btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.98em;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
