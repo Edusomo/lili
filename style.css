@@ -658,8 +658,14 @@ select.form-control {
 /* Header */
 .header {
   text-align: center;
-  margin-bottom: var(--space-32);
-  padding: var(--space-24) 0;
+  margin-bottom: 8px;      /* Reduz o espaço abaixo da logo */
+  padding: 12px 0 0 0;     /* Remove espaço extra embaixo */
+}
+
+.header img {
+  height: 56px;
+  margin-bottom: 0;        /* Remove espaço extra abaixo da imagem */
+  display: inline-block;
 }
 
 .header h1 {
@@ -796,12 +802,20 @@ select.form-control {
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
   color: white;
   border-color: var(--color-primary);
+  transition: background 0.2s;
+}
+
+/* Quando NÃO está ativo, deixa o "Todos" mais claro */
+.employee-card--all:not(.employee-card--active) {
+  background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
+  color: var(--color-primary);
+  border-color: #b2dfdb;
 }
 
 .employee-card--all .employee-card__name,
 .employee-card--all .employee-card__total,
 .employee-card--all .employee-card__records {
-  color: white;
+  color: inherit;
 }
 
 /* Controles de exportação */
@@ -1195,31 +1209,49 @@ select.form-control {
 /* Abas customizadas */
 .tabs {
   display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 0;
   justify-content: center;
+  margin-bottom: 24px;
 }
+
 .tab-btn {
-  padding: 12px 32px;
+  flex: 1 1 0;
+  min-width: 120px;
+  max-width: 220px;
+  border-radius: 12px 12px 0 0;
   border: none;
-  background: linear-gradient(90deg, var(--color-primary) 60%, var(--color-primary-hover) 100%);
-  color: #fff;
-  font-size: 1.15em;
+  background: #e0f2f1;
+  color: #206060;
+  font-size: 1.1em;
   font-weight: 600;
-  border-radius: 16px 16px 0 0;
-  box-shadow: 0 2px 8px rgba(33,128,141,0.08);
+  padding: 14px 0;
+  margin: 0 2px;
+  transition: background 0.2s, color 0.2s;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   outline: none;
-  letter-spacing: 0.02em;
-  opacity: 0.7;
 }
+
 .tab-btn--active {
-  background: linear-gradient(90deg, var(--color-primary-hover) 60%, var(--color-primary) 100%);
+  background: #2b7a78;
   color: #fff;
-  box-shadow: 0 4px 16px rgba(33,128,141,0.12);
-  opacity: 1;
   z-index: 2;
+}
+
+@media (max-width: 600px) {
+  /* Remova ou comente este bloco para .tabs e .tab-btn */
+  /*
+  .tabs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tab-btn {
+    border-radius: 12px;
+    margin: 2px 0;
+    min-width: 0;
+    width: 100%;
+  }
+  */
 }
 
 /* Parceiros */
