@@ -9,12 +9,13 @@
     <link rel="manifest" href="manifest.json">
     <!-- Adicionei a biblioteca jsPDF aqui -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <h1>Controle de Salários & Parceiros</h1>
+            <img src="favicon.png" alt="Logo" style="height:56px; margin-bottom: 8px;" />
         </header>
 
         <!-- Navegação por Abas -->
@@ -78,11 +79,9 @@
             <!-- Controles de Exportação -->
             <section class="export-section">
                 <div class="export-controls">
-                    <button id="export-pdf" class="btn btn--secondary">
-                        📄 Exportar PDF
-                    </button>
+                    <!-- Remover botão Exportar PDF -->
                     <button id="export-excel" class="btn btn--secondary">
-                        📊 Exportar Planilha
+                        📊 Planilha
                     </button>
                 </div>
             </section>
@@ -115,8 +114,8 @@
 
         <div id="tab-parceiros" class="tab-content">
           <div class="export-controls" style="margin-bottom:16px;">
-  <button id="export-parceiros-pdf" class="btn btn--secondary">📄 Exportar PDF</button>
-  <button id="export-parceiros-excel" class="btn btn--secondary">📊 Exportar Planilha</button>
+  <!-- Remover botão Exportar PDF -->
+  <button id="export-parceiros-excel" class="btn btn--secondary">📊 Planilha</button>
   <button id="btn-config-parceiros" class="btn btn--secondary">⚙️ Configuração de Preços</button>
 </div>
 
@@ -129,7 +128,7 @@
   <div class="export-dropdown" style="position:relative;">
     <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
     <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
-      <button type="button" class="btn btn--icon btn-export-pdf" data-parceiro="Coco" style="width:100%;text-align:left;">📄 PDF</button>
+      <!-- Remover botão PDF -->
       <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Coco" style="width:100%;text-align:left;">📊 Planilha</button>
     </div>
   </div>
@@ -173,7 +172,7 @@
 <div class="export-dropdown" style="position:relative;">
     <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
     <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
-      <button type="button" class="btn btn--icon btn-export-pdf" data-parceiro="Pastel" style="width:100%;text-align:left;">📄 PDF</button>
+      <!-- Remover botão PDF -->
       <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Pastel" style="width:100%;text-align:left;">📊 Planilha</button>
     </div>
   </div>
@@ -218,7 +217,7 @@
   <div class="export-dropdown" style="position:relative;">
     <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
     <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
-      <button type="button" class="btn btn--icon btn-export-pdf" data-parceiro="Gelo" style="width:100%;text-align:left;">📄 PDF</button>
+      <!-- Remover botão PDF -->
       <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Gelo" style="width:100%;text-align:left;">📊 Planilha</button>
     </div>
   </div>
@@ -808,7 +807,7 @@ if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicio
 });
 
   // Exportar Planilha (Excel)
-document.getElementById('export-parceiros-excel').onclick = function() {
+  document.getElementById('export-parceiros-excel').onclick = function() {
   let csv = 'Parceiro,Data,Quantidade,Preço,Observação,Tipo\n';
   ['Coco','Pastel','Gelo'].forEach(parc => {
     if (parc === 'Gelo') {
@@ -826,36 +825,6 @@ document.getElementById('export-parceiros-excel').onclick = function() {
   a.href = URL.createObjectURL(blob);
   a.download = 'parceiros.csv';
   a.click();
-};
-
-// Exportar PDF (simples, usando window.print)
-document.getElementById('export-parceiros-pdf').onclick = function() {
-  let win = window.open('', '', 'width=800,height=600');
-  win.document.write('<h2>Registros de Parceiros</h2>');
-  ['Coco','Pastel','Gelo'].forEach(parc => {
-    win.document.write(`<h3>${parc}</h3><ul>`);
-    if (parc === 'Gelo') {
-      registrosParceiros.Gelo.forEach(reg => {
-        win.document.write(
-          `<li>
-            ${reg.data ? reg.data + ' — ' : ''}
-            ${reg.quantidade ? reg.quantidade + ' x R$ ' + (reg.preco || 0).toFixed(2) + ' = R$ ' + ((reg.quantidade||0)*(reg.preco||0)).toFixed(2) : ''}
-            <br>Tipo: <strong>${reg.tipo}</strong>
-            ${reg.observacao ? '<br>📝 ' + reg.observacao : ''}
-          </li>`
-        );
-      });
-    } else {
-      registrosParceiros[parc].forEach(reg => {
-        win.document.write(
-          `<li>${reg.data} — ${reg.quantidade} x R$ ${reg.preco.toFixed(2)}${reg.observacao ? ' — ' + reg.observacao : ''}</li>`
-        );
-      });
-    }
-    win.document.write('</ul>');
-  });
-  win.print();
-  win.close();
 };
 
 // Edição de registros de parceiros
@@ -1182,19 +1151,6 @@ function shallowEqual(obj1, obj2) {
     }
   }).observe(form.parentElement.parentElement.parentElement, { attributes: true, attributeFilter: ['style'] });
 })();
-</script>
-<script>
-document.getElementById('export-pdf').addEventListener('click', function() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  // Exemplo: Adicione o conteúdo que quiser no PDF
-  doc.text("Relatório de Funcionários", 10, 10);
-  // Adicione mais conteúdo conforme necessário...
-
-  // Força o download do PDF, sem abrir pop-up de impressão
-  doc.save('relatorio-funcionarios.pdf');
-});
 </script>
 </body>
 </html>
