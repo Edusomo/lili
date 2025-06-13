@@ -227,6 +227,7 @@ html {
 body {
   margin: 0;
   padding: 0;
+  padding-bottom: 56px; /* Espaço para a barra de navegação inferior */
 }
 
 *,
@@ -685,7 +686,40 @@ select.form-control {
 .summary-section,
 .export-section,
 .records-section {
-  margin-bottom: var(--space-32);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+
+/* Remove linha da última seção para não duplicar */
+.sections > .section > .notas-section {
+  border-bottom: none;
+}
+
+/* Linha entre cards de funcionários (opcional, se quiser separar visualmente) */
+.employee-card:not(:last-child) {
+  border-right: 1px solid var(--color-border);
+}
+
+/* Linha entre blocos de parceiros */
+.parceiro-bloco {
+  border-top: 1px solid var(--color-border);
+  margin-top: 24px;
+  padding-top: 16px;
+}
+
+/* Remove linha do primeiro bloco de parceiro */
+.parceiro-bloco:first-child {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* Linha entre grupos de registros (opcional) */
+.registros-group-header {
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+  margin-top: 24px;
 }
 
 .form-section .card {
@@ -694,6 +728,10 @@ select.form-control {
 
 .form-section > h2 {
   margin-bottom: var(--space-20);
+}
+
+.summary-section > h2 {
+  margin-bottom: 24px; /* Aumente conforme desejar, ex: 24px ou 32px */
 }
 
 /* Formulário */
@@ -715,15 +753,22 @@ select.form-control {
   }
 }
 
-/* Grid de funcionários */
+/* Carrossel horizontal para os cards de funcionários */
 .employee-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  display: flex;
+  flex-direction: row;
   gap: var(--space-16);
-  margin-top: var(--space-16);
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 
 .employee-card {
+  min-width: 240px;
+  max-width: 320px;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
   background: var(--color-surface);
   border: 1px solid var(--color-card-border);
   border-radius: var(--radius-lg);
@@ -1395,4 +1440,39 @@ select.form-control {
     padding-left: 8px;
     padding-right: 8px;
   }
+}
+
+/* Estilos para a barra de navegação inferior */
+.bottom-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  display: flex;
+  border-top: 1px solid #eee;
+  justify-content: space-around;
+  padding: 8px 0 4px 0;
+  z-index: 100;
+}
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #222;
+  font-size: 13px;
+  cursor: pointer;
+}
+.tab .icon {
+  font-size: 22px;
+}
+.tab.active {
+  color: #219653; /* verde escuro */
+  box-shadow: 0 2px 12px 0 #b7f5c5; /* sombreado verde-claro */
+  border-radius: 12px;
+  background: #f3f8f4; /* leve fundo verde-claro */
+  transition: box-shadow 0.2s, background 0.2s;
+}
+.tab .label {
+  margin-top: 2px;
 }
