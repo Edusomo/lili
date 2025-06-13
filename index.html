@@ -18,102 +18,103 @@
             <img src="favicon.png" alt="Logo" style="height:56px; margin-bottom: 8px;" />
         </header>
 
-        <!-- Navegação por Abas -->
+        <!-- Navegação por Abas
         <div class="tabs">
             <button class="tab-btn tab-btn--active" data-tab="funcionarios">Funcionários</button>
             <button class="tab-btn" data-tab="parceiros">Parceiros</button>
             <button class="tab-btn" data-tab="notas">Bloco de Notas</button> <!-- NOVA ABA -->
-        </div>
+       <!--  </div> -->
 
         <!-- Conteúdo das Abas -->
-        <div id="tab-funcionarios" class="tab-content tab-content--active">
-            <!-- Formulário de Novo Registro -->
-            <section class="form-section">
-                <h2>➕ Adicionar</h2>
-                <div class="card">
-                    <div class="card__body">
-                        <form id="salary-form" class="salary-form">
-                            <div class="form-group">
-                                <label class="form-label" for="employee">👤 Funcionário</label>
-                                <input type="text" id="employee" name="employee" class="form-control" required>
-                                <!-- Círculos de funcionários já cadastrados -->
-                                <div id="employee-suggestions" class="employee-suggestions"></div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" for="date">📅 Data</label>
-                                    <input type="date" id="date" name="date" class="form-control" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label class="form-label" for="amount">💵 Valor (R$)</label>
-                                    <input type="number" id="amount" name="amount" class="form-control" step="0.01" required>
-                                    <small class="form-text" style="color: var(--color-text-secondary);">
-                                        Valores negativos são permitidos para descontos.
-                                    </small>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="note">📝 Observações</label>
-                                <textarea id="note" name="note" class="form-control" rows="3" placeholder="Descrição do trabalho ou observações."></textarea>
-                            </div>
-                            
-                            <button type="submit" class="btn btn--primary btn--full-width">
-                                Adicionar Registro
-                            </button>
-                        </form>
+        <div class="sections">
+  <div id="funcionarios" class="section active">
+    <!-- Formulário de Novo Registro -->
+    <section class="form-section">
+        <h2>+ Adicionar</h2>
+        <div class="card">
+            <div class="card__body">
+                <form id="salary-form" class="salary-form">
+                    <div class="form-group">
+                        <label class="form-label" for="employee">👤 Funcionário</label>
+                        <input type="text" id="employee" name="employee" class="form-control" required>
+                        <!-- Círculos de funcionários já cadastrados -->
+                        <div id="employee-suggestions" class="employee-suggestions"></div>
                     </div>
-                </div>
-            </section>
-
-            <!-- Resumo por Funcionário -->
-            <section class="summary-section">
-                <h2>👥 Funcionários</h2>
-                <div id="employee-summary" class="employee-grid">
-                    <!-- Cards de funcionários serão gerados dinamicamente -->
-                </div>
-            </section>
-
-            <!-- Controles de Exportação -->
-            <section class="export-section">
-                <div class="export-controls">
-                    <!-- Remover botão Exportar PDF -->
-                    <button id="export-excel" class="btn btn--secondary">
-                        📊 Planilha
-                    </button>
-                </div>
-            </section>
-
-            <!-- Lista de Registros -->
-            <section class="records-section">
-                <div class="records-header">
-                    <h2 id="records-title">📋 Todos os Registros</h2>
-                    <div class="records-info">
-                        <span id="records-count">0 registros</span>
-                    </div>
-                </div>
-                
-                <div id="records-list" class="records-list">
-                    <!-- Registros serão gerados dinamicamente -->
-                    <div class="record-card">
-                        <div class="record-info">
-                            <!-- outros dados do registro -->
-                            <span class="record-time">🕒 Registro no horário 14:37</span>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="date">📅 Data</label>
+                            <input type="date" id="date" name="date" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="amount">💵 Valor (R$)</label>
+                            <input type="number" id="amount" name="amount" class="form-control" step="0.01" required>
+                            <small class="form-text" style="color: var(--color-text-secondary);">
+                                Valores negativos são permitidos para descontos.
+                            </small>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Paginação -->
-                <div id="pagination" class="pagination">
-                    <!-- Controles de paginação serão gerados dinamicamente -->
-                </div>
-            </section>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="note">📝 Observações</label>
+                        <textarea id="note" name="note" class="form-control" rows="3" placeholder="Descrição do trabalho ou observações."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn--primary btn--full-width">
+                        Adicionar Registro
+                    </button>
+                </form>
+            </div>
         </div>
+    </section>
 
-        <div id="tab-parceiros" class="tab-content">
-          <div class="export-controls" style="margin-bottom:16px;">
+    <!-- Resumo por Funcionário -->
+    <section class="summary-section">
+        <h2>Funcionários</h2>
+        <div id="employee-summary" class="employee-grid">
+            <!-- Cards de funcionários serão gerados dinamicamente -->
+        </div>
+    </section>
+
+    <!-- Controles de Exportação -->
+    <section class="export-section">
+        <div class="export-controls">
+            <!-- Remover botão Exportar PDF -->
+            <button id="export-excel" class="btn btn--secondary">
+                📊 Planilha
+            </button>
+        </div>
+    </section>
+
+    <!-- Lista de Registros -->
+    <section class="records-section">
+        <div class="records-header">
+            <h2 id="records-title">📋 Todos os Registros</h2>
+            <div class="records-info">
+                <span id="records-count">0 registros</span>
+            </div>
+        </div>
+        
+        <div id="records-list" class="records-list">
+            <!-- Registros serão gerados dinamicamente -->
+            <div class="record-card">
+                <div class="record-info">
+                    <!-- outros dados do registro -->
+                    <span class="record-time">🕒 Registro no horário 14:37</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Paginação -->
+        <div id="pagination" class="pagination">
+            <!-- Controles de paginação serão gerados dinamicamente -->
+        </div>
+    </section>
+  </div>
+
+  <div id="parceiros" class="section">
+    <div class="export-controls" style="margin-bottom:16px;">
   <!-- Remover botão Exportar PDF -->
   <button id="export-parceiros-excel" class="btn btn--secondary">📊 Planilha</button>
   <button id="btn-config-parceiros" class="btn btn--secondary">⚙️ Configuração de Preços</button>
@@ -269,15 +270,15 @@
         </div>
 
         <!-- NOVO BLOCO DE NOTAS -->
-        <div id="tab-notas" class="tab-content">
-    <section class="notas-section" style="max-width:600px;margin:32px auto;">
-        <h2>📝 Bloco de Notas</h2>
-        <div style="height:16px;"></div> <!-- Espaço extra entre título e textarea -->
-        <textarea id="bloco-notas" rows="12" style="width:100%;resize:vertical;font-size:1.1em;padding:12px;border-radius:8px;border:1px solid #ccc;"></textarea>
-        <div style="margin-top:8px;text-align:right;">
-            <span id="notas-status" style="margin-left:12px;color:#888;font-size:0.95em;"></span>
-        </div>
-    </section>
+        <div id="bloco" class="section">
+    <section class="notas-section" style="max-width:600px;margin:16px auto 0 auto;">
+    <h2>Bloco de Notas</h2>
+    <div style="height:16px;"></div>
+        <textarea id="bloco-notas" rows="18" style="width:100%;resize:vertical;font-size:1.1em;padding:12px;border-radius:8px;border:1px solid #ccc;"></textarea>
+    <div style="margin-top:8px;text-align:right;">
+        <span id="notas-status" style="margin-left:12px;color:#888;font-size:0.95em;"></span>
+    </div>
+</section>
 </div>
     </div>
 
@@ -949,208 +950,92 @@ if (geloForm) {
   if (checked && precoInput) precoInput.value = precosGelo[checked.value].toFixed(2);
 }
 });
-// Exportação individual de parceiros (PDF e Planilha)
-// Remova ou comente este bloco!
-
-
-document.querySelectorAll('.btn-export-excel').forEach(btn => {
-  btn.onclick = function(e) {
-    e.stopPropagation();
-    const parceiro = btn.dataset.parceiro;
-    let csv = 'Parceiro,Data,Quantidade,Preço,Observação,Tipo\n';
-    if (parceiro === 'Gelo') {
-      registrosParceiros.Gelo.forEach(reg => {
-        csv += `Gelo,"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${reg.observacao || ''}","${reg.tipo || ''}"\n`;
-      });
-    } else {
-      registrosParceiros[parceiro].forEach(reg => {
-        csv += `${parceiro},"${reg.data}",${reg.quantidade},${reg.preco},"${reg.observacao||''}",\n`;
-      });
-    }
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${parceiro}.csv`;
-    a.click();
-  };
-});
-
-// Dropdown exportação individual
-document.addEventListener('click', function(e) {
-  // Dropdown exportação individual
-  if (e.target.classList.contains('btn-export-dropdown')) {
-    e.stopPropagation();
-    const menu = e.target.parentElement.querySelector('.export-menu');
-    if (menu) {
-      const aberto = menu.style.display === 'block';
-      document.querySelectorAll('.export-menu').forEach(m => m.style.display = 'none');
-      menu.style.display = aberto ? 'none' : 'block';
-    }
-    return;
-  }
-
-  // Exportação individual PDF
-  if (e.target.classList.contains('btn-export-pdf')) {
-    e.stopPropagation();
-    const parceiro = e.target.dataset.parceiro;
-    let win = window.open('', '', 'width=800,height=600');
-    win.document.write(`<h2>Registros de ${parceiro}</h2><ul>`);
-    if (parceiro === 'Gelo') {
-      registrosParceiros.Gelo.forEach(reg => {
-        win.document.write(
-          `<li>
-            ${reg.data ? reg.data + ' — ' : ''}
-            ${reg.quantidade ? reg.quantidade + ' x R$ ' + (reg.preco || 0).toFixed(2) + ' = R$ ' + ((reg.quantidade||0)*(reg.preco||0)).toFixed(2) : ''}
-            <br>Tipo: <strong>${reg.tipo || ''}</strong>
-            ${reg.observacao ? '<br>📝 ' + reg.observacao : ''}
-          </li>`
-        );
-      });
-    } else {
-      registrosParceiros[parceiro].forEach(reg => {
-        win.document.write(
-          `<li>${reg.data} — ${reg.quantidade} x R$ ${reg.preco.toFixed(2)}${reg.observacao ? ' — ' + reg.observacao : ''}</li>`
-        );
-      });
-    }
-    win.document.write('</ul>');
-    win.print();
-    win.close();
-    return;
-  }
-
-  // Exportação individual Excel (já existe, pode remover o forEach antigo)
-  if (e.target.classList.contains('btn-export-excel')) {
-    e.stopPropagation();
-    const parceiro = e.target.dataset.parceiro;
-    let csv = 'Parceiro,Data,Quantidade,Preço,Observação,Tipo\n';
-    if (parceiro === 'Gelo') {
-      registrosParceiros.Gelo.forEach(reg => {
-        csv += `Gelo,"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${reg.observacao || ''}","${reg.tipo || ''}"\n`;
-      });
-    } else {
-      registrosParceiros[parceiro].forEach(reg => {
-        csv += `${parceiro},"${reg.data}",${reg.quantidade},${reg.preco},"${reg.observacao||''}",\n`;
-      });
-    }
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${parceiro}.csv`;
-    a.click();
-    return;
-  }
-
-  // ...restante do código...
-});
-
-// Função utilitária para comparar objetos simples
-function shallowEqual(obj1, obj2) {
-  return Object.keys(obj1).every(k => obj1[k] == obj2[k]) &&
-         Object.keys(obj2).every(k => obj1[k] == obj2[k]);
-}
-
-// --- MODAL DE EDIÇÃO DE FUNCIONÁRIO ---
-(function() {
-  const form = document.getElementById('edit-form');
-  if (!form) return;
-  let original = {};
-  const saveBtn = form.querySelector('button[type="submit"]');
-  function updateState() {
-    const current = {
-      employee: form.employee.value,
-      date: form.date.value,
-      amount: form.amount.value,
-      note: form.note.value
-    };
-    saveBtn.disabled = shallowEqual(current, original);
-  }
-  form.addEventListener('input', updateState);
-  form.addEventListener('change', updateState);
-  // Ao abrir o modal, salve o estado original
-  document.getElementById('edit-modal').addEventListener('show', function() {
-    original = {
-      employee: form.employee.value,
-      date: form.date.value,
-      amount: form.amount.value,
-      note: form.note.value
-    };
-    updateState();
-  });
-  // Dispara evento customizado ao abrir
-  const oldShow = form.parentElement.parentElement.parentElement.style.display;
-  new MutationObserver(() => {
-    if (form.parentElement.parentElement.parentElement.style.display === 'block') {
-      form.parentElement.parentElement.parentElement.dispatchEvent(new Event('show'));
-    }
-  }).observe(form.parentElement.parentElement.parentElement, { attributes: true, attributeFilter: ['style'] });
-})();
-
-// --- MODAL DE EDIÇÃO DE PARCEIRO ---
-(function() {
-  const form = document.getElementById('edit-form-parceiro');
-  if (!form) return;
-  let original = {};
-  const saveBtn = form.querySelector('button[type="submit"]');
-  function updateState() {
-    const current = {
-      data: form.data.value,
-      quantidade: form.quantidade.value,
-      preco: form.preco.value,
-      observacao: form.observacao.value
-    };
-    saveBtn.disabled = shallowEqual(current, original);
-  }
-  form.addEventListener('input', updateState);
-  form.addEventListener('change', updateState);
-  document.getElementById('edit-modal-parceiro').addEventListener('show', function() {
-    original = {
-      data: form.data.value,
-      quantidade: form.quantidade.value,
-      preco: form.preco.value,
-      observacao: form.observacao.value
-    };
-    updateState();
-  });
-  new MutationObserver(() => {
-    if (form.parentElement.parentElement.parentElement.style.display === 'block') {
-      form.parentElement.parentElement.parentElement.dispatchEvent(new Event('show'));
-    }
-  }).observe(form.parentElement.parentElement.parentElement, { attributes: true, attributeFilter: ['style'] });
-})();
-
-// --- MODAL DE CONFIGURAÇÃO DE PREÇOS ---
-(function() {
-  const form = document.getElementById('form-config-parceiros');
-  if (!form) return;
-  let original = {};
-  const saveBtn = form.querySelector('button[type="submit"]');
-  function updateState() {
-    const current = {
-      coco: form['preco-coco-config'].value,
-      pastel: form['preco-pastel-config'].value,
-      cubo: form['preco-gelo-cubo-config'].value,
-      triturado: form['preco-gelo-triturado-config'].value
-    };
-    saveBtn.disabled = shallowEqual(current, original);
-  }
-  form.addEventListener('input', updateState);
-  form.addEventListener('change', updateState);
-  document.getElementById('modal-config-parceiros').addEventListener('show', function() {
-    original = {
-      coco: form['preco-coco-config'].value,
-      pastel: form['preco-pastel-config'].value,
-      cubo: form['preco-gelo-cubo-config'].value,
-      triturado: form['preco-gelo-triturado-config'].value
-    };
-    updateState();
-  });
-  new MutationObserver(() => {
-    if (form.parentElement.parentElement.parentElement.style.display === 'block') {
-      form.parentElement.parentElement.parentElement.dispatchEvent(new Event('show'));
-    }
-  }).observe(form.parentElement.parentElement.parentElement, { attributes: true, attributeFilter: ['style'] });
-})();
 </script>
+
+<div class="bottom-tab-bar">
+  <div class="tab active" data-section="funcionarios">
+    <span class="icon">👥</span>
+    <span class="label">Funcionários</span>
+  </div>
+  <div class="tab" data-section="parceiros">
+    <span class="icon">🤝</span>
+    <span class="label">Parceiros</span>
+  </div>
+  <div class="tab" data-section="bloco">
+    <span class="icon">📝</span>
+    <span class="label">Bloco de Notas</span>
+  </div>
+</div>
+
+<script>
+const tabs = document.querySelectorAll('.bottom-tab-bar .tab');
+const sections = document.querySelectorAll('.sections .section');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    // Remove active das abas
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    // Esconde todas as seções
+    sections.forEach(sec => sec.classList.remove('active'));
+    // Mostra a seção correspondente
+    const sectionId = tab.getAttribute('data-section');
+    document.getElementById(sectionId).classList.add('active');
+  });
+});
+</script>
+<script>
+document.querySelectorAll('.btn-export-dropdown').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation(); // Não fecha o bloco do parceiro
+    const menu = this.parentElement.querySelector('.export-menu');
+    // Fecha outros menus abertos
+    document.querySelectorAll('.export-menu').forEach(m => {
+      if (m !== menu) m.style.display = 'none';
+    });
+    // Alterna o menu atual
+    menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+  });
+});
+
+// Fecha o menu de exportação ao clicar fora
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.export-dropdown')) {
+    document.querySelectorAll('.export-menu').forEach(m => m.style.display = 'none');
+  }
+});
+</script>
+<script>
+document.querySelectorAll('.btn-export-excel').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const parceiro = this.getAttribute('data-parceiro');
+    let csv = 'Parceiro,Data,Quantidade,Preço,Observação,Tipo\n';
+    if (parceiro === 'Gelo') {
+      registrosParceiros.Gelo.forEach(reg => {
+        csv += `Gelo,"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${reg.observacao || ''}","${reg.tipo || ''}"\n`;
+      });
+    } else {
+      registrosParceiros[parceiro].forEach(reg => {
+        csv += `${parceiro},"${reg.data}",${reg.quantidade},${reg.preco},"${reg.observacao||''}",\n`;
+      });
+    }
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${parceiro}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    // Fecha o menu após exportar
+    this.closest('.export-menu').style.display = 'none';
+  });
+});
+</script>
+<style>
+.section { display: none; }
+.section.active { display: block; }
+</style>
 </body>
 </html>
