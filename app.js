@@ -616,9 +616,9 @@ renderRecords() {
     // Atualizar título e contador
     if (title) {
         if (this.currentFilter) {
-            title.textContent = `📋 Registros de ${this.currentFilter}`;
+                title.textContent = `Registros de ${this.currentFilter}`;
         } else {
-            title.textContent = '📋 Todos os Registros';
+            title.textContent = 'Todos os Registros';
         }
     }
     if (count) {
