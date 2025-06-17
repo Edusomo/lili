@@ -221,12 +221,16 @@
         <!-- NOVO BLOCO DE NOTAS -->
         <div id="bloco" class="section">
     <section class="notas-section" style="max-width:600px;margin:16px auto 0 auto;">
-    <h2>Bloco de Notas</h2>
-    <div style="height:16px;"></div>
-        <textarea id="bloco-notas" rows="18" style="width:100%;resize:vertical;font-size:1.1em;padding:12px;border-radius:8px;border:1px solid #ccc;"></textarea>
-    <div style="margin-top:8px;text-align:right;">
-        <span id="notas-status" style="margin-left:12px;color:#888;font-size:0.95em;"></span>
-    </div>
+  <h2>Bloco de Notas</h2>
+  <div style="height:16px;"></div>
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:4px;">
+    <button id="font-decrease" type="button" class="btn btn--secondary" style="padding:2px 10px;font-size:1.1em;">A-</button>
+    <button id="font-increase" type="button" class="btn btn--secondary" style="padding:2px 10px;font-size:1.1em;">A+</button>
+  </div>
+  <textarea id="bloco-notas" rows="18" style="width:100%;resize:vertical;font-size:1.1em;padding:12px;border-radius:8px;border:1px solid #ccc;"></textarea>
+  <div style="margin-top:8px;text-align:right;">
+    <span id="notas-status" style="margin-left:12px;color:#888;font-size:0.95em;"></span>
+  </div>
 </section>
 </div>
     </div>
@@ -401,23 +405,42 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // --- BLOCO DE NOTAS ---
-    const textarea = document.getElementById('bloco-notas');
-    const status = document.getElementById('notas-status');
-    // Carrega ao abrir
-    if (textarea) {
-        textarea.value = localStorage.getItem('blocoNotas') || '';
-        status.textContent = '';
-        // Salva automaticamente ao digitar
-        textarea.addEventListener('input', function() {
-            localStorage.setItem('blocoNotas', textarea.value);
-            status.textContent = 'Salvo!';
-            setTimeout(() => { status.textContent = ''; }, 1000);
-        });
+  const textarea = document.getElementById('bloco-notas');
+  const status = document.getElementById('notas-status');
+  // Carrega ao abrir
+  if (textarea) {
+    textarea.value = localStorage.getItem('blocoNotas') || '';
+    status.textContent = '';
+    // Salva automaticamente ao digitar
+    textarea.addEventListener('input', function() {
+      localStorage.setItem('blocoNotas', textarea.value);
+      status.textContent = 'Salvo!';
+      setTimeout(() => { status.textContent = ''; }, 1000);
+    });
+
+    // --- Controle de tamanho da fonte ---
+    const fontKey = 'blocoNotasFontSize';
+    const minFont = 12, maxFont = 32, step = 2;
+    let fontSize = parseInt(localStorage.getItem(fontKey)) || 18;
+    textarea.style.fontSize = fontSize + 'px';
+
+    function setFontSize(size) {
+      fontSize = Math.max(minFont, Math.min(maxFont, size));
+      textarea.style.fontSize = fontSize + 'px';
+      localStorage.setItem(fontKey, fontSize);
     }
 
-    // Dados dos parceiros
-    let precosParceiros = { Coco: 6.00, Pastel: 34.00 };
-    let precosGelo = { Cubo: 10.00, Triturado: 35.00 };
+    document.getElementById('font-increase').onclick = function() {
+      setFontSize(fontSize + step);
+    };
+    document.getElementById('font-decrease').onclick = function() {
+      setFontSize(fontSize - step);
+    };
+  }
+
+  // Dados dos parceiros
+  let precosParceiros = { Coco: 6.00, Pastel: 34.00 };
+  let precosGelo = { Cubo: 10.00, Triturado: 35.00 };
 
   const savedRegistros = localStorage.getItem('parceiroRegistros');
 if (savedRegistros) registrosParceiros = JSON.parse(savedRegistros);
@@ -955,7 +978,7 @@ if (geloForm) {
     <span class="icon">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-list-icon lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>  
     </span>
-    <span class="label">Parceiros</span>  
+    <span class="label">Bloco de Notas</span>  
   </div>
 </div>
 
