@@ -18,56 +18,9 @@
             <img src="favicon.png" alt="Logo" style="height:56px; margin-bottom: 8px;" />
         </header>
 
-        <!-- Navegação por Abas
-        <div class="tabs">
-            <button class="tab-btn tab-btn--active" data-tab="funcionarios">Funcionários</button>
-            <button class="tab-btn" data-tab="parceiros">Parceiros</button>
-            <button class="tab-btn" data-tab="notas">Bloco de Notas</button> <!-- NOVA ABA -->
-       <!--  </div> -->
-
         <!-- Conteúdo das Abas -->
         <div class="sections">
   <div id="funcionarios" class="section active">
-    <!-- Formulário de Novo Registro -->
-    <section class="form-section">
-        <h2>+ Adicionar</h2>
-        <div class="card">
-            <div class="card__body">
-                <form id="salary-form" class="salary-form">
-                    <div class="form-group">
-                        <label class="form-label" for="employee">👤 Funcionário</label>
-                        <input type="text" id="employee" name="employee" class="form-control" required>
-                        <!-- Círculos de funcionários já cadastrados -->
-                        <div id="employee-suggestions" class="employee-suggestions"></div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="date">📅 Data</label>
-                            <input type="date" id="date" name="date" class="form-control" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="amount">💵 Valor (R$)</label>
-                            <input type="number" id="amount" name="amount" class="form-control" step="0.01" required>
-                            <small class="form-text" style="color: var(--color-text-secondary);">
-                                Valores negativos são permitidos para descontos.
-                            </small>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="note">📝 Observações</label>
-                        <textarea id="note" name="note" class="form-control" rows="3" placeholder="Descrição do trabalho ou observações."></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn btn--primary btn--full-width">
-                        Adicionar Registro
-                    </button>
-                </form>
-            </div>
-        </div>
-    </section>
 
     <!-- Resumo por Funcionário -->
     <section class="summary-section">
@@ -98,13 +51,9 @@
         
         <div id="records-list" class="records-list">
             <!-- Registros serão gerados dinamicamente -->
-            <div class="record-card">
-                <div class="record-info">
-                    <!-- outros dados do registro -->
-                    <span class="record-time">🕒 Registro no horário 14:37</span>
-                </div>
-            </div>
         </div>
+        <!-- Botão flutuante para adicionar registro -->
+        <button id="btn-add-record" class="fab-add-record" title="Adicionar registro">+</button>
         
         <!-- Paginação -->
         <div id="pagination" class="pagination">
@@ -380,6 +329,43 @@
         <div class="modal__actions" style="margin-top:12px;">
           <button type="button" id="cancelar-config-parceiros" class="btn btn--secondary">Cancelar</button>
           <button type="submit" class="btn btn--primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+    <!-- Modal de adicionar registro -->
+<div id="modal-add-record" class="modal hidden">
+  <div class="modal__overlay">
+    <div class="modal__content">
+      <h3>Adicionar Registro</h3>
+      <form id="form-add-record" class="edit-form">
+        <div class="form-group">
+          <label class="form-label" for="add-employee">👤 Funcionário</label>
+          <input type="text" id="add-employee" name="employee" class="form-control" required>
+          <div id="employee-suggestions-modal" class="employee-suggestions"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="add-date">📅 Data</label>
+            <input type="date" id="add-date" name="date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="add-amount">💵 Valor (R$)</label>
+            <input type="number" id="add-amount" name="amount" class="form-control" step="0.01" required>
+            <small class="form-text" style="color: var(--color-text-secondary);">
+              Valores negativos são permitidos para descontos.
+            </small>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="add-note">📝 Observações</label>
+          <textarea id="add-note" name="note" class="form-control" rows="3" placeholder="Descrição do trabalho ou observações."></textarea>
+        </div>
+        <div class="modal__actions">
+          <button type="button" id="add-cancel" class="btn btn--secondary">❌ Cancelar</button>
+          <button type="submit" class="btn btn--primary">Adicionar</button>
         </div>
       </form>
     </div>
@@ -954,16 +940,22 @@ if (geloForm) {
 
 <div class="bottom-tab-bar">
   <div class="tab active" data-section="funcionarios">
-    <span class="icon">👥</span>
+    <span class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users-icon lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
+    </span>
     <span class="label">Funcionários</span>
   </div>
   <div class="tab" data-section="parceiros">
-    <span class="icon">🤝</span>
+    <span class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handshake-icon lucide-handshake"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg>  
+    </span>
     <span class="label">Parceiros</span>
   </div>
   <div class="tab" data-section="bloco">
-    <span class="icon">📝</span>
-    <span class="label">Bloco de Notas</span>
+    <span class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-list-icon lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>  
+    </span>
+    <span class="label">Parceiros</span>  
   </div>
 </div>
 
