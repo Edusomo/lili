@@ -313,6 +313,40 @@ class SalaryTracker {
 
         this.showFeedback('✅ Registro salvo com sucesso!', 'success');
         this.render();
+   }
+
+    addRecordFromModal(data) {
+  const employeeName = this.normalizeEmployeeName(data.employee);
+  if (!this.employees.includes(employeeName)) {
+    this.employees.push(employeeName);
+    localStorage.setItem('employees', JSON.stringify(this.employees));
+  }
+  const jaExiste = this.records.some(r => r.employee === employeeName);
+  if (!jaExiste) {
+    this.records.unshift({
+      id: 'ghost-' + Date.now(),
+      employee: employeeName,
+      date: new Date().toISOString().split('T')[0],
+      amount: 0,
+      note: '',
+      paid: false,
+      timestamp: new Date().toISOString(),
+      invisivel: true
+    });
+  }
+  const record = {
+    id: Date.now().toString(),
+    employee: employeeName,
+    date: data.date,
+    amount: parseFloat(data.amount),
+    note: data.note || '',
+    paid: false,
+    timestamp: new Date().toISOString()
+  };
+  this.records.unshift(record);
+  this.saveData();
+  this.showFeedback('✅ Registro salvo com sucesso!', 'success');
+  this.render();
     }
 
     editRecord(id) {
@@ -468,32 +502,26 @@ class SalaryTracker {
     }
 
     showModal(modalId) {
-        // NUNCA mostrar modal durante inicialização
         if (this.isInitializing) return;
-
         const modal = document.getElementById(modalId);
         if (!modal) return;
-
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
-        
-        // Focar no primeiro elemento focável do modal
+        document.body.classList.add('modal-open'); // <-- Adicione aqui
         setTimeout(() => {
             const focusable = modal.querySelector('input, button, textarea, select');
-            if (focusable) {
-                focusable.focus();
-            }
+            if (focusable) focusable.focus();
         }, 100);
     }
 
     hideModal(modalId) {
         const modal = document.getElementById(modalId);
         if (!modal) return;
-
         modal.classList.add('hidden');
         modal.style.display = 'none';
         document.body.style.overflow = '';
+        document.body.classList.remove('modal-open'); // <-- Adicione aqui
     }
 
     filterByEmployee(employee) {
@@ -589,7 +617,7 @@ class SalaryTracker {
                         ${data.unpaidCount} pendente${data.unpaidCount !== 1 ? 's' : ''} de ${data.count} total
                     </div>
                     ${data.unpaidCount > 0 ? `
-                        <button class="btn btn--sm btn--secondary" 
+                        <button class="btn btn--sm btn--secondary btn-pago-parceiro" 
                                 onclick="event.stopPropagation(); window.salaryTracker.markAsPaid('${employee}')"
                                 style="margin-top: var(--space-12); width: 100%;">
                             💰 Marcar como Pago
@@ -1057,4 +1085,77 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
     }, 300);
+
+    // Botão flutuante para abrir modal
+    const btnAdd = document.getElementById('btn-add-record');
+    const modalAdd = document.getElementById('modal-add-record');
+    const formAdd = document.getElementById('form-add-record');
+    const btnCancel = document.getElementById('add-cancel');
+
+    // Função para atualizar sugestões no modal
+function updateEmployeeSuggestionsModal() {
+  const suggestionsDiv = document.getElementById('employee-suggestions-modal');
+  if (!suggestionsDiv || !window.salaryTracker) return;
+  const employees = window.salaryTracker.employees;
+  suggestionsDiv.innerHTML = '';
+  employees.forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'employee-suggestion-btn';
+    btn.title = name;
+    btn.textContent = name;
+    btn.onclick = (e) => {
+      e.preventDefault();
+      document.getElementById('add-employee').value = name;
+      document.getElementById('add-employee').focus();
+    };
+    suggestionsDiv.appendChild(btn);
+  });
+}
+
+    if (btnAdd && modalAdd && formAdd && btnCancel) {
+      btnAdd.onclick = () => {
+        modalAdd.classList.remove('hidden');
+        modalAdd.style.display = 'flex';
+        // Esconde o botão flutuante ao abrir o modal
+        btnAdd.style.display = 'none';
+        // Data de hoje por padrão
+        document.getElementById('add-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('add-employee').focus();
+        updateEmployeeSuggestionsModal();
+      };
+      btnCancel.onclick = () => {
+        modalAdd.classList.add('hidden');
+        modalAdd.style.display = 'none';
+        formAdd.reset();
+        // Mostra o botão flutuante ao fechar o modal
+        btnAdd.style.display = '';
+      };
+      modalAdd.querySelector('.modal__overlay').onclick = function(e) {
+        if (e.target === this) {
+          modalAdd.classList.add('hidden');
+          modalAdd.style.display = 'none';
+          formAdd.reset();
+          // Mostra o botão flutuante ao fechar o modal
+          btnAdd.style.display = '';
+        }
+      };
+      formAdd.onsubmit = function(e) {
+        e.preventDefault();
+        // Adicione o registro usando a lógica do SalaryTracker
+        if (window.salaryTracker) {
+          const data = {
+            employee: document.getElementById('add-employee').value,
+            date: document.getElementById('add-date').value,
+            amount: parseFloat(document.getElementById('add-amount').value),
+            note: document.getElementById('add-note').value
+          };
+          window.salaryTracker.addRecordFromModal(data);
+          modalAdd.classList.add('hidden');
+          modalAdd.style.display = 'none';
+          formAdd.reset();
+          // Mostra o botão flutuante ao fechar o modal
+          btnAdd.style.display = '';
+        }
+      };
+    }
 });
