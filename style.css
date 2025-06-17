@@ -1465,14 +1465,90 @@ select.form-control {
 }
 .tab .icon {
   font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 44px;
+  height: 44px;
 }
-.tab.active {
-  color: #219653; /* verde escuro */
-  box-shadow: 0 2px 12px 0 #b7f5c5; /* sombreado verde-claro */
-  border-radius: 12px;
-  background: #f3f8f4; /* leve fundo verde-claro */
-  transition: box-shadow 0.2s, background 0.2s;
+.tab .icon svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+  margin: auto;
+  z-index: 2;
 }
 .tab .label {
   margin-top: 2px;
+}
+
+/* Remove o círculo do tab inteiro */
+.bottom-tab-bar .tab.active::before {
+  content: none;
+}
+
+/* Círculo só atrás do ícone SVG do botão ativo */
+.bottom-tab-bar .tab.active .icon {
+  position: relative;
+  z-index: 1;
+  color: #fff; /* Ícone branco quando ativo */
+}
+
+.bottom-tab-bar .tab.active .icon::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  background: var(--color-primary, #21808d);
+  border-radius: 50%;
+  z-index: 1;
+  box-shadow: 0 2px 8px 0 rgba(33,128,141,0.10);
+}
+
+/* Texto verde quando ativo */
+.bottom-tab-bar .tab.active .label {
+  color: #219653; /* verde escuro */
+  z-index: 1;
+  position: relative;
+}
+
+/* Botão flutuante para adicionar registro */
+.fab-add-record {
+  position: fixed;
+  right: 24px;
+  bottom: 80px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-success, #219653); /* verde escuro */
+  color: #fff; /* cruz branca */
+  font-size: 2.2rem;
+  box-shadow: 0 4px 16px rgba(33,128,141,0.18);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+  cursor: pointer;
+}
+.fab-add-record:hover,
+.fab-add-record:focus {
+  background: #17653a; /* verde ainda mais escuro no hover */
+  color: #fff;
+  box-shadow: 0 6px 24px rgba(33,128,141,0.25);
+  outline: none;
+}
+.fab-add-record:active {
+  background: #104c2c; /* verde escuro no active */
+  color: #fff;
+}
+/* Esconde o botão quando o modal está aberto */
+#modal-add-record:not(.hidden) ~ .fab-add-record,
+.fab-add-record[style*="display: none"] {
+  display: none !important;
 }
