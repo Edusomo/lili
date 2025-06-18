@@ -243,7 +243,7 @@ h3,
 h4,
 h5,
 h6 {
-  margin: 0;
+  margin: 1;
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
   color: var(--color-text);
@@ -687,8 +687,8 @@ select.form-control {
 .export-section,
 .records-section {
   border-bottom: 1px solid var(--color-border);
-  padding-bottom: 24px;
-  margin-bottom: 32px;
+  padding-bottom: 12px;
+  margin-bottom: 2px;
 }
 
 /* Remove linha da última seção para não duplicar */
@@ -770,7 +770,7 @@ select.form-control {
   flex: 0 0 auto;
   scroll-snap-align: start;
   background: var(--color-surface);
-  border: 1px solid var(--color-card-border);
+  border: 2px solid var(--color-card-border);
   border-radius: var(--radius-lg);
   padding: var(--space-16);
   cursor: pointer;
@@ -863,6 +863,69 @@ select.form-control {
   color: inherit;
 }
 
+/* Cards dos parceiros no topo */
+#parceiro-cards {
+  margin-bottom: 16px;
+}
+.parceiro-card {
+  min-width: 140px;
+  max-width: 180px;
+  flex: 0 0 auto;
+  background: var(--color-surface);
+  border: 2px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 10px 10px 10px;
+  margin-right: 0px;
+  cursor: pointer;
+  transition: border 0.2s, background 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  box-shadow: var(--shadow-xs);
+}
+.parceiro-card--active {
+  border-color: var(--color-primary);
+  background: rgba(var(--color-success-rgb), 0.08);
+}
+.parceiro-card__nome {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.parceiro-card__servico {
+  font-size: 0.95em;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+.parceiro-card__valor {
+  font-size: 1.15em;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: var(--color-success);
+}
+.parceiro-card__pago {
+  margin-top: 2px;
+  font-size: 0.97em;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.parceiro-card__pago:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+.parceiro-card__pago:disabled {
+  background: #e0e0e0 !important;
+  color: #aaa !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+
 /* Controles de exportação */
 .export-controls {
   display: flex;
@@ -873,10 +936,10 @@ select.form-control {
 
 /* Lista de registros */
 .records-header {
-  display: flex;
+  /* display: flex; */
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-20);
+  /* margin-bottom: var(--space-20); */
   flex-wrap: wrap;
   gap: var(--space-12);
 }
@@ -1301,7 +1364,7 @@ select.form-control {
 
 /* Parceiros */
 .parceiro-bloco {
-  margin-bottom: 32px;
+  margin-bottom: 10px;
   border: 1px solid var(--color-card-border);
   border-radius: 12px;
   background: var(--color-surface);
@@ -1551,4 +1614,42 @@ select.form-control {
 #modal-add-record:not(.hidden) ~ .fab-add-record,
 .fab-add-record[style*="display: none"] {
   display: none !important;
+}
+
+.btn-parceiro-add {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--color-success, #219653);
+  color: #fff;
+  border: none;
+  font-size: 1.6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-parceiro-add:hover {
+  background: #17653a;
+}
+
+.btn-parceiro-export {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--color-success, rgb(240, 240, 240));
+  color: #fff;
+  border: none;
+  font-size: 1.3em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-parceiro-export:hover {
+  background: #17653a;
 }
