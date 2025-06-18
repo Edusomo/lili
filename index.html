@@ -69,12 +69,23 @@
   <button id="btn-config-parceiros" class="btn btn--secondary">⚙️ Configuração de Preços</button>
 </div>
 
-          <div class="parceiro-bloco" id="bloco-coco">
+          <!-- ADICIONE AQUI: -->
+          <div class="summary-section">
+    <h2>Parceiros</h2>
+    <div id="parceiro-cards" class="employee-grid" style="margin-bottom:20px;">
+      <!-- Cards dos parceiros serão gerados via JS -->
+    </div>
+  </div>
+
+  <!-- Blocos dos parceiros -->
+  <div class="parceiro-bloco" id="bloco-coco">
   <div class="parceiro-toggle" data-target="coco" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
   <span class="parceiro-seta" id="seta-coco">&#9654;</span>
   <span>Coco</span>
   <span id="total-coco-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
-  <button type="button" class="btn btn--primary btn-pago-parceiro" data-parceiro="Coco">Pago</button>
+  <button type="button" class="btn-parceiro-add" data-parceiro="Coco" title="Adicionar registro">
+  <span>+</span>
+</button>
   <div class="export-dropdown" style="position:relative;">
     <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
     <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
@@ -118,7 +129,9 @@
   <span class="parceiro-seta" id="seta-pastel">&#9654;</span>
   <span>Pastel</span>
   <span id="total-pastel-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
-  <button type="button" class="btn btn--primary btn-pago-parceiro" data-parceiro="Pastel">Pago</button>
+  <button type="button" class="btn-parceiro-add" data-parceiro="Pastel" title="Adicionar registro">
+  <span>+</span>
+</button>
 <div class="export-dropdown" style="position:relative;">
     <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
     <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
@@ -163,7 +176,9 @@
   <span class="parceiro-seta" id="seta-gelo">&#9654;</span>
   <span>Gelo</span>
   <span id="total-gelo-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
-  <button type="button" class="btn btn--primary btn-pago-parceiro" data-parceiro="Gelo">Pago</button>
+  <button type="button" class="btn-parceiro-add" data-parceiro="Gelo" title="Adicionar registro">
+  <span>+</span>
+</button>
   <div class="export-dropdown" style="position:relative;">
     <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
     <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
@@ -376,6 +391,52 @@
   </div>
 </div>
 
+    <!-- Modal de adicionar registro do parceiro -->
+<div id="modal-add-parceiro" class="modal hidden">
+  <div class="modal__overlay">
+    <div class="modal__content">
+      <h3 id="modal-add-parceiro-title">Adicionar Registro</h3>
+      <form id="form-add-parceiro" class="edit-form">
+        <input type="hidden" id="add-parceiro-nome" name="parceiro">
+        <!-- Adicione dentro do <form id="form-add-parceiro">, antes dos outros campos -->
+<div id="add-parceiro-tipo-gelo-group" style="display:none; margin-bottom:12px;">
+  <label style="font-weight:600; font-size:1.05em;">🧊 Tipo de Gelo</label>
+  <div style="display:flex;gap:32px;justify-content:center;margin-top:4px;">
+    <label style="display:flex;flex-direction:column;align-items:center;font-weight:500;gap:4px;">
+      <input type="radio" name="tipo-gelo-modal" value="Cubo">
+      Cubo
+    </label>
+    <label style="display:flex;flex-direction:column;align-items:center;font-weight:500;gap:4px;">
+      <input type="radio" name="tipo-gelo-modal" value="Triturado">
+      Triturado
+    </label>
+  </div>
+</div>
+        <div class="form-group">
+          <label class="form-label" for="add-parceiro-data">📅 Data</label>
+          <input type="date" id="add-parceiro-data" name="data" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="add-parceiro-quantidade">Quantidade</label>
+          <input type="number" id="add-parceiro-quantidade" name="quantidade" class="form-control" min="1" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="add-parceiro-preco">Preço unitário</label>
+          <input type="number" id="add-parceiro-preco" name="preco" class="form-control" min="0" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="add-parceiro-observacao">Observação</label>
+          <input type="text" id="add-parceiro-observacao" name="observacao" class="form-control" maxlength="100">
+        </div>
+        <div class="modal__actions">
+          <button type="button" id="add-parceiro-cancel" class="btn btn--secondary">❌ Cancelar</button>
+          <button type="submit" class="btn btn--primary">Adicionar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
     <script src="app.js"></script>
     <script>
   // Impede zoom com Ctrl + Scroll
@@ -460,7 +521,6 @@ if (!savedRegistros) {
     observacao: ""
   });
   registrosParceiros.Gelo.push({
-    tipo: "Triturado",
     data: "2025-01-01",
     quantidade: 1,
     preco: 35.00,
@@ -533,19 +593,27 @@ datasOrdenadas.forEach((data, idx) => {
   }
 
   grupos[data].forEach(reg => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <span>
-        ${reg.quantidade ? `${reg.quantidade} x R$ ${reg.preco.toFixed(2)} = <strong>R$ ${(reg.quantidade*reg.preco).toFixed(2)}</strong>` : ''}
-        ${reg.tipo ? `<br>Tipo: <strong>${reg.tipo}</strong>` : ''}
-        ${reg.observacao ? `<br><span class="reg-observacao">📝 ${reg.observacao}</span>` : ''}
-      </span>
-      <div class="reg-acoes">
-        <button class="btn btn--secondary btn-editar" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">✏️ Editar</button>
-        <button class="btn btn--danger btn-excluir-parceiro" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">🗑️ Excluir</button>
-      </div>
-    `;
-    groupList.appendChild(li);
+    const total = (reg.quantidade * reg.preco).toFixed(2);
+const precoUnit = parseFloat(reg.preco).toFixed(2);
+const quantidade = reg.quantidade;
+const tipo = reg.tipo ? `<div style="font-weight:600;margin-top:4px;">Tipo: <span style="font-weight:bold;">${reg.tipo}</span></div>` : '';
+const obs = reg.observacao ? `<div class="record-item__note">📝 ${reg.observacao}</div>` : '';
+const dataFormatada = new Date(reg.data).toLocaleDateString('pt-BR');
+const card = document.createElement('div');
+card.className = 'record-item';
+card.innerHTML = `
+  <div style="font-size:1.1em;font-weight:500;">
+    ${quantidade} x R$ ${precoUnit} = <span style="font-size:1.2em;font-weight:bold;">R$ ${total}</span>
+  </div>
+  ${tipo}
+  <div style="color:#888;font-size:0.98em;margin-top:2px;">${dataFormatada}</div>
+  ${obs}
+  <div class="record-item__actions" style="margin-top:10px;">
+    <button class="btn btn--secondary btn-editar" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">✏️ Editar</button>
+    <button class="btn btn--outline btn-excluir-parceiro" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">🗑️ Excluir</button>
+  </div>
+`;
+groupList.appendChild(card);
   });
   ul.appendChild(groupList);
 });
@@ -694,6 +762,18 @@ let pagarParceiroInfo = null;
       if (window.salaryTracker) window.salaryTracker.showFeedback('💰 Registros marcados como pagos!', 'success');
       pagarParceiroInfo = null;
     }
+
+    // --- NOVO: Apagar registros do parceiro ao confirmar "Pago" pelo card ---
+    if (window._parceiroPagoKey) {
+      window.registrosParceiros[window._parceiroPagoKey] = [];
+      localStorage.setItem('parceiroRegistros', JSON.stringify(window.registrosParceiros));
+      renderParceiroCards();
+      // Atualize também os blocos de registros, se necessário:
+      if (typeof renderRegistros === 'function') renderRegistros(window._parceiroPagoKey);
+      if (window.salaryTracker) window.salaryTracker.showFeedback('💰 Registros marcados como pagos!', 'success');
+      window._parceiroPagoKey = null;
+    }
+
     document.getElementById('confirmation-modal').classList.add('hidden');
     document.getElementById('confirmation-modal').style.display = 'none';
   };
@@ -730,6 +810,7 @@ let pagarParceiroInfo = null;
         registro.observacao = document.getElementById('edit-note').value;
         salvarParceiros();
         renderRegistros(parceiro);
+        renderParceiroCards();
         document.getElementById('edit-modal').classList.add('hidden');
         document.getElementById('edit-modal').style.display = 'none';
       };
@@ -769,9 +850,14 @@ let pagarParceiroInfo = null;
 
   // Inicializa ambos abertos por padrão
   ['coco', 'pastel', 'gelo'].forEach(parc => {
-    document.getElementById('conteudo-' + parc).style.display = 'block';
-    document.getElementById('seta-' + parc).style.transform = 'rotate(90deg)';
-  });
+  if (parc === 'coco') {
+    document.getElementById('conteudo-coco').style.display = 'block';
+    document.getElementById('seta-coco').style.transform = 'rotate(90deg)';
+  } else {
+    document.getElementById('conteudo-' + parc).style.display = 'none';
+    document.getElementById('seta-' + parc).style.transform = 'rotate(0deg)';
+  }
+});
 
   document.querySelectorAll('.parceiro-form').forEach(form => {
   const parceiro = form.dataset.parceiro;
@@ -793,6 +879,7 @@ let pagarParceiroInfo = null;
       });
       salvarParceiros();
       renderRegistros('Gelo');
+      renderParceiroCards()
       form.reset();
       // Define a data de hoje novamente após reset
       const hoje = new Date();
@@ -809,6 +896,7 @@ let pagarParceiroInfo = null;
       registrosParceiros[parceiro].push({ data, quantidade, preco, observacao });
       salvarParceiros();
       renderRegistros(parceiro);
+      renderParceiroCards();
       form.reset();
       form.preco.value = precosParceiros[parceiro].toFixed(2); // Sempre repõe o padrão
 if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicionado com sucesso!', 'success');
@@ -891,6 +979,7 @@ document.getElementById('edit-form-parceiro').onsubmit = function(ev) {
   registro.observacao = document.getElementById('edit-observacao-parc').value;
   salvarParceiros();
   renderRegistros(parceiro);
+  renderParceiroCards();
   document.getElementById('edit-modal-parceiro').classList.add('hidden');
   document.getElementById('edit-modal-parceiro').style.display = 'none';
   editParceiroInfo = null;
@@ -907,13 +996,11 @@ document.getElementById('btn-config-parceiros').onclick = function() {
   document.getElementById('modal-config-parceiros').classList.remove('hidden');
   document.getElementById('modal-config-parceiros').style.display = 'block';
 };
-
 // Fechar modal de configuração
 document.getElementById('cancelar-config-parceiros').onclick = function() {
   document.getElementById('modal-config-parceiros').classList.add('hidden');
   document.getElementById('modal-config-parceiros').style.display = 'none';
 };
-
 // Salvar novos preços
 document.getElementById('form-config-parceiros').onsubmit = function(e) {
   e.preventDefault();
@@ -1052,5 +1139,164 @@ document.querySelectorAll('.btn-export-excel').forEach(btn => {
 .section { display: none; }
 .section.active { display: block; }
 </style>
+<script>
+const parceirosList = [
+  { nome: 'Diego', servico: 'Coco' },
+  { nome: 'Daniel', servico: 'Pastel' },
+  { nome: 'Luís', servico: 'Gelo' }
+];
+let parceiroSelecionado = 'Diego'; // Padrão
+
+function getTotalParceiro(nome) {
+  // Use sua lógica real de cálculo
+  if (!window.registrosParceiros) return 0;
+  let key = '';
+  if (nome === 'Diego') key = 'Coco';
+  if (nome === 'Daniel') key = 'Pastel';
+  if (nome === 'Luís') key = 'Gelo';
+  const regs = window.registrosParceiros && window.registrosParceiros[key] ? window.registrosParceiros[key] : [];
+  return regs.reduce((soma, reg) => soma + (parseFloat(reg.quantidade) || 0) * (parseFloat(reg.preco) || 0), 0);
+}
+
+function renderParceiroCards() {
+  const container = document.getElementById('parceiro-cards');
+  if (!container) return;
+  container.innerHTML = parceirosList.map(parc => {
+    let key = '';
+    if (parc.nome === 'Diego') key = 'Coco';
+    if (parc.nome === 'Daniel') key = 'Pastel';
+    if (parc.nome === 'Luís') key = 'Gelo';
+    const regs = window.registrosParceiros && window.registrosParceiros[key] ? window.registrosParceiros[key] : [];
+    const temRegistros = regs.length > 0;
+    return `
+      <div class="parceiro-card${parc.nome === parceiroSelecionado ? ' parceiro-card--active' : ''}" onclick="selecionarParceiro('${parc.nome}')">
+        <div class="parceiro-card__nome">${'🤝' + parc.nome}</div>
+        <div class="parceiro-card__servico">${parc.servico}</div>
+        <div class="parceiro-card__valor">R$ ${getTotalParceiro(parc.nome).toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+        <button class="parceiro-card__pago" 
+          onclick="event.stopPropagation();marcarPagoParceiro('${parc.nome}')"
+          ${!temRegistros ? 'disabled' : ''}>💰 Pago</button>
+      </div>
+    `;
+  }).join('');
+}
+window.selecionarParceiro = function(nome) {
+  parceiroSelecionado = nome;
+  renderParceiroCards();
+  let key = '';
+  if (nome === 'Diego') key = 'coco';
+  if (nome === 'Daniel') key = 'pastel';
+  if (nome === 'Luís') key = 'gelo';
+  // Mostra só o bloco do parceiro selecionado
+  ['coco','pastel','gelo'].forEach(k => {
+    const bloco = document.getElementById('bloco-' + k);
+    if (bloco) {
+      bloco.style.display = (k === key) ? 'block' : 'none';
+    }
+  });
+  // Abre o conteúdo do parceiro selecionado e fecha os outros
+  document.getElementById('conteudo-' + key).style.display = 'block';
+  document.getElementById('seta-' + key).style.transform = 'rotate(90deg)';
+  ['coco','pastel','gelo'].forEach(k => {
+    if (k !== key) {
+      document.getElementById('conteudo-' + k).style.display = 'none';
+      document.getElementById('seta-' + k).style.transform = 'rotate(0deg)';
+    }
+  });
+};
+window.marcarPagoParceiro = function(nome) {
+  let key = '';
+  if (nome === 'Diego') key = 'Coco';
+  if (nome === 'Daniel') key = 'Pastel';
+  if (nome === 'Luís') key = 'Gelo';
+  // Se não houver registros, não faz nada
+  if (!window.registrosParceiros || !window.registrosParceiros[key] || window.registrosParceiros[key].length === 0) return;
+
+  // Salva info temporária para saber qual parceiro está sendo pago
+  window._parceiroPagoKey = key;
+
+  // Mostra o modal de confirmação
+  document.getElementById('modal-title').textContent = '💰 Marcar como Pago';
+  document.getElementById('modal-message').textContent = `Tem certeza que deseja marcar tudo como pago? Isso irá apagar todos os registros de ${nome}.`;
+  document.getElementById('confirmation-modal').classList.remove('hidden');
+  document.getElementById('confirmation-modal').style.display = 'block';
+};
+// Inicializa ao carregar
+document.addEventListener('DOMContentLoaded', function() {
+  renderParceiroCards();
+  // Mostra só o bloco do parceiro padrão (Diego/Coco)
+  ['coco','pastel','gelo'].forEach(k => {
+    const bloco = document.getElementById('bloco-' + k);
+    if (bloco) bloco.style.display = (k === 'coco') ? 'block' : 'none';
+  });
+});
+document.querySelectorAll('.btn-parceiro-add').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const parceiro = this.getAttribute('data-parceiro');
+    // Preenche o nome do parceiro no campo hidden
+    document.getElementById('add-parceiro-nome').value = parceiro;
+    // Ajusta o título do modal
+    document.getElementById('modal-add-parceiro-title').textContent = `Adicionar Registro - ${parceiro}`;
+    // Data de hoje por padrão
+    document.getElementById('add-parceiro-data').value = new Date().toISOString().slice(0,10);
+    // Limpa os campos
+    document.getElementById('form-add-parceiro').reset();
+    // Mostra o modal
+    const modal = document.getElementById('modal-add-parceiro');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+    // Foca no campo quantidade
+    setTimeout(() => {
+      document.getElementById('add-parceiro-quantidade').focus();
+    }, 100);
+  });
+});
+
+// Fechar modal de adicionar registro do parceiro
+document.getElementById('add-parceiro-cancel').onclick = function() {
+  const modal = document.getElementById('modal-add-parceiro');
+  modal.classList.add('hidden');
+  modal.style.display = 'none';
+  document.getElementById('form-add-parceiro').reset();
+};
+// Fechar ao clicar fora do conteúdo
+document.querySelector('#modal-add-parceiro .modal__overlay').onclick = function(e) {
+  if (e.target === this) {
+    const modal = document.getElementById('modal-add-parceiro');
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    document.getElementById('form-add-parceiro').reset();
+  }
+};
+document.getElementById('form-add-parceiro').onsubmit = function(e) {
+  e.preventDefault();
+  const parceiro = document.getElementById('add-parceiro-nome').value;
+  const data = document.getElementById('add-parceiro-data').value;
+  const quantidade = parseFloat(document.getElementById('add-parceiro-quantidade').value);
+  const preco = parseFloat(document.getElementById('add-parceiro-preco').value);
+  const observacao = document.getElementById('add-parceiro-observacao').value || '';
+  // Para Gelo, exige tipo
+  if (parceiro === 'Gelo') {
+    const tipo = document.querySelector('input[name="tipo-gelo-modal"]:checked');
+    if (!tipo) {
+      alert('Selecione o tipo de gelo!');
+      return;
+    }
+    window.registrosParceiros.Gelo.push({ tipo: tipo.value, data, quantidade, preco, observacao });
+  } else {
+    if (!window.registrosParceiros[parceiro]) window.registrosParceiros[parceiro] = [];
+    window.registrosParceiros[parceiro].push({ data, quantidade, preco, observacao });
+  }
+  if (typeof salvarParceiros === 'function') salvarParceiros();
+  if (typeof renderRegistros === 'function') renderRegistros(parceiro);
+  if (typeof renderParceiroCards === 'function') renderParceiroCards();
+  const modal = document.getElementById('modal-add-parceiro');
+  modal.classList.add('hidden');
+  modal.style.display = 'none';
+  this.reset();
+  if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicionado com sucesso!', 'success');
+};
+</script>
 </body>
 </html>
