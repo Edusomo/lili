@@ -1653,3 +1653,58 @@ select.form-control {
 .btn-parceiro-export:hover {
   background: #17653a;
 }
+
+/* Esconde todas as abas por padrão */
+.section {
+  display: none;
+}
+
+/* Mostra apenas a aba ativa */
+.section.active {
+  display: block;
+}
+
+/* Modal de adicionar parceiro mais compacto em telas pequenas */
+@media (max-width: 600px) {
+  #modal-add-parceiro .modal__content {
+    padding: 16px 6px !important;
+    min-width: 0;
+    width: 98vw;
+    max-width: 380px;
+  }
+  #modal-add-parceiro .edit-form {
+    gap: 8px;
+  }
+  #modal-add-parceiro .form-group {
+    margin-bottom: 8px;
+  }
+  #modal-add-parceiro label,
+  #modal-add-parceiro .form-label {
+    font-size: 1em;
+    margin-bottom: 2px;
+  }
+  #modal-add-parceiro input,
+  #modal-add-parceiro select {
+    font-size: 1em;
+    padding: 7px 8px;
+  }
+  #add-parceiro-tipo-gelo-group {
+    margin-bottom: 6px !important;
+    padding: 4px 0;
+  }
+  #add-parceiro-tipo-gelo-group label {
+    font-size: 0.98em;
+    gap: 2px;
+  }
+  #add-parceiro-tipo-gelo-group > div {
+    gap: 16px !important;
+  }
+  #modal-add-parceiro .modal__actions {
+    gap: 6px;
+    margin-top: 8px;
+  }
+}
+
+.parceiro-toggle .export-dropdown {
+  margin-left: auto;
+}
