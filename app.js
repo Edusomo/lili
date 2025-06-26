@@ -1158,4 +1158,18 @@ function updateEmployeeSuggestionsModal() {
         }
       };
     }
+
+    function renderTransacoesParceirosGeral() {
+  const container = document.getElementById('parceiro-transacoes-geral');
+  if (!container) return;
+  let html = '';
+  ['Coco', 'Pastel', 'Gelo'].forEach(parc => {
+    html += `<h3>${parc}</h3><ul>`;
+    (registrosParceiros[parc] || []).forEach(reg => {
+      html += `<li>${reg.data} - ${reg.quantidade} x R$${reg.preco} ${reg.observacao ? '- ' + reg.observacao : ''}</li>`;
+    });
+    html += '</ul>';
+  });
+  container.innerHTML = html;
+}
 });
