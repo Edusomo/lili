@@ -82,58 +82,9 @@
     </div>
   </div>
 
-  <!-- Blocos dos parceiros -->
-  <div class="parceiro-bloco" id="bloco-coco">
-  <div class="parceiro-toggle" data-target="coco" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-  <span class="parceiro-seta" id="seta-coco">&#9654;</span>
-  <span>Coco</span>
-</button>
-  <div class="export-dropdown" style="position:relative;">
-    <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
-    <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
-      <!-- Remover botão PDF -->
-      <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Coco" style="width:100%;text-align:left;">📊 Planilha</button>
-    </div>
-  </div>
-</div>
-  <div class="parceiro-conteudo" id="conteudo-coco" style="display:none;">
-    <!-- Exemplo para Coco -->
-              <ul class="parceiro-registros" id="registros-coco"></ul>
-            </div>
-          </div>
-          <div class="parceiro-bloco" id="bloco-pastel">
-  <div class="parceiro-toggle" data-target="pastel" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-  <span class="parceiro-seta" id="seta-pastel">&#9654;</span>
-  <span>Pastel</span>
-<div class="export-dropdown" style="position:relative;">
-    <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
-    <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
-      <!-- Remover botão PDF -->
-      <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Pastel" style="width:100%;text-align:left;">📊 Planilha</button>
-    </div>
-  </div>
-</div>
-  <div class="parceiro-conteudo" id="conteudo-pastel" style="display:none;">
-    <!-- Exemplo para Coco, faça igual para Pastel -->
-              <ul class="parceiro-registros" id="registros-pastel"></ul>
-            </div>
-          </div>
-          <div class="parceiro-bloco" id="bloco-gelo">
-<div class="parceiro-toggle" data-target="gelo" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-  <span class="parceiro-seta" id="seta-gelo">&#9654;</span>
-  <span>Gelo</span>
-  <div class="export-dropdown" style="position:relative;">
-    <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
-    <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
-      <!-- Remover botão PDF -->
-      <button type="button" class="btn btn--icon btn-export-excel" data-parceiro="Gelo" style="width:100%;text-align:left;">📊 Planilha</button>
-    </div>
-  </div>
-</div>
-  <div class="parceiro-conteudo" id="conteudo-gelo" style="display:none;">
-    <ul class="parceiro-registros" id="registros-gelo"></ul>
-  </div>
-</div>
+  <!-- Subtítulo Todos os registros -->
+  <h3 id="parceiros-subtitulo" style="margin: 32px 0 16px 0; text-align:left; color:#1976d2; font-weight:600;">Todos os registros</h3>
+  <ul class="parceiro-registros" id="registros-parceiros-todos"></ul>
         </div>
 
   <!-- NOVA ABA: Vendas do Dia -->
@@ -438,8 +389,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  
-
   document.querySelectorAll('.btn-export-excel').forEach(btn => {
   btn.addEventListener('click', function(e) {
     e.stopPropagation(); // Impede o fechamento do menu antes do download
@@ -558,19 +507,19 @@ if (savedRegistros) registrosParceiros = JSON.parse(savedRegistros);
 
 if (!savedRegistros) {
   // Exemplo inicial para novos usuários
-  registrosParceiros.Coco.push({
+  registrosParceiros.Coco.unshift({
     data: "2025-01-01",
     quantidade: 1,
     preco: 6.00,
     observacao: ""
   });
-  registrosParceiros.Pastel.push({
+  registrosParceiros.Pastel.unshift({
     data: "2025-01-01",
     quantidade: 1,
     preco: 34.00,
     observacao: ""
   });
-  registrosParceiros.Gelo.push({
+  registrosParceiros.Gelo.unshift({
     data: "2025-01-01",
     quantidade: 1,
     preco: 35.00,
@@ -590,79 +539,87 @@ if (savedPrecosGelo) precosGelo = JSON.parse(savedPrecosGelo);
 const savedFuncionarios = localStorage.getItem('funcionarios');
 if (savedFuncionarios) funcionarios = JSON.parse(savedFuncionarios);
 
-  // Função para renderizar registros
-  function renderRegistros(parceiro) {
-  const ul = document.getElementById('registros-' + parceiro.toLowerCase());
+function renderRegistrosTodosParceiros() {
+  const ul = document.getElementById('registros-parceiros-todos');
+  if (!ul) return;
   ul.innerHTML = '';
 
-  // Ordena por data decrescente
-  const sorted = [...registrosParceiros[parceiro]].map((reg, i) => ({ ...reg, _originalIdx: i }))
-    .sort((a, b) => new Date(b.data) - new Date(a.data));
+  // Junta todos os registros, adicionando o nome do parceiro
+  let todos = [];
+  if (parceiroSelecionado) {
+    // Filtra apenas o parceiro selecionado
+    const parceiro = parceiroSelecionado === 'Diego' ? 'Coco' : parceiroSelecionado === 'Daniel' ? 'Pastel' : parceiroSelecionado === 'Luís' ? 'Gelo' : parceiroSelecionado;
+    const parceiroNome = parceiroSelecionado;
+    (registrosParceiros[parceiro] || []).forEach((reg, i) => {
+      todos.unshift({
+        ...reg,
+        parceiro,
+        parceiroNome,
+        _originalIdx: i
+      });
+    });
+  } else {
+    // Todos os parceiros
+    ['Coco', 'Pastel', 'Gelo'].forEach(parceiro => {
+      const parceiroNome =
+        parceiro === 'Coco' ? 'Diego' :
+        parceiro === 'Pastel' ? 'Daniel' :
+        parceiro === 'Gelo' ? 'Luís' : parceiro;
+      (registrosParceiros[parceiro] || []).forEach((reg, i) => {
+        todos.unshift({
+          ...reg,
+          parceiro,
+          parceiroNome,
+          _originalIdx: i
+        });
+      });
+    });
+  }
 
-  sorted.forEach(reg => {
+  // Ordena por data decrescente
+  todos.sort((a, b) => {
+    const diff = new Date(b.data) - new Date(a.data);
+    if (diff !== 0) return diff;
+    return b._originalIdx - a._originalIdx; // mais novo em cima
+  });
+
+  if (todos.length === 0) {
+    const aviso = document.createElement('div');
+    aviso.style.cssText = 'text-align:center;color:#888;font-size:1.1em;padding:32px 0;';
+    aviso.textContent = '📭 Nenhum registro encontrado';
+    ul.appendChild(aviso);
+    return;
+  }
+
+  todos.forEach(reg => {
     const total = (reg.quantidade * reg.preco).toFixed(2);
     const precoUnit = parseFloat(reg.preco).toFixed(2);
     const quantidade = reg.quantidade;
     const tipo = reg.tipo ? `<div style="font-weight:600;margin-top:4px;">Tipo: <span style="font-weight:bold;">${reg.tipo}</span></div>` : '';
     const obs = reg.observacao ? `<div class="record-item__note">📝 ${reg.observacao}</div>` : '';
-    const dataFormatada = new Date(reg.data).toLocaleDateString('pt-BR');
+    const dataFormatada = reg.data ? reg.data.split('-').reverse().join('/') : '';
     const card = document.createElement('div');
     card.className = 'record-item';
     card.innerHTML = `
       <div style="font-size:1.1em;font-weight:500;">
+        <span style="color:#1976d2;font-weight:bold;">🤝 ${reg.parceiroNome}</span>
+        <span style="color:#888;font-size:0.95em;margin-left:8px;">(${reg.parceiro})</span>
+      </div>
+      <div style="font-size:1.1em;font-weight:500;">
         ${quantidade} x R$ ${precoUnit} = <span style="font-size:1.2em;font-weight:bold;">R$ ${total}</span>
       </div>
       ${tipo}
-      <div class="record-item__date">📅 ${reg.data.split('-').reverse().join('/')}</div>
+      <div class="record-item__date">📅 ${dataFormatada}</div>
       ${obs}
       <div class="record-item__actions" style="margin-top:10px;">
-        <button class="btn btn--secondary btn-editar" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">✏️ Editar</button>
-        <button class="btn btn--outline btn-excluir-parceiro" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">🗑️ Excluir</button>
+        <button class="btn btn--secondary btn-editar" data-parceiro="${reg.parceiro}" data-idx="${reg._originalIdx}">✏️ Editar</button>
+        <button class="btn btn--outline btn-excluir-parceiro" data-parceiro="${reg.parceiro}" data-idx="${reg._originalIdx}">🗑️ Excluir</button>
       </div>
     `;
     ul.appendChild(card);
   });
-
-  // Desabilita o botão "Pago" se não houver registros
-  const btnPago = document.querySelector(`.btn-pago-parceiro[data-parceiro="${parceiro}"]`);
-  if (btnPago) {
-    if (!registrosParceiros[parceiro] || registrosParceiros[parceiro].length === 0) {
-      btnPago.setAttribute('disabled', 'disabled');
-    } else {
-      btnPago.removeAttribute('disabled');
-    }
-  }
-
-  // Desabilita os botões de exportação individual se não houver registros
-  const btnExportPdf = document.querySelector(`.btn-export-pdf[data-parceiro="${parceiro}"]`);
-  const btnExportExcel = document.querySelector(`.btn-export-excel[data-parceiro="${parceiro}"]`);
-  const temRegistros = registrosParceiros[parceiro] && registrosParceiros[parceiro].length > 0;
-  if (btnExportPdf) btnExportPdf.disabled = !temRegistros;
-  if (btnExportExcel) btnExportExcel.disabled = !temRegistros;
-
-  atualizarTotalParceiros();
 }
-window.renderRegistros = renderRegistros;
-
-  function renderEmployeeSummary() {
-  const summaryDiv = document.getElementById('employee-summary');
-  summaryDiv.innerHTML = '';
-  funcionarios.forEach(employee => {
-    // Filtra registros desse funcionário
-    const registros = registrosFuncionarios.filter(r => r.employee === employee);
-    // Calcula o total (evita NaN)
-    const total = registros.reduce((soma, reg) => soma + (parseFloat(reg.amount) || 0), 0);
-    // Monta o card, mesmo que registros.length === 0
-    const card = document.createElement('div');
-    card.className = 'employee-card';
-    card.innerHTML = `
-      <div class="employee-name">${employee}</div>
-      <div class="employee-total">Total: R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
-      <button class="btn btn--danger btn-excluir-funcionario" data-funcionario="${employee}">Excluir</button>
-    `;
-    summaryDiv.appendChild(card);
-  });
-}
+window.renderRegistrosTodosParceiros = renderRegistrosTodosParceiros;
 
   atualizarTotalParceiros = () => {
   const totalElemCoco = document.getElementById('total-coco');
@@ -705,9 +662,8 @@ if (headerElemGelo) headerElemGelo.textContent = `(R$ ${totalGelo.toLocaleString
 };
 
   // Inicializa registros
-  renderRegistros('Coco');
-  renderRegistros('Pastel');
-  renderRegistros('Gelo');
+renderParceiroCards();
+renderRegistrosTodosParceiros();
 
   // Exclusão de registros
   let excluirParceiroInfo = null;
@@ -745,14 +701,16 @@ if (headerElemGelo) headerElemGelo.textContent = `(R$ ${totalGelo.toLocaleString
     if (excluirParceiroInfo) {
       registrosParceiros[excluirParceiroInfo.parceiro].splice(excluirParceiroInfo.idx, 1);
       salvarParceiros();
-      renderRegistros(excluirParceiroInfo.parceiro);
+      renderParceiroCards();
+      renderRegistrosTodosParceiros();
       excluirParceiroInfo = null;
       // Adicione:
       if (window.salaryTracker) window.salaryTracker.showFeedback('🗑️ Registro excluído com sucesso!', 'success');
     } else if (pagarParceiroInfo) {
       registrosParceiros[pagarParceiroInfo] = [];
       salvarParceiros();
-      renderRegistros(pagarParceiroInfo);
+      renderParceiroCards();
+      renderRegistrosTodosParceiros();
       atualizarTotalParceiros();
       // Adicione esta linha:
       if (window.salaryTracker) window.salaryTracker.showFeedback('💰 Registros marcados como pagos!', 'success');
@@ -764,6 +722,7 @@ if (headerElemGelo) headerElemGelo.textContent = `(R$ ${totalGelo.toLocaleString
       window.registrosParceiros[window._parceiroPagoKey] = [];
       localStorage.setItem('parceiroRegistros', JSON.stringify(window.registrosParceiros));
       renderParceiroCards();
+      renderRegistrosTodosParceiros();
       // Atualize também os blocos de registros, se necessário:
       if (typeof renderRegistros === 'function') renderRegistros(window._parceiroPagoKey);
       if (window.salaryTracker) window.salaryTracker.showFeedback('💰 Registros marcados como pagos!', 'success');
@@ -826,82 +785,6 @@ if (headerElemGelo) headerElemGelo.textContent = `(R$ ${totalGelo.toLocaleString
     localStorage.setItem('parceiroPrecos', JSON.stringify(precosParceiros));
     localStorage.setItem('parceiroPrecosGelo', JSON.stringify(precosGelo));
 }
-
-  // Expansão/colapso dos blocos de parceiros
-  document.querySelectorAll('.parceiro-toggle').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      // Só expande/recolhe se não clicar no botão "Pago"
-      if (e.target.classList.contains('btn-pago-parceiro')) return;
-      // ADICIONE ESTA LINHA:
-      if (e.target.closest('.export-dropdown')) return;
-      const target = this.dataset.target;
-      const conteudo = document.getElementById('conteudo-' + target);
-      const seta = document.getElementById('seta-' + target);
-      if (conteudo.style.display === 'none' || conteudo.style.display === '') {
-        conteudo.style.display = 'block';
-        seta.style.transform = 'rotate(90deg)';
-      } else {
-        conteudo.style.display = 'none';
-        seta.style.transform = 'rotate(0deg)';
-      }
-    });
-  });
-
-  // Inicializa ambos abertos por padrão
-  ['coco', 'pastel', 'gelo'].forEach(parc => {
-  if (parc === 'coco') {
-    document.getElementById('conteudo-coco').style.display = 'block';
-    document.getElementById('seta-coco').style.transform = 'rotate(90deg)';
-  } else {
-    document.getElementById('conteudo-' + parc).style.display = 'none';
-    document.getElementById('seta-' + parc).style.transform = 'rotate(0deg)';
-  }
-});
-
-  document.querySelectorAll('.parceiro-form').forEach(form => {
-  const parceiro = form.dataset.parceiro;
-  if (parceiro === 'Gelo') {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const tipo = form.querySelector('input[name="tipo-gelo"]:checked');
-      const data = form.data.value;
-      const quantidade = parseFloat(form.quantidade.value);
-      const preco = parseFloat(form.preco.value);
-      const observacao = form.observacao.value || '';
-      if (!tipo) return;
-      registrosParceiros.Gelo.push({
-        tipo: tipo.value,
-        data,
-        quantidade,
-        preco,
-        observacao
-      });
-      salvarParceiros();
-      renderRegistros('Gelo');
-      renderParceiroCards()
-      form.reset();
-      // Define a data de hoje novamente após reset
-      const hoje = new Date();
-      form.data.value = hoje.toISOString().slice(0,10);
-    });
-  } else {
-    form.preco.value = precosParceiros[parceiro].toFixed(2);
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const data = form.data.value;
-      const quantidade = parseFloat(form.quantidade.value);
-      const preco = parseFloat(form.preco.value);
-      const observacao = form.observacao.value || '';
-      registrosParceiros[parceiro].push({ data, quantidade, preco, observacao });
-      salvarParceiros();
-      renderRegistros(parceiro);
-      renderParceiroCards();
-      form.reset();
-      form.preco.value = precosParceiros[parceiro].toFixed(2); // Sempre repõe o padrão
-if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicionado com sucesso!', 'success');
-    });
-  }
-});
 
   // Exportar Planilha (Excel)
   document.getElementById('export-parceiros-excel').onclick = function() {
@@ -982,8 +865,8 @@ document.getElementById('edit-form-parceiro').onsubmit = function(ev) {
       registro.tipo = tipoRadio ? tipoRadio.value : '';
     }
     salvarParceiros();
-    renderRegistros(parceiro);
     renderParceiroCards();
+    renderRegistrosTodosParceiros();
     document.getElementById('edit-modal-parceiro').classList.add('hidden');
     document.getElementById('edit-modal-parceiro').style.display = 'none';
     editParceiroInfo = null;
@@ -999,6 +882,7 @@ document.getElementById('btn-config-parceiros').onclick = function() {
   document.getElementById('modal-config-parceiros').classList.remove('hidden');
   document.getElementById('modal-config-parceiros').style.display = 'block';
 };
+
 // Fechar modal de configuração
 document.getElementById('cancelar-config-parceiros').onclick = function() {
   document.getElementById('modal-config-parceiros').classList.add('hidden');
@@ -1014,16 +898,6 @@ document.getElementById('form-config-parceiros').onsubmit = function(e) {
   precosGelo.Cubo = parseFloat(document.getElementById('preco-gelo-cubo-config').value);
   precosGelo.Triturado = parseFloat(document.getElementById('preco-gelo-triturado-config').value);
   salvarParceiros();
-  // Atualiza os formulários de registro
-  document.querySelector('form[data-parceiro="Coco"] input[name="preco"]').value = precosParceiros.Coco.toFixed(2);
-  document.querySelector('form[data-parceiro="Pastel"] input[name="preco"]').value = precosParceiros.Pastel.toFixed(2);
-  // Atualiza preço do Gelo conforme tipo selecionado
-  const geloForm = document.querySelector('form[data-parceiro="Gelo"]');
-  if (geloForm) {
-    const checked = geloForm.querySelector('input[name="tipo-gelo"]:checked');
-    const precoInput = geloForm.querySelector('input[name="preco"]');
-    if (checked && precoInput) precoInput.value = precosGelo[checked.value].toFixed(2);
-  }
   if (window.salaryTracker) window.salaryTracker.showFeedback('💾 Preços atualizados com sucesso!', 'success');
 };
 
@@ -1033,13 +907,6 @@ document.querySelectorAll('.parceiro-form input[type="date"]').forEach(input => 
   input.value = hoje.toISOString().slice(0,10);
 });
 
-// Atualiza o preço no input ao mudar o tipo de gelo
-document.querySelectorAll('form[data-parceiro="Gelo"] input[name="tipo-gelo"]').forEach(radio => {
-  radio.addEventListener('change', function() {
-    const precoInput = this.closest('form').querySelector('input[name="preco"]');
-    precoInput.value = precosGelo[this.value].toFixed(2);
-  });
-});
 // Ao carregar a página, defina o preço padrão conforme o tipo selecionado
 const geloForm = document.querySelector('form[data-parceiro="Gelo"]');
 if (geloForm) {
@@ -1063,6 +930,10 @@ if (geloForm) {
     </div>
   </div>
 </div>
+
+<!-- Lista única de registros dos parceiros -->
+<!-- MOVA ISSO PARA DENTRO DA ABA PARCEIROS -->
+<ul class="parceiro-registros" id="registros-parceiros-todos"></ul>
 
 <!-- Barra de navegação inferior -->
 <div class="bottom-tab-bar">
@@ -1104,6 +975,10 @@ tabs.forEach(tab => {
     sections.forEach(sec => sec.classList.remove('active'));
     const sectionId = tab.getAttribute('data-section');
     document.getElementById(sectionId).classList.add('active');
+    // Renderiza os cards de parceiros apenas ao ativar a aba Parceiros
+    if (sectionId === 'parceiros') {
+      renderParceiroCards();
+    }
   });
 });
 
@@ -1395,7 +1270,7 @@ document.getElementById('form-add-parceiro').onsubmit = function(e) {
       alert('Selecione o tipo de gelo.');
       return;
     }
-    registrosParceiros.Gelo.push({
+    registrosParceiros.Gelo.unshift({
       tipo: tipoRadio.value,
       data,
       quantidade,
@@ -1403,24 +1278,22 @@ document.getElementById('form-add-parceiro').onsubmit = function(e) {
       observacao
     });
     salvarParceiros();
-    renderRegistros('Gelo');
   } else {
-    registrosParceiros[parceiro].push({
+    registrosParceiros[parceiro].unshift({
       data,
       quantidade,
       preco,
       observacao
     });
     salvarParceiros();
-    renderRegistros(parceiro);
   }
   renderParceiroCards();
+  renderRegistrosTodosParceiros();
   document.getElementById('modal-add-parceiro').classList.add('hidden');
   document.getElementById('modal-add-parceiro').style.display = 'none';
   if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicionado com sucesso!', 'success');
 };
 
-window.renderRegistros = renderRegistros;
 </script>
 <style>
 .section { display: none; }
@@ -1447,7 +1320,8 @@ function getTotalParceiro(nome) {
 function renderParceiroCards() {
   const container = document.getElementById('parceiro-cards');
   if (!container) return;
-  container.innerHTML = parceirosList.map(parc => {
+  // Lista dos parceiros
+  const cards = parceirosList.map(parc => {
     let key = '';
     if (parc.nome === 'Diego') key = 'Coco';
     if (parc.nome === 'Daniel') key = 'Pastel';
@@ -1455,7 +1329,8 @@ function renderParceiroCards() {
     const regs = window.registrosParceiros && window.registrosParceiros[key] ? window.registrosParceiros[key] : [];
     const temRegistros = regs.length > 0;
     return `
-      <div class="parceiro-card${parc.nome === parceiroSelecionado ? ' parceiro-card' : ''}">
+      <div class="parceiro-card${parc.nome === parceiroSelecionado ? ' parceiro-card--selecionado' : ''}"
+        data-parceiro="${parc.nome}" style="cursor:pointer;">
         <div class="parceiro-card__nome">${'🤝 ' + parc.nome}</div>
         <div class="parceiro-card__servico">${parc.servico}</div>
         <div class="parceiro-card__valor">R$ ${getTotalParceiro(parc.nome).toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
@@ -1464,7 +1339,33 @@ function renderParceiroCards() {
           ${!temRegistros ? 'disabled' : ''}>💰 Pago</button>
       </div>
     `;
-  }).join('');
+  });
+
+  // Card de total geral (agora no início)
+  const totalGeral = parceirosList.reduce((soma, parc) => soma + getTotalParceiro(parc.nome), 0);
+  cards.unshift(`
+    <div class="parceiro-card" style="background:#f2f4f5;">
+      <div class="parceiro-card__nome" style="font-weight:bold;">Total</div>
+      <div class="parceiro-card__servico"></div>
+      <div class="parceiro-card__valor" style="font-size:1.3em;font-weight:bold;">R$ ${totalGeral.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+    </div>
+  `);
+
+  container.innerHTML = cards.join('');
+
+  // Adiciona evento de filtro ao clicar no card do parceiro
+  Array.from(container.querySelectorAll('.parceiro-card[data-parceiro]')).forEach(card => {
+    card.addEventListener('click', function() {
+      parceiroSelecionado = card.getAttribute('data-parceiro');
+      renderParceiroCards();
+      renderRegistrosTodosParceiros();
+      // Atualiza o subtítulo conforme o parceiro selecionado
+      const subtitulo = document.getElementById('parceiros-subtitulo');
+      if (subtitulo) {
+        subtitulo.textContent = `Registros de ${parceiroSelecionado}`;
+           }
+    });
+  });
 }
 window.marcarPagoParceiro = function(nome) {
   let key = '';
@@ -1480,8 +1381,8 @@ window.marcarPagoParceiro = function(nome) {
 };
 // Inicializa ao carregar
 document.addEventListener('DOMContentLoaded', function() {
-  renderParceiroCards();
   renderVendasDia();
+  renderRegistrosTodosParceiros();
 });
 </script>
 </body>
