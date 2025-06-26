@@ -1013,6 +1013,8 @@ document.getElementById('cancelar-config-parceiros').onclick = function() {
 // Salvar novos preços
 document.getElementById('form-config-parceiros').onsubmit = function(e) {
   e.preventDefault();
+  document.getElementById('modal-config-parceiros').classList.add('hidden');
+  document.getElementById('modal-config-parceiros').style.display = 'none';
   precosParceiros.Coco = parseFloat(document.getElementById('preco-coco-config').value);
   precosParceiros.Pastel = parseFloat(document.getElementById('preco-pastel-config').value);
   precosGelo.Cubo = parseFloat(document.getElementById('preco-gelo-cubo-config').value);
@@ -1028,9 +1030,6 @@ document.getElementById('form-config-parceiros').onsubmit = function(e) {
     const precoInput = geloForm.querySelector('input[name="preco"]');
     if (checked && precoInput) precoInput.value = precosGelo[checked.value].toFixed(2);
   }
-  document.getElementById('modal-config-parceiros').classList.add('hidden');
-  document.getElementById('modal-config-parceiros').style.display = 'none';
-  // Adicione:
   if (window.salaryTracker) window.salaryTracker.showFeedback('💾 Preços atualizados com sucesso!', 'success');
 };
 
