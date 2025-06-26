@@ -436,15 +436,9 @@ document.addEventListener('DOMContentLoaded', function() {
         menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
       }
     });
+  });
 
-    document.getElementById('parceiro-cards').addEventListener('click', function(e) {
-    const card = e.target.closest('.parceiro-card');
-    if (!card) return;
-    const nome = card.querySelector('.parceiro-card__nome').textContent.replace('🤝 ', '').trim();
-    parceiroSelecionado = nome;
-    renderParceiroCards();
-  });
-  });
+  
 
   document.querySelectorAll('.btn-export-excel').forEach(btn => {
   btn.addEventListener('click', function(e) {
@@ -1461,7 +1455,7 @@ function renderParceiroCards() {
     const regs = window.registrosParceiros && window.registrosParceiros[key] ? window.registrosParceiros[key] : [];
     const temRegistros = regs.length > 0;
     return `
-      <div class="parceiro-card${parc.nome === parceiroSelecionado ? ' parceiro-card--active' : ''}">
+      <div class="parceiro-card${parc.nome === parceiroSelecionado ? ' parceiro-card' : ''}">
         <div class="parceiro-card__nome">${'🤝 ' + parc.nome}</div>
         <div class="parceiro-card__servico">${parc.servico}</div>
         <div class="parceiro-card__valor">R$ ${getTotalParceiro(parc.nome).toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
