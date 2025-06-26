@@ -10,6 +10,7 @@
     <!-- Adicionei a biblioteca jsPDF aqui -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -63,6 +64,10 @@
   </div>
 
   <div id="parceiros" class="section">
+    <button id="fab-add-parceiro" title="Adicionar registro de parceiro"
+  style="position:fixed;bottom:88px;right:24px;z-index:1000;width:56px;height:56px;border-radius:50%;background:#1976d2;color:#fff;font-size:2.2em;align-items:center;justify-content:center;box-shadow:0 2px 8px #0003;outline:none;border:none;cursor:pointer;transition:background 0.2s;">
+  +</button>
+    
     <div class="export-controls" style="margin-bottom:16px;">
   <!-- Remover botão Exportar PDF -->
   <button id="export-parceiros-excel" class="btn btn--secondary">📊 Planilha</button>
@@ -82,9 +87,6 @@
   <div class="parceiro-toggle" data-target="coco" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
   <span class="parceiro-seta" id="seta-coco">&#9654;</span>
   <span>Coco</span>
-  <span id="total-coco-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
-  <button type="button" class="btn-parceiro-add" data-parceiro="Coco" title="Adicionar registro">
-  <span>+</span>
 </button>
   <div class="export-dropdown" style="position:relative;">
     <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
@@ -96,31 +98,6 @@
 </div>
   <div class="parceiro-conteudo" id="conteudo-coco" style="display:none;">
     <!-- Exemplo para Coco -->
-<form class="parceiro-form" data-parceiro="Coco" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
-  <label style="flex:1;min-width:120px;">
-    📅 Data
-    <input type="date" name="data" required class="form-control">
-  </label>
-  <div class="form-row" style="display:flex;gap:8px;width:100%;">
-    <label style="flex:1;">
-      🔢 Qtde
-      <input type="number" name="quantidade" min="1" required class="form-control">
-    </label>
-    <label style="flex:1;">
-      💵 Preço (R$)
-      <input type="number" name="preco" min="0" step="0.01" required class="form-control">
-    </label>
-  </div>
-  <div class="form-row" style="display:flex;gap:8px;width:100%;">
-    <label style="flex:2;">
-      📝 Observações
-      <input type="text" name="observacao" maxlength="100" class="form-control">
-    </label>
-    <div class="form-actions" style="display:flex;gap:8px;flex:1;">
-      <button type="submit" class="btn btn--primary" style="flex:1;">Registrar</button>
-    </div>
-  </div>
-</form>
               <ul class="parceiro-registros" id="registros-coco"></ul>
             </div>
           </div>
@@ -128,10 +105,6 @@
   <div class="parceiro-toggle" data-target="pastel" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
   <span class="parceiro-seta" id="seta-pastel">&#9654;</span>
   <span>Pastel</span>
-  <span id="total-pastel-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
-  <button type="button" class="btn-parceiro-add" data-parceiro="Pastel" title="Adicionar registro">
-  <span>+</span>
-</button>
 <div class="export-dropdown" style="position:relative;">
     <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
     <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
@@ -142,32 +115,6 @@
 </div>
   <div class="parceiro-conteudo" id="conteudo-pastel" style="display:none;">
     <!-- Exemplo para Coco, faça igual para Pastel -->
-<form class="parceiro-form" data-parceiro="Pastel" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
-  <label style="flex:1;min-width:120px;">
-    📅 Data
-    <input type="date" name="data" required class="form-control">
-  </label>
-  <div class="form-row" style="display:flex;gap:8px;width:100%;">
-    <label style="flex:1;">
-      🔢 Qtde
-      <input type="number" name="quantidade" min="1" required class="form-control">
-    </label>
-    <label style="flex:1;">
-      💵 Preço (R$)
-      <input type="number" name="preco" min="0" step="0.01" required class="form-control">
-    </label>
-  </div>
-  <div class="form-row" style="display:flex;gap:8px;width:100%;">
-    <label style="flex:2;">
-      📝 Observações
-      <input type="text" name="observacao" maxlength="100" class="form-control">
-    </label>
-    <div class="form-actions" style="display:flex;gap:8px;flex:1;">
-      <!-- Botão Exportar Dropdown -->
-      <button type="submit" class="btn btn--primary" style="flex:1;">Registrar</button>
-    </div>
-  </div>
-</form>
               <ul class="parceiro-registros" id="registros-pastel"></ul>
             </div>
           </div>
@@ -175,10 +122,6 @@
 <div class="parceiro-toggle" data-target="gelo" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
   <span class="parceiro-seta" id="seta-gelo">&#9654;</span>
   <span>Gelo</span>
-  <span id="total-gelo-header" style="color:#888; font-size:0.95em;">(R$ 0,00)</span>
-  <button type="button" class="btn-parceiro-add" data-parceiro="Gelo" title="Adicionar registro">
-  <span>+</span>
-</button>
   <div class="export-dropdown" style="position:relative;">
     <button type="button" class="btn btn--icon btn-export-dropdown" title="Exportar" style="min-width:80px;">╰➤</button>
     <div class="export-menu" style="display:none;position:absolute;z-index:10;left:0;top:110%;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px #0001;">
@@ -188,56 +131,41 @@
   </div>
 </div>
   <div class="parceiro-conteudo" id="conteudo-gelo" style="display:none;">
-    <form class="parceiro-form" data-parceiro="Gelo" style="display:flex;flex-direction:column;gap:8px;">
-  <div class="form-row" style="display:flex;flex-direction:column;gap:4px;">
-    <span style="font-weight:600; font-size:1.05em; margin-bottom:2px;">🧊 Tipos</span>
-    <div style="display:flex;gap:32px;justify-content:center;">
-      <label style="display:flex;flex-direction:column;align-items:center;font-weight:500;gap:4px;margin-bottom:0;">
-        <input type="radio" name="tipo-gelo" value="Cubo" required>
-        Cubo
-      </label>
-      <label style="display:flex;flex-direction:column;align-items:center;font-weight:500;gap:4px;margin-bottom:0;">
-        <input type="radio" name="tipo-gelo" value="Triturado" required>
-        Triturado
-      </label>
-    </div>
-  </div>
-  <div class="form-row" style="display:flex;gap:8px;">
-    <label style="flex:1;min-width:120px;">
-      📅 Data
-      <input type="date" name="data" required class="form-control">
-    </label>
-  </div>
-  <div class="form-row" style="display:flex;gap:8px;">
-    <label style="flex:1;">
-      🔢 Qtde
-      <input type="number" name="quantidade" min="1" required class="form-control">
-    </label>
-    <label style="flex:1;">
-      💵 Preço (R$)
-      <input type="number" name="preco" min="0" step="0.01" required class="form-control">
-    </label>
-  </div>
-  <div class="form-row" style="display:flex;gap:8px;">
-    <label style="flex:2;">
-      📝 Observações
-      <input type="text" name="observacao" maxlength="100" class="form-control">
-    </label>
-    <div class="form-actions" style="display:flex;gap:8px;flex:1;">
-      <button type="submit" class="btn btn--primary" style="flex:1;">Registrar</button>
-    </div>
-  </div>
-</form>
     <ul class="parceiro-registros" id="registros-gelo"></ul>
   </div>
 </div>
         </div>
 
+  <!-- NOVA ABA: Vendas do Dia -->
+<div id="vendas" class="section">
+  <section class="vendas-dia-section" style="max-width:600px;margin:16px auto 0 auto;">
+    <h2>Vendas do Dia</h2>
+    <canvas id="grafico-vendas-dia" height="120" style="width:100%;max-width:600px;margin:0 auto 24px auto;display:block;"></canvas>
+    <div style="margin:16px 0 24px 0; padding:16px; background:#f8fafb; border-radius:10px; border:1px solid #e0e0e0;">
+      <form id="form-venda-dia" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+        <label style="flex:1;min-width:120px;">
+          📅 Data
+          <input type="date" name="data" id="venda-dia-data" required class="form-control">
+        </label>
+        <label style="flex:1;">
+          💵 (R$)
+                  <input type="number" name="valor" id="venda-dia-valor" step="0.01" required class="form-control">
+        </label>
+        <label style="flex:2;">
+          📝 Observação
+          <input type="text" name="obs" id="venda-dia-obs" maxlength="100" class="form-control" placeholder="Opcional">
+        </label>
+        <button type="submit" class="btn btn--primary" style="flex:1;">Registrar</button>
+      </form>
+      <ul id="lista-venda-dia" style="margin-top:12px;list-style:none;padding:0;"></ul>
+    </div>
+  </section>
+</div>
+
         <!-- NOVO BLOCO DE NOTAS -->
         <div id="bloco" class="section">
     <section class="notas-section" style="max-width:600px;margin:16px auto 0 auto;">
   <h2>Bloco de Notas</h2>
-  <div style="height:16px;"></div>
   <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:4px;">
     <button id="font-decrease" type="button" class="btn btn--secondary" style="padding:2px 10px;font-size:1.1em;">A-</button>
     <button id="font-increase" type="button" class="btn btn--secondary" style="padding:2px 10px;font-size:1.1em;">A+</button>
@@ -326,6 +254,13 @@
           <label class="form-label" for="edit-observacao-parc">Observação</label>
           <input type="text" id="edit-observacao-parc" name="observacao" class="form-control" maxlength="100">
         </div>
+        <div class="form-group" id="edit-tipo-gelo-group" style="display:none;">
+  <label class="form-label">Tipo de Gelo</label>
+  <div style="display:flex;gap:32px;">
+    <label><input type="radio" name="edit-tipo-gelo" value="Cubo"> Cubo</label>
+    <label><input type="radio" name="edit-tipo-gelo" value="Triturado"> Triturado</label>
+  </div>
+</div>
         <div class="modal__actions">
           <button type="button" id="edit-cancel-parc" class="btn btn--secondary">❌ Cancelar</button>
           <button type="submit" class="btn btn--primary">💾 Salvar</button>
@@ -397,21 +332,28 @@
     <div class="modal__content">
       <h3 id="modal-add-parceiro-title">Adicionar Registro</h3>
       <form id="form-add-parceiro" class="edit-form">
+        <div class="form-group">
+          <label class="form-label" for="add-parceiro-select">Parceiro</label>
+          <select id="add-parceiro-select" name="parceiro" class="form-control" required>
+            <option value="Coco">Coco</option>
+            <option value="Pastel">Pastel</option>
+            <option value="Gelo">Gelo</option>
+          </select>
+        </div>
         <input type="hidden" id="add-parceiro-nome" name="parceiro">
-        <!-- Adicione dentro do <form id="form-add-parceiro">, antes dos outros campos -->
-<div id="add-parceiro-tipo-gelo-group" style="display:none; margin-bottom:12px;">
-  <label style="font-weight:600; font-size:1.05em;">🧊 Tipo de Gelo</label>
-  <div style="display:flex;gap:32px;justify-content:center;margin-top:4px;">
-    <label style="display:flex;flex-direction:column;align-items:center;font-weight:500;gap:4px;">
-      <input type="radio" name="tipo-gelo-modal" value="Cubo">
-      Cubo
-    </label>
-    <label style="display:flex;flex-direction:column;align-items:center;font-weight:500;gap:4px;">
-      <input type="radio" name="tipo-gelo-modal" value="Triturado">
-      Triturado
-    </label>
-  </div>
-</div>
+        <div id="add-parceiro-tipo-gelo-group" style="display:none; margin-bottom:12px;">
+          <label style="font-weight:600; font-size:1.05em;">🧊 Tipo de Gelo</label>
+          <div style="display:flex;gap:32px;justify-content:center;margin-top:4px;">
+            <label style="display:flex;flex-direction:column;align-items:center;font-weight:500;gap:4px;">
+              <input type="radio" name="tipo-gelo-modal" value="Cubo">
+              Cubo
+            </label>
+            <label style="display:flex;flex-direction:column;align-items:center;font-weight:500;gap:4px;">
+              <input type="radio" name="tipo-gelo-modal" value="Triturado">
+              Triturado
+            </label>
+          </div>
+        </div>
         <div class="form-group">
           <label class="form-label" for="add-parceiro-data">📅 Data</label>
           <input type="date" id="add-parceiro-data" name="data" class="form-control" required>
@@ -437,6 +379,31 @@
   </div>
 </div>
 
+    <!-- Modal de edição de venda do dia -->
+<div id="modal-editar-venda-dia" class="modal hidden">
+  <div class="modal__overlay">
+    <div class="modal__content">
+      <h3>Editar Venda do Dia</h3>
+      <form id="form-editar-venda-dia" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+        <label style="flex:1;min-width:120px;">
+          📅 Data
+          <input type="date" id="editar-venda-dia-data" required class="form-control">
+        </label>
+        <label style="flex:1;">
+          💵 (R$)
+          <input type="number" id="editar-venda-dia-valor" min="0" step="0.01" required class="form-control">
+        </label>
+        <label style="flex:2;">
+          📝 Observação
+          <input type="text" id="editar-venda-dia-obs" maxlength="100" class="form-control" placeholder="Opcional">
+        </label>
+        <button type="submit" class="btn btn--primary" style="flex:1;">Salvar</button>
+        <button type="button" id="cancelar-editar-venda-dia" class="btn btn--secondary" style="flex:1;">Cancelar</button>
+      </form>
+    </div>
+  </div>
+</div>
+
     <script src="app.js"></script>
     <script>
   // Impede zoom com Ctrl + Scroll
@@ -455,15 +422,102 @@
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  renderParceiroCards();
+  renderVendasDia();
   // Alternância de abas
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-btn--active'));
-      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('tab-content--active'));
-      this.classList.add('tab-btn--active');
-      document.getElementById('tab-' + this.dataset.tab).classList.add('tab-content--active');
+  document.querySelectorAll('.btn-export-dropdown').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      // Fecha todos os outros menus primeiro
+      document.querySelectorAll('.export-menu').forEach(menu => menu.style.display = 'none');
+      // Abre o menu relacionado ao botão clicado
+      const menu = btn.nextElementSibling;
+      if (menu) {
+        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+      }
     });
+
+    document.getElementById('parceiro-cards').addEventListener('click', function(e) {
+    const card = e.target.closest('.parceiro-card');
+    if (!card) return;
+    const nome = card.querySelector('.parceiro-card__nome').textContent.replace('🤝 ', '').trim();
+    parceiroSelecionado = nome;
+    renderParceiroCards();
   });
+  });
+
+  document.querySelectorAll('.btn-export-excel').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation(); // Impede o fechamento do menu antes do download
+    const parceiro = btn.getAttribute('data-parceiro');
+    let csv = 'Parceiro,Data,Quantidade,Preço,Observação,Tipo\n';
+    if (parceiro === 'Gelo') {
+      registrosParceiros.Gelo.forEach(reg => {
+        csv += `Gelo,"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${reg.observacao || ''}","${reg.tipo || ''}"\n`;
+      });
+    } else {
+      registrosParceiros[parceiro].forEach(reg => {
+        csv += `${parceiro},"${reg.data}",${reg.quantidade},${reg.preco},"${reg.observacao||''}",\n`;
+      });
+    }
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${parceiro}.csv`;
+    a.click();
+    // Fecha o menu após o clique
+    btn.parentElement.style.display = 'none';
+  });
+});
+
+  // Fecha o menu ao clicar fora
+  document.addEventListener('click', function() {
+    document.querySelectorAll('.export-menu').forEach(menu => menu.style.display = 'none');
+  });
+
+  // Botão flutuante de adicionar parceiro
+document.getElementById('fab-add-parceiro').onclick = function() {
+  const form = document.getElementById('form-add-parceiro');
+  form.reset();
+  const select = document.getElementById('add-parceiro-select');
+  select.value = 'Coco';
+  document.getElementById('modal-add-parceiro-title').textContent = 'Adicionar Registro';
+  document.getElementById('add-parceiro-data').value = new Date().toISOString().slice(0,10);
+
+  // Atualiza campos conforme o parceiro padrão
+  if (select.value === 'Gelo') {
+    document.getElementById('add-parceiro-tipo-gelo-group').style.display = '';
+    // Marca "Cubo" por padrão
+    const radios = document.querySelectorAll('input[name="tipo-gelo-modal"]');
+    radios.forEach(r => r.checked = (r.value === 'Cubo'));
+    document.getElementById('add-parceiro-preco').value = precosGelo.Cubo.toFixed(2);
+  } else if (select.value === 'Coco') {
+    document.getElementById('add-parceiro-tipo-gelo-group').style.display = 'none';
+    document.getElementById('add-parceiro-preco').value = precosParceiros.Coco.toFixed(2);
+  } else if (select.value === 'Pastel') {
+    document.getElementById('add-parceiro-tipo-gelo-group').style.display = 'none';
+    document.getElementById('add-parceiro-preco').value = precosParceiros.Pastel.toFixed(2);
+  }
+
+  document.getElementById('modal-add-parceiro').classList.remove('hidden');
+  document.getElementById('modal-add-parceiro').style.display = 'flex';
+};
+
+// Botões "+" dos blocos de parceiros
+document.querySelectorAll('.btn-parceiro-add').forEach(btn => {
+  btn.onclick = function() {
+    document.getElementById('form-add-parceiro').reset();
+    // Define o parceiro conforme o botão clicado
+    const parceiro = btn.getAttribute('data-parceiro');
+    document.getElementById('add-parceiro-select').value = parceiro;
+    document.getElementById('modal-add-parceiro-title').textContent = 'Adicionar Registro';
+    document.getElementById('add-parceiro-data').value = new Date().toISOString().slice(0,10);
+    // Dispara o evento change para atualizar preço e campos
+    document.getElementById('add-parceiro-select').dispatchEvent(new Event('change'));
+    document.getElementById('modal-add-parceiro').classList.remove('hidden');
+    document.getElementById('modal-add-parceiro').style.display = 'flex';
+  }
+});
 
   // --- BLOCO DE NOTAS ---
   const textarea = document.getElementById('bloco-notas');
@@ -500,8 +554,10 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Dados dos parceiros
-  let precosParceiros = { Coco: 6.00, Pastel: 34.00 };
-  let precosGelo = { Cubo: 10.00, Triturado: 35.00 };
+  let precoPadraoCoco = 6.00;
+  let precoPadraoPastel = 34.00;
+  let precoPadraoGeloCubo = 10.00;
+  let precoPadraoGeloTriturado = 35.00;
 
   const savedRegistros = localStorage.getItem('parceiroRegistros');
 if (savedRegistros) registrosParceiros = JSON.parse(savedRegistros);
@@ -542,116 +598,57 @@ if (savedFuncionarios) funcionarios = JSON.parse(savedFuncionarios);
 
   // Função para renderizar registros
   function renderRegistros(parceiro) {
-    const ul = document.getElementById('registros-' + parceiro.toLowerCase());
-    ul.innerHTML = '';
+  const ul = document.getElementById('registros-' + parceiro.toLowerCase());
+  ul.innerHTML = '';
 
-    // Ordena por data
-    const sorted = [...registrosParceiros[parceiro]].map((reg, i) => ({ ...reg, _originalIdx: i }))
-  .sort((a, b) => new Date(b.data) - new Date(a.data));
-// Agrupa por data
-const grupos = {};
-sorted.forEach(reg => {
-  if (!grupos[reg.data]) grupos[reg.data] = [];
-  grupos[reg.data].push(reg);
-});
+  // Ordena por data decrescente
+  const sorted = [...registrosParceiros[parceiro]].map((reg, i) => ({ ...reg, _originalIdx: i }))
+    .sort((a, b) => new Date(b.data) - new Date(a.data));
 
-// Ordena datas em ordem decrescente
-const datasOrdenadas = Object.keys(grupos).sort((a, b) => new Date(b) - new Date(a));
-datasOrdenadas.forEach((data, idx) => {
-  const dataObj = new Date(data + 'T00:00:00');
-  let dataFormatada = dataObj.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
-
-  // Calcule o total do dia
-  const totalDia = grupos[data].reduce((soma, reg) => soma + (parseFloat(reg.quantidade) || 0) * (parseFloat(reg.preco) || 0), 0);
-
-  const groupId = parceiro + '-' + data.replace(/[^a-zA-Z0-9]/g, '');
-  // Cabeçalho do grupo com seta e total do dia
-  const groupHeader = document.createElement('div');
-  groupHeader.className = 'registros-group-header';
-  groupHeader.innerHTML = `<button class="group-toggle" data-target="${groupId}" style="background:none;border:none;cursor:pointer;font-size:1em;">
-    <span class="seta-group">&#9654;</span>
-    <strong>${dataFormatada}</strong>
-    <span style="color:#888; font-size:0.95em;">(R$ ${totalDia.toLocaleString('pt-BR', {minimumFractionDigits:2})})</span>
-  </button>`;
-  ul.appendChild(groupHeader);
-
-  // Lista dos registros do grupo
-  const groupList = document.createElement('ul');
-  groupList.id = groupId;
-  groupList.className = 'registros-group-list';
-  // Só o grupo mais recente fica aberto
-  groupList.style.display = idx === 0 ? 'block' : 'none';
-  ul.appendChild(groupList);
-
-  // Ajusta a seta conforme o estado inicial
-  const seta = groupHeader.querySelector('.seta-group');
-  if (groupList.style.display === 'block') {
-    seta.style.transform = 'rotate(90deg)';
-  } else {
-    seta.style.transform = 'rotate(0deg)';
-  }
-
-  grupos[data].forEach(reg => {
+  sorted.forEach(reg => {
     const total = (reg.quantidade * reg.preco).toFixed(2);
-const precoUnit = parseFloat(reg.preco).toFixed(2);
-const quantidade = reg.quantidade;
-const tipo = reg.tipo ? `<div style="font-weight:600;margin-top:4px;">Tipo: <span style="font-weight:bold;">${reg.tipo}</span></div>` : '';
-const obs = reg.observacao ? `<div class="record-item__note">📝 ${reg.observacao}</div>` : '';
-const dataFormatada = new Date(reg.data).toLocaleDateString('pt-BR');
-const card = document.createElement('div');
-card.className = 'record-item';
-card.innerHTML = `
-  <div style="font-size:1.1em;font-weight:500;">
-    ${quantidade} x R$ ${precoUnit} = <span style="font-size:1.2em;font-weight:bold;">R$ ${total}</span>
-  </div>
-  ${tipo}
-  <div style="color:#888;font-size:0.98em;margin-top:2px;">${dataFormatada}</div>
-  ${obs}
-  <div class="record-item__actions" style="margin-top:10px;">
-    <button class="btn btn--secondary btn-editar" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">✏️ Editar</button>
-    <button class="btn btn--outline btn-excluir-parceiro" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">🗑️ Excluir</button>
-  </div>
-`;
-groupList.appendChild(card);
+    const precoUnit = parseFloat(reg.preco).toFixed(2);
+    const quantidade = reg.quantidade;
+    const tipo = reg.tipo ? `<div style="font-weight:600;margin-top:4px;">Tipo: <span style="font-weight:bold;">${reg.tipo}</span></div>` : '';
+    const obs = reg.observacao ? `<div class="record-item__note">📝 ${reg.observacao}</div>` : '';
+    const dataFormatada = new Date(reg.data).toLocaleDateString('pt-BR');
+    const card = document.createElement('div');
+    card.className = 'record-item';
+    card.innerHTML = `
+      <div style="font-size:1.1em;font-weight:500;">
+        ${quantidade} x R$ ${precoUnit} = <span style="font-size:1.2em;font-weight:bold;">R$ ${total}</span>
+      </div>
+      ${tipo}
+      <div class="record-item__date">📅 ${reg.data.split('-').reverse().join('/')}</div>
+      ${obs}
+      <div class="record-item__actions" style="margin-top:10px;">
+        <button class="btn btn--secondary btn-editar" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">✏️ Editar</button>
+        <button class="btn btn--outline btn-excluir-parceiro" data-parceiro="${parceiro}" data-idx="${reg._originalIdx}">🗑️ Excluir</button>
+      </div>
+    `;
+    ul.appendChild(card);
   });
-  ul.appendChild(groupList);
-});
-    // Setas para expandir/recolher grupos
-    ul.querySelectorAll('.group-toggle').forEach(btn => {
-      btn.onclick = function() {
-        const target = btn.dataset.target;
-        const list = document.getElementById(target);
-        const seta = btn.querySelector('.seta-group');
-        if (list.style.display === 'none') {
-          list.style.display = 'block';
-          seta.style.transform = 'rotate(90deg)';
-        } else {
-          list.style.display = 'none';
-          seta.style.transform = 'rotate(0deg)';
-        }
-      };
-    });
 
-    // Desabilita o botão "Pago" se não houver registros
-    const btnPago = document.querySelector(`.btn-pago-parceiro[data-parceiro="${parceiro}"]`);
-    if (btnPago) {
-      if (!registrosParceiros[parceiro] || registrosParceiros[parceiro].length === 0) {
-        btnPago.setAttribute('disabled', 'disabled');
-      } else {
-        btnPago.removeAttribute('disabled');
-      }
+  // Desabilita o botão "Pago" se não houver registros
+  const btnPago = document.querySelector(`.btn-pago-parceiro[data-parceiro="${parceiro}"]`);
+  if (btnPago) {
+    if (!registrosParceiros[parceiro] || registrosParceiros[parceiro].length === 0) {
+      btnPago.setAttribute('disabled', 'disabled');
+    } else {
+      btnPago.removeAttribute('disabled');
     }
-
-    // Desabilita os botões de exportação individual se não houver registros
-    const btnExportPdf = document.querySelector(`.btn-export-pdf[data-parceiro="${parceiro}"]`);
-const btnExportExcel = document.querySelector(`.btn-export-excel[data-parceiro="${parceiro}"]`);
-const temRegistros = registrosParceiros[parceiro] && registrosParceiros[parceiro].length > 0;
-if (btnExportPdf) btnExportPdf.disabled = !temRegistros;
-if (btnExportExcel) btnExportExcel.disabled = !temRegistros;
-
-    atualizarTotalParceiros();
   }
+
+  // Desabilita os botões de exportação individual se não houver registros
+  const btnExportPdf = document.querySelector(`.btn-export-pdf[data-parceiro="${parceiro}"]`);
+  const btnExportExcel = document.querySelector(`.btn-export-excel[data-parceiro="${parceiro}"]`);
+  const temRegistros = registrosParceiros[parceiro] && registrosParceiros[parceiro].length > 0;
+  if (btnExportPdf) btnExportPdf.disabled = !temRegistros;
+  if (btnExportExcel) btnExportExcel.disabled = !temRegistros;
+
+  atualizarTotalParceiros();
+}
+window.renderRegistros = renderRegistros;
 
   function renderEmployeeSummary() {
   const summaryDiv = document.getElementById('employee-summary');
@@ -720,7 +717,8 @@ if (headerElemGelo) headerElemGelo.textContent = `(R$ ${totalGelo.toLocaleString
 
   // Exclusão de registros
   let excluirParceiroInfo = null;
-let pagarParceiroInfo = null;
+  let pagarParceiroInfo = null;
+  let idxParaExcluir = null;
 
   document.addEventListener('click', function(e) {
     if (e.target.classList.contains('btn-excluir-parceiro')) {
@@ -741,6 +739,10 @@ let pagarParceiroInfo = null;
       document.getElementById('modal-message').textContent = `Tem certeza que deseja marcar tudo como pago? Isso irá limpar todos os registros de ${parceiro}.`;
       document.getElementById('confirmation-modal').classList.remove('hidden');
       document.getElementById('confirmation-modal').style.display = 'block';
+    } else if (e.target.classList.contains('btn-excluir-venda-dia')) {
+      idxParaExcluir = parseInt(e.target.dataset.idx, 10);
+      document.getElementById('modal-excluir-venda-dia').classList.remove('hidden');
+      document.getElementById('modal-excluir-venda-dia').style.display = 'block';
     }
   });
 
@@ -788,44 +790,47 @@ let pagarParceiroInfo = null;
   // Edição de registros
   document.addEventListener('click', function(e) {
     if (e.target.classList.contains('btn-editar')) {
-      e.preventDefault();
-      const idx = e.target.dataset.idx;
-      const parceiro = e.target.dataset.parceiro;
-      const registro = registrosParceiros[parceiro][idx];
+    e.preventDefault();
+    const idx = e.target.dataset.idx;
+    const parceiro = e.target.dataset.parceiro;
+    const registro = registrosParceiros[parceiro][idx];
+    editParceiroInfo = { parceiro, idx };
 
-      // Esconde campo funcionário
-      document.getElementById('edit-employee').parentElement.style.display = 'none';
+    // Esconde o modal antigo de funcionários, se estiver aberto
+    document.getElementById('edit-modal').classList.add('hidden');
+    document.getElementById('edit-modal').style.display = 'none';
 
-      // Ajusta labels para parceiros
-      document.getElementById('edit-amount').parentElement.querySelector('label').textContent = 'Preço unitário';
-      document.getElementById('edit-date').value = registro.data;
-      document.getElementById('edit-amount').value = registro.preco;
-      document.getElementById('edit-note').value = registro.observacao || '';
+    // Preenche os campos do modal novo
+    document.getElementById('edit-data-parc').value = registro.data;
+    document.getElementById('edit-quantidade-parc').value = registro.quantidade;
+    document.getElementById('edit-preco-parc').value = registro.preco;
+    document.getElementById('edit-observacao-parc').value = registro.observacao || '';
 
-      // Ao salvar, atualiza apenas os campos relevantes
-      document.getElementById('edit-form').onsubmit = function(ev) {
-        ev.preventDefault();
-        registro.data = document.getElementById('edit-date').value;
-        registro.preco = parseFloat(document.getElementById('edit-amount').value);
-        registro.observacao = document.getElementById('edit-note').value;
-        salvarParceiros();
-        renderRegistros(parceiro);
-        renderParceiroCards();
-        document.getElementById('edit-modal').classList.add('hidden');
-        document.getElementById('edit-modal').style.display = 'none';
-      };
-
-      document.getElementById('edit-modal').classList.remove('hidden');
-      document.getElementById('edit-modal').style.display = 'block';
+    // Tipo de gelo: só mostra se for Gelo
+    const tipoGeloGroup = document.getElementById('edit-tipo-gelo-group');
+    if (parceiro === 'Gelo') {
+      tipoGeloGroup.style.display = '';
+      // Marca o radio correspondente
+      if (registro.tipo) {
+        const radios = tipoGeloGroup.querySelectorAll('input[name="edit-tipo-gelo"]');
+        radios.forEach(radio => {
+          radio.checked = (radio.value === registro.tipo);
+        });
+      }
+    } else {
+      tipoGeloGroup.style.display = 'none';
     }
+
+    document.getElementById('edit-modal-parceiro').classList.remove('hidden');
+    document.getElementById('edit-modal-parceiro').style.display = 'block';
+  }
   });
 
   // Salvar parceiros (exemplo simplificado, deve ser adaptado para sua lógica)
-  function salvarParceiros() {
-  localStorage.setItem('parceiroRegistros', JSON.stringify(registrosParceiros));
-  localStorage.setItem('parceiroPrecos', JSON.stringify(precosParceiros));
-  // ADICIONE ESTA LINHA:
-  localStorage.setItem('parceiroPrecosGelo', JSON.stringify(precosGelo));
+  window.salvarParceiros = function salvarParceiros() {
+    localStorage.setItem('parceiroRegistros', JSON.stringify(registrosParceiros));
+    localStorage.setItem('parceiroPrecos', JSON.stringify(precosParceiros));
+    localStorage.setItem('parceiroPrecosGelo', JSON.stringify(precosGelo));
 }
 
   // Expansão/colapso dos blocos de parceiros
@@ -969,22 +974,26 @@ document.getElementById('edit-cancel-parc').onclick = function() {
 
 // Salvar edição
 document.getElementById('edit-form-parceiro').onsubmit = function(ev) {
-  ev.preventDefault();
-  if (!editParceiroInfo) return;
-  const { parceiro, idx } = editParceiroInfo;
-  const registro = registrosParceiros[parceiro][idx];
-  registro.data = document.getElementById('edit-data-parc').value;
-  registro.quantidade = parseFloat(document.getElementById('edit-quantidade-parc').value);
-  registro.preco = parseFloat(document.getElementById('edit-preco-parc').value);
-  registro.observacao = document.getElementById('edit-observacao-parc').value;
-  salvarParceiros();
-  renderRegistros(parceiro);
-  renderParceiroCards();
-  document.getElementById('edit-modal-parceiro').classList.add('hidden');
-  document.getElementById('edit-modal-parceiro').style.display = 'none';
-  editParceiroInfo = null;
-  // Adicione:
-  if (window.salaryTracker) window.salaryTracker.showFeedback('✏️ Registro editado com sucesso!', 'success');
+    ev.preventDefault();
+    if (!editParceiroInfo) return;
+    const { parceiro, idx } = editParceiroInfo;
+    const registro = registrosParceiros[parceiro][idx];
+    registro.data = document.getElementById('edit-data-parc').value;
+    registro.quantidade = parseFloat(document.getElementById('edit-quantidade-parc').value);
+    registro.preco = parseFloat(document.getElementById('edit-preco-parc').value);
+    registro.observacao = document.getElementById('edit-observacao-parc').value;
+    // Atualize o tipo de gelo ANTES de salvar e renderizar
+    if (parceiro === 'Gelo') {
+      const tipoRadio = document.querySelector('input[name="edit-tipo-gelo"]:checked');
+      registro.tipo = tipoRadio ? tipoRadio.value : '';
+    }
+    salvarParceiros();
+    renderRegistros(parceiro);
+    renderParceiroCards();
+    document.getElementById('edit-modal-parceiro').classList.add('hidden');
+    document.getElementById('edit-modal-parceiro').style.display = 'none';
+    editParceiroInfo = null;
+    if (window.salaryTracker) window.salaryTracker.showFeedback('✏️ Registro editado com sucesso!', 'success');
 };
 
 // Abrir modal de configuração
@@ -1048,6 +1057,21 @@ if (geloForm) {
 });
 </script>
 
+<!-- Modal de confirmação de exclusão de venda do dia -->
+<div id="modal-excluir-venda-dia" class="modal hidden">
+  <div class="modal__overlay">
+    <div class="modal__content">
+      <h3>Excluir venda?</h3>
+      <p>Tem certeza que deseja excluir este registro?</p>
+      <div class="modal__actions">
+        <button id="cancelar-excluir-venda-dia" class="btn btn--secondary">Cancelar</button>
+        <button id="confirmar-excluir-venda-dia" class="btn btn--primary">Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Barra de navegação inferior -->
 <div class="bottom-tab-bar">
   <div class="tab active" data-section="funcionarios">
     <span class="icon">
@@ -1060,6 +1084,13 @@ if (geloForm) {
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handshake-icon lucide-handshake"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg>  
     </span>
     <span class="label">Parceiros</span>
+  </div>
+  <!-- NOVA ABA -->
+  <div class="tab" data-section="vendas">
+    <span class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cash"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M18 12h.01"/><path d="M6 12h.01"/><path d="M12 12h.01"/></svg>
+    </span>
+    <span class="label">Vendas</span>
   </div>
   <div class="tab" data-section="bloco">
     <span class="icon">
@@ -1075,65 +1106,328 @@ const sections = document.querySelectorAll('.sections .section');
 
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
-    // Remove active das abas
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-
-    // Esconde todas as seções
     sections.forEach(sec => sec.classList.remove('active'));
-    // Mostra a seção correspondente
     const sectionId = tab.getAttribute('data-section');
     document.getElementById(sectionId).classList.add('active');
   });
 });
-</script>
-<script>
-document.querySelectorAll('.btn-export-dropdown').forEach(btn => {
-  btn.addEventListener('click', function(e) {
-    e.stopPropagation(); // Não fecha o bloco do parceiro
-    const menu = this.parentElement.querySelector('.export-menu');
-    // Fecha outros menus abertos
-    document.querySelectorAll('.export-menu').forEach(m => {
-      if (m !== menu) m.style.display = 'none';
-    });
-    // Alterna o menu atual
-    menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+
+// --- VENDAS DO DIA ABA ---
+let vendasDia = JSON.parse(localStorage.getItem('vendasDia') || '[]');
+let editVendaIdx = null;
+
+function renderVendasDia() {
+  const ul = document.getElementById('lista-venda-dia');
+  if (!ul) return;
+  ul.innerHTML = '';
+  // Ordena por data decrescente
+  const sorted = [...vendasDia].sort((a, b) => new Date(b.data) - new Date(a.data));
+  sorted.forEach((venda) => {
+  const realIdx = vendasDia.findIndex(v =>
+    v.data === venda.data &&
+    Number(v.valor) === Number(venda.valor) &&
+    (v.obs || '') === (venda.obs || '')
+  );
+  const obs = venda.obs ? ` <span style="color:#888;">(${venda.obs})</span>` : '';
+  ul.innerHTML += `
+  <li style="margin-bottom:16px;">
+    <div>
+      <strong>${venda.data.split('-').reverse().join('/')}</strong>: 
+      <span style="font-weight:600;color:#21808d;">R$ ${parseFloat(venda.valor).toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+      ${obs}
+    </div>
+    <div style="margin-top:6px; display:flex; gap:8px;">
+      <button class="btn btn--outline btn-editar-venda-dia" data-idx="${realIdx}" style="padding:2px 10px;">✏️</button>
+      <button class="btn btn--outline btn-excluir-venda-dia" data-idx="${realIdx}" style="padding:2px 10px;">🗑️</button>
+    </div>
+  </li>
+`;
+});
+  renderGraficoVendasDia();
+}
+
+document.getElementById('form-venda-dia').onsubmit = function(e) {
+  e.preventDefault();
+  const data = document.getElementById('venda-dia-data').value;
+  const valor = parseFloat(document.getElementById('venda-dia-valor').value);
+  const obs = document.getElementById('venda-dia-obs').value;
+  if (!data || isNaN(valor)) return;
+  if (editVendaIdx !== null) {
+    vendasDia[editVendaIdx] = { data, valor, obs };
+    editVendaIdx = null;
+    this.querySelector('button[type="submit"]').textContent = 'Registrar';
+  } else {
+    vendasDia.push({ data, valor, obs });
+  }
+  localStorage.setItem('vendasDia', JSON.stringify(vendasDia));
+  renderVendasDia();
+  this.reset();
+  document.getElementById('venda-dia-data').value = new Date().toISOString().slice(0,10);
+  if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Venda registrada!', 'success');
+};
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('btn-excluir-venda-dia')) {
+    idxParaExcluir = parseInt(e.target.dataset.idx, 10);
+    document.getElementById('modal-excluir-venda-dia').classList.remove('hidden');
+    document.getElementById('modal-excluir-venda-dia').style.display = 'block';
+  }
+  if (e.target.classList.contains('btn-editar-venda-dia')) {
+    const idx = parseInt(e.target.dataset.idx, 10);
+    const venda = vendasDia[idx];
+    document.getElementById('editar-venda-dia-data').value = venda.data;
+    document.getElementById('editar-venda-dia-valor').value = venda.valor;
+    document.getElementById('editar-venda-dia-obs').value = venda.obs || '';
+    editVendaIdx = idx;
+    document.querySelector('#form-venda-dia button[type="submit"]').textContent = 'Salvar';
+    window.scrollTo({ top: document.getElementById('form-venda-dia').offsetTop - 40, behavior: 'smooth' });
+  }
+});
+
+// Data de hoje por padrão
+document.getElementById('venda-dia-data').value = new Date().toISOString().slice(0,10);
+
+function renderGraficoVendasDia() {
+  const canvas = document.getElementById('grafico-vendas-dia');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  // Agrupa por mês
+  const porMes = {};
+  vendasDia.forEach(v => {
+    if (!v.data) return;
+    const [ano, mes] = v.data.split('-');
+    const chave = `${ano}-${mes}`;
+    porMes[chave] = (porMes[chave] || 0) + Number(v.valor || 0);
+  });
+  const meses = Object.keys(porMes).sort(); // ordem crescente
+  const labels = meses.map(m => {
+    const [ano, mes] = m.split('-');
+    return `${mes}/${ano}`;
+  });
+  const data = meses.map(m => porMes[m]);
+
+  // Destroi gráfico anterior se existir
+  if (window._graficoVendasDia) window._graficoVendasDia.destroy();
+  window._graficoVendasDia = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Vendas mensais (R$)',
+        data: data,
+        backgroundColor: data.map(v => v < 0 ? '#e53935' : '#21808d')
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: value => 'R$ ' + value.toLocaleString('pt-BR', {minimumFractionDigits:2})
+          }
+        }
+      }
+    }
+  });
+}
+
+renderVendasDia();
+let vendasDiaBloco = JSON.parse(localStorage.getItem('vendasDiaBloco') || '[]');
+
+function renderVendasDiaBloco() {
+  const ul = document.getElementById('lista-venda-dia-bloco');
+  if (!ul) return;
+  ul.innerHTML = '';
+  // Ordena por data decrescente
+  const sorted = [...vendasDiaBloco].sort((a, b) => new Date(b.data) - new Date(a.data));
+  sorted.forEach((venda) => {
+  const realIdx = vendasDia.findIndex(v =>
+    v.data === venda.data &&
+    Number(v.valor) === Number(venda.valor) &&
+    (v.obs || '') === (venda.obs || '')
+  );
+  const obs = venda.obs ? ` <span style="color:#888;">(${venda.obs})</span>` : '';
+  ul.innerHTML += `
+    <li style="margin-bottom:8px;">
+      <strong>${venda.data.split('-').reverse().join('/')}</strong>: 
+      <span style="font-weight:600;color:#21808d;">R$ ${parseFloat(venda.valor).toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+      ${obs}
+      <button class="btn btn--outline btn-editar-venda-dia" data-idx="${realIdx}" style="margin-left:8px;padding:2px 10px;">✏️</button>
+      <button class="btn btn--outline btn-excluir-venda-dia" data-idx="${realIdx}" style="margin-left:4px;padding:2px 10px;">🗑️</button>
+    </li>
+  `;
+});
+}
+
+const formVendaBloco = document.getElementById('form-venda-dia-bloco');
+if (formVendaBloco) {
+  formVendaBloco.onsubmit = function(e) {
+    e.preventDefault();
+    const data = document.getElementById('venda-dia-data-bloco').value;
+    const valor = parseFloat(document.getElementById('venda-dia-valor-bloco').value);
+    if (!data || isNaN(valor)) return;
+    vendasDiaBloco.push({ data, valor });
+    localStorage.setItem('vendasDiaBloco', JSON.stringify(vendasDiaBloco));
+    renderVendasDiaBloco();
+    this.reset();
+    document.getElementById('venda-dia-data-bloco').value = new Date().toISOString().slice(0,10);
+    if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Venda registrada!', 'success');
+  };
+}
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('btn-excluir-venda-dia-bloco')) {
+    const idx = parseInt(e.target.dataset.idx, 10);
+    vendasDiaBloco.splice(idx, 1);
+    localStorage.setItem('vendasDiaBloco', JSON.stringify(vendasDiaBloco));
+    renderVendasDiaBloco();
+    if (window.salaryTracker) window.salaryTracker.showFeedback('🗑️ Venda removida!', 'success');
+  }
+});
+
+// Data de hoje por padrão
+const inputDataBloco = document.getElementById('venda-dia-data-bloco');
+if (inputDataBloco) inputDataBloco.value = new Date().toISOString().slice(0,10);
+
+renderVendasDiaBloco();
+
+document.getElementById('cancelar-excluir-venda-dia').onclick = function() {
+  idxParaExcluir = null;
+  document.getElementById('modal-excluir-venda-dia').classList.add('hidden');
+ 
+
+  document.getElementById('modal-excluir-venda-dia').style.display = 'none';
+};
+
+document.getElementById('confirmar-excluir-venda-dia').onclick = function() {
+  if (idxParaExcluir !== null) {
+    vendasDia.splice(idxParaExcluir, 1);
+    localStorage.setItem('vendasDia', JSON.stringify(vendasDia));
+    renderVendasDia();
+    if (window.salaryTracker) window.salaryTracker.showFeedback('🗑️ Venda removida!', 'success');
+  }
+  idxParaExcluir = null;
+  document.getElementById('modal-excluir-venda-dia').classList.add('hidden');
+  document.getElementById('modal-excluir-venda-dia').style.display = 'none';
+};
+
+let editVendaDiaIdx = null;
+
+// Abrir modal ao clicar em editar
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('btn-editar-venda-dia')) {
+    const idx = parseInt(e.target.dataset.idx, 10);
+    const venda = vendasDia[idx];
+    if (!venda) return;
+    editVendaDiaIdx = idx;
+    document.getElementById('editar-venda-dia-data').value = venda.data;
+    document.getElementById('editar-venda-dia-valor').value = venda.valor;
+    document.getElementById('editar-venda-dia-obs').value = venda.obs || '';
+    document.getElementById('modal-editar-venda-dia').classList.remove('hidden');
+    document.getElementById('modal-editar-venda-dia').style.display = 'flex';
+  }
+});
+
+// Cancelar edição
+document.getElementById('cancelar-editar-venda-dia').onclick = function() {
+  editVendaDiaIdx = null;
+  document.getElementById('modal-editar-venda-dia').classList.add('hidden');
+  document.getElementById('modal-editar-venda-dia').style.display = 'none';
+};
+
+// Salvar edição
+document.getElementById('form-editar-venda-dia').onsubmit = function(e) {
+  e.preventDefault();
+  if (editVendaDiaIdx === null) return;
+  const data = document.getElementById('editar-venda-dia-data').value;
+  const valor = parseFloat(document.getElementById('editar-venda-dia-valor').value);
+  const obs = document.getElementById('editar-venda-dia-obs').value;
+  vendasDia[editVendaDiaIdx] = { data, valor, obs };
+  localStorage.setItem('vendasDia', JSON.stringify(vendasDia));
+  renderVendasDia();
+  editVendaDiaIdx = null;
+  document.getElementById('modal-editar-venda-dia').classList.add('hidden');
+  document.getElementById('modal-editar-venda-dia').style.display = 'none';
+  if (window.salaryTracker) window.salaryTracker.showFeedback('✏️ Venda editada com sucesso!', 'success');
+};
+
+// Mostra/esconde tipo de gelo conforme seleção
+document.getElementById('add-parceiro-select').onchange = function() {
+  const parceiro = this.value;
+  if (parceiro === 'Gelo') {
+    document.getElementById('add-parceiro-tipo-gelo-group').style.display = '';
+    // Marca "Cubo" por padrão
+    const radios = document.querySelectorAll('input[name="tipo-gelo-modal"]');
+    radios.forEach(r => r.checked = (r.value === 'Cubo'));
+    document.getElementById('add-parceiro-preco').value = precosGelo.Cubo.toFixed(2);
+  } else if (parceiro === 'Coco') {
+    document.getElementById('add-parceiro-tipo-gelo-group').style.display = 'none';
+    document.getElementById('add-parceiro-preco').value = precosParceiros.Coco.toFixed(2);
+  } else if (parceiro === 'Pastel') {
+    document.getElementById('add-parceiro-tipo-gelo-group').style.display = 'none';
+    document.getElementById('add-parceiro-preco').value = precosParceiros.Pastel.toFixed(2);
+  }
+};
+
+document.querySelectorAll('input[name="tipo-gelo-modal"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    document.getElementById('add-parceiro-preco').value = precosGelo[this.value].toFixed(2);
   });
 });
 
-// Fecha o menu de exportação ao clicar fora
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.export-dropdown')) {
-    document.querySelectorAll('.export-menu').forEach(m => m.style.display = 'none');
-  }
-});
-</script>
-<script>
-document.querySelectorAll('.btn-export-excel').forEach(btn => {
-  btn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    const parceiro = this.getAttribute('data-parceiro');
-    let csv = 'Parceiro,Data,Quantidade,Preço,Observação,Tipo\n';
-    if (parceiro === 'Gelo') {
-      registrosParceiros.Gelo.forEach(reg => {
-        csv += `Gelo,"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${reg.observacao || ''}","${reg.tipo || ''}"\n`;
-      });
-    } else {
-      registrosParceiros[parceiro].forEach(reg => {
-        csv += `${parceiro},"${reg.data}",${reg.quantidade},${reg.preco},"${reg.observacao||''}",\n`;
-      });
+// Fechar modal ao cancelar no modal de adicionar parceiro
+document.getElementById('add-parceiro-cancel').onclick = function() {
+  document.getElementById('modal-add-parceiro').classList.add('hidden');
+  document.getElementById('modal-add-parceiro').style.display = 'none';
+};
+
+// Salvar novo registro de parceiro
+document.getElementById('form-add-parceiro').onsubmit = function(e) {
+  e.preventDefault();
+  const parceiro = document.getElementById('add-parceiro-select').value;
+  const data = document.getElementById('add-parceiro-data').value;
+  const quantidade = parseFloat(document.getElementById('add-parceiro-quantidade').value);
+  const preco = parseFloat(document.getElementById('add-parceiro-preco').value);
+  const observacao = document.getElementById('add-parceiro-observacao').value || '';
+  if (parceiro === 'Gelo') {
+    const tipoRadio = document.querySelector('input[name="tipo-gelo-modal"]:checked');
+    if (!tipoRadio) {
+      alert('Selecione o tipo de gelo.');
+      return;
     }
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${parceiro}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    // Fecha o menu após exportar
-    this.closest('.export-menu').style.display = 'none';
-  });
-});
+    registrosParceiros.Gelo.push({
+      tipo: tipoRadio.value,
+      data,
+      quantidade,
+      preco,
+      observacao
+    });
+    salvarParceiros();
+    renderRegistros('Gelo');
+  } else {
+    registrosParceiros[parceiro].push({
+      data,
+      quantidade,
+      preco,
+      observacao
+    });
+    salvarParceiros();
+    renderRegistros(parceiro);
+  }
+  renderParceiroCards();
+  document.getElementById('modal-add-parceiro').classList.add('hidden');
+  document.getElementById('modal-add-parceiro').style.display = 'none';
+  if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicionado com sucesso!', 'success');
+};
+
+window.renderRegistros = renderRegistros;
 </script>
 <style>
 .section { display: none; }
@@ -1148,7 +1442,6 @@ const parceirosList = [
 let parceiroSelecionado = 'Diego'; // Padrão
 
 function getTotalParceiro(nome) {
-  // Use sua lógica real de cálculo
   if (!window.registrosParceiros) return 0;
   let key = '';
   if (nome === 'Diego') key = 'Coco';
@@ -1169,53 +1462,24 @@ function renderParceiroCards() {
     const regs = window.registrosParceiros && window.registrosParceiros[key] ? window.registrosParceiros[key] : [];
     const temRegistros = regs.length > 0;
     return `
-      <div class="parceiro-card${parc.nome === parceiroSelecionado ? ' parceiro-card--active' : ''}" onclick="selecionarParceiro('${parc.nome}')">
-        <div class="parceiro-card__nome">${'🤝' + parc.nome}</div>
+      <div class="parceiro-card${parc.nome === parceiroSelecionado ? ' parceiro-card--active' : ''}">
+        <div class="parceiro-card__nome">${'🤝 ' + parc.nome}</div>
         <div class="parceiro-card__servico">${parc.servico}</div>
         <div class="parceiro-card__valor">R$ ${getTotalParceiro(parc.nome).toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
         <button class="parceiro-card__pago" 
-          onclick="event.stopPropagation();marcarPagoParceiro('${parc.nome}')"
+          onclick="marcarPagoParceiro('${parc.nome}')"
           ${!temRegistros ? 'disabled' : ''}>💰 Pago</button>
       </div>
     `;
   }).join('');
 }
-window.selecionarParceiro = function(nome) {
-  parceiroSelecionado = nome;
-  renderParceiroCards();
-  let key = '';
-  if (nome === 'Diego') key = 'coco';
-  if (nome === 'Daniel') key = 'pastel';
-  if (nome === 'Luís') key = 'gelo';
-  // Mostra só o bloco do parceiro selecionado
-  ['coco','pastel','gelo'].forEach(k => {
-    const bloco = document.getElementById('bloco-' + k);
-    if (bloco) {
-      bloco.style.display = (k === key) ? 'block' : 'none';
-    }
-  });
-  // Abre o conteúdo do parceiro selecionado e fecha os outros
-  document.getElementById('conteudo-' + key).style.display = 'block';
-  document.getElementById('seta-' + key).style.transform = 'rotate(90deg)';
-  ['coco','pastel','gelo'].forEach(k => {
-    if (k !== key) {
-      document.getElementById('conteudo-' + k).style.display = 'none';
-      document.getElementById('seta-' + k).style.transform = 'rotate(0deg)';
-    }
-  });
-};
 window.marcarPagoParceiro = function(nome) {
   let key = '';
   if (nome === 'Diego') key = 'Coco';
   if (nome === 'Daniel') key = 'Pastel';
   if (nome === 'Luís') key = 'Gelo';
-  // Se não houver registros, não faz nada
   if (!window.registrosParceiros || !window.registrosParceiros[key] || window.registrosParceiros[key].length === 0) return;
-
-  // Salva info temporária para saber qual parceiro está sendo pago
   window._parceiroPagoKey = key;
-
-  // Mostra o modal de confirmação
   document.getElementById('modal-title').textContent = '💰 Marcar como Pago';
   document.getElementById('modal-message').textContent = `Tem certeza que deseja marcar tudo como pago? Isso irá apagar todos os registros de ${nome}.`;
   document.getElementById('confirmation-modal').classList.remove('hidden');
@@ -1224,79 +1488,8 @@ window.marcarPagoParceiro = function(nome) {
 // Inicializa ao carregar
 document.addEventListener('DOMContentLoaded', function() {
   renderParceiroCards();
-  // Mostra só o bloco do parceiro padrão (Diego/Coco)
-  ['coco','pastel','gelo'].forEach(k => {
-    const bloco = document.getElementById('bloco-' + k);
-    if (bloco) bloco.style.display = (k === 'coco') ? 'block' : 'none';
-  });
+  renderVendasDia();
 });
-document.querySelectorAll('.btn-parceiro-add').forEach(btn => {
-  btn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    const parceiro = this.getAttribute('data-parceiro');
-    // Preenche o nome do parceiro no campo hidden
-    document.getElementById('add-parceiro-nome').value = parceiro;
-    // Ajusta o título do modal
-    document.getElementById('modal-add-parceiro-title').textContent = `Adicionar Registro - ${parceiro}`;
-    // Data de hoje por padrão
-    document.getElementById('add-parceiro-data').value = new Date().toISOString().slice(0,10);
-    // Limpa os campos
-    document.getElementById('form-add-parceiro').reset();
-    // Mostra o modal
-    const modal = document.getElementById('modal-add-parceiro');
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-    // Foca no campo quantidade
-    setTimeout(() => {
-      document.getElementById('add-parceiro-quantidade').focus();
-    }, 100);
-  });
-});
-
-// Fechar modal de adicionar registro do parceiro
-document.getElementById('add-parceiro-cancel').onclick = function() {
-  const modal = document.getElementById('modal-add-parceiro');
-  modal.classList.add('hidden');
-  modal.style.display = 'none';
-  document.getElementById('form-add-parceiro').reset();
-};
-// Fechar ao clicar fora do conteúdo
-document.querySelector('#modal-add-parceiro .modal__overlay').onclick = function(e) {
-  if (e.target === this) {
-    const modal = document.getElementById('modal-add-parceiro');
-    modal.classList.add('hidden');
-    modal.style.display = 'none';
-    document.getElementById('form-add-parceiro').reset();
-  }
-};
-document.getElementById('form-add-parceiro').onsubmit = function(e) {
-  e.preventDefault();
-  const parceiro = document.getElementById('add-parceiro-nome').value;
-  const data = document.getElementById('add-parceiro-data').value;
-  const quantidade = parseFloat(document.getElementById('add-parceiro-quantidade').value);
-  const preco = parseFloat(document.getElementById('add-parceiro-preco').value);
-  const observacao = document.getElementById('add-parceiro-observacao').value || '';
-  // Para Gelo, exige tipo
-  if (parceiro === 'Gelo') {
-    const tipo = document.querySelector('input[name="tipo-gelo-modal"]:checked');
-    if (!tipo) {
-      alert('Selecione o tipo de gelo!');
-      return;
-    }
-    window.registrosParceiros.Gelo.push({ tipo: tipo.value, data, quantidade, preco, observacao });
-  } else {
-    if (!window.registrosParceiros[parceiro]) window.registrosParceiros[parceiro] = [];
-    window.registrosParceiros[parceiro].push({ data, quantidade, preco, observacao });
-  }
-  if (typeof salvarParceiros === 'function') salvarParceiros();
-  if (typeof renderRegistros === 'function') renderRegistros(parceiro);
-  if (typeof renderParceiroCards === 'function') renderParceiroCards();
-  const modal = document.getElementById('modal-add-parceiro');
-  modal.classList.add('hidden');
-  modal.style.display = 'none';
-  this.reset();
-  if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicionado com sucesso!', 'success');
-};
 </script>
 </body>
 </html>
