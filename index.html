@@ -580,43 +580,62 @@ function renderRegistrosTodosParceiros() {
   todos.sort((a, b) => {
     const diff = new Date(b.data) - new Date(a.data);
     if (diff !== 0) return diff;
-    return b._originalIdx - a._originalIdx; // mais novo em cima
+    return a._originalIdx - b._originalIdx; // mais novo em cima (corrigido)
   });
 
   if (todos.length === 0) {
     const aviso = document.createElement('div');
-    aviso.style.cssText = 'text-align:center;color:#888;font-size:1.1em;padding:32px 0;';
-    aviso.textContent = '📭 Nenhum registro encontrado';
+    aviso.style.cssText = 'text-align:center;color:rgb(19 52 59);font-size:1.7em;padding:32px 0;';
+    aviso.innerHTML = '<b>📭 Nenhum registro encontrado</b>';
     ul.appendChild(aviso);
     return;
   }
 
+  // Agrupa registros por data
+  const grupos = {};
   todos.forEach(reg => {
-    const total = (reg.quantidade * reg.preco).toFixed(2);
-    const precoUnit = parseFloat(reg.preco).toFixed(2);
-    const quantidade = reg.quantidade;
-    const tipo = reg.tipo ? `<div style="font-weight:600;margin-top:4px;">Tipo: <span style="font-weight:bold;">${reg.tipo}</span></div>` : '';
-    const obs = reg.observacao ? `<div class="record-item__note">📝 ${reg.observacao}</div>` : '';
-    const dataFormatada = reg.data ? reg.data.split('-').reverse().join('/') : '';
-    const card = document.createElement('div');
-    card.className = 'record-item';
-    card.innerHTML = `
-      <div style="font-size:1.1em;font-weight:500;">
-        <span style="color:#1976d2;font-weight:bold;">🤝 ${reg.parceiroNome}</span>
-        <span style="color:#888;font-size:0.95em;margin-left:8px;">(${reg.parceiro})</span>
-      </div>
-      <div style="font-size:1.1em;font-weight:500;">
-        ${quantidade} x R$ ${precoUnit} = <span style="font-size:1.2em;font-weight:bold;">R$ ${total}</span>
-      </div>
-      ${tipo}
-      <div class="record-item__date">📅 ${dataFormatada}</div>
-      ${obs}
-      <div class="record-item__actions" style="margin-top:10px;">
-        <button class="btn btn--secondary btn-editar" data-parceiro="${reg.parceiro}" data-idx="${reg._originalIdx}">✏️ Editar</button>
-        <button class="btn btn--outline btn-excluir-parceiro" data-parceiro="${reg.parceiro}" data-idx="${reg._originalIdx}">🗑️ Excluir</button>
-      </div>
-    `;
-    ul.appendChild(card);
+    if (!grupos[reg.data]) grupos[reg.data] = [];
+    grupos[reg.data].push(reg);
+  });
+  // Ordena datas decrescentes
+  const datasOrdenadas = Object.keys(grupos).sort((a, b) => new Date(b) - new Date(a));
+
+  datasOrdenadas.forEach(data => {
+    const dataFormatada = data.split('-').reverse().join('/');
+    // Cabeçalho da data
+    const header = document.createElement('div');
+    header.className = 'registros-group-header';
+    header.style = 'margin-top:24px;margin-bottom:8px;font-weight:bold;color:#1976d2;';
+    header.textContent = dataFormatada;
+    ul.appendChild(header);
+    // Adiciona os registros desse dia
+    grupos[data].forEach(reg => {
+      const total = (reg.quantidade * reg.preco).toFixed(2);
+      const precoUnit = parseFloat(reg.preco).toFixed(2);
+      const quantidade = reg.quantidade;
+      const tipo = reg.tipo ? `<div style="font-weight:600;margin-top:4px;">Tipo: <span style="font-weight:bold;">${reg.tipo}</span></div>` : '';
+      const obs = reg.observacao ? `<div class="record-item__note">📝 ${reg.observacao}</div>` : '';
+      const dataFormatada = reg.data ? reg.data.split('-').reverse().join('/') : '';
+      const card = document.createElement('div');
+      card.className = 'record-item';
+      card.innerHTML = `
+        <div style="font-size:1.1em;font-weight:500;">
+          <span style="color:#1976d2;font-weight:bold;">🤝 ${reg.parceiroNome}</span>
+          <span style="color:#888;font-size:0.95em;margin-left:8px;">(${reg.parceiro})</span>
+        </div>
+        <div style="font-size:1.1em;font-weight:500;">
+          ${quantidade} x R$ ${precoUnit} = <span style="font-size:1.2em;font-weight:bold;">R$ ${total}</span>
+        </div>
+        ${tipo}
+        <div class="record-item__date">📅 ${dataFormatada}</div>
+        ${obs}
+        <div class="record-item__actions" style="margin-top:10px;">
+          <button class="btn btn--secondary btn-editar" data-parceiro="${reg.parceiro}" data-idx="${reg._originalIdx}">✏️ Editar</button>
+          <button class="btn btn--outline btn-excluir-parceiro" data-parceiro="${reg.parceiro}" data-idx="${reg._originalIdx}">🗑️ Excluir</button>
+        </div>
+      `;
+      ul.appendChild(card);
+    });
   });
 }
 window.renderRegistrosTodosParceiros = renderRegistrosTodosParceiros;
