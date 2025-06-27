@@ -888,6 +888,11 @@ select.form-control {
   border-color: var(--color-primary);
   background: rgba(var(--color-success-rgb), 0.08);
 }
+.parceiro-card--selecionado {
+  border: 2.5px solid var(--color-primary);
+  background: #eaf6fa;
+  transition: border 0.2s, box-shadow 0.2s, background 0.2s;
+}
 .parceiro-card__nome {
   font-size: 1.1em;
   font-weight: 600;
