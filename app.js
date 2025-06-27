@@ -726,6 +726,14 @@ renderRecords() {
 
     container.innerHTML = html;
 
+    // Sempre expande todos os grupos por padrão
+    container.querySelectorAll('.registros-group-list').forEach(list => {
+        list.style.display = 'block';
+    });
+    container.querySelectorAll('.group-toggle .seta-group').forEach(seta => {
+        seta.style.transform = 'rotate(90deg)';
+    });
+
     // Adiciona eventos para expandir/recolher grupos
     container.querySelectorAll('.group-toggle').forEach(btn => {
         btn.onclick = function() {
