@@ -311,8 +311,13 @@
           <input type="date" id="add-parceiro-data" name="data" class="form-control" required>
         </div>
         <div class="form-group">
+          <label class="form-label" for="add-parceiro-emprestimo" style="color:#c0152f;">💸 Empréstimo (opcional)</label>
+          <input type="number" id="add-parceiro-emprestimo" name="emprestimo" class="form-control" step="0.01" placeholder="Ex: 50.00">
+        </div>
+        <div class="form-group">
           <label class="form-label" for="add-parceiro-quantidade">Quantidade</label>
-          <input type="number" id="add-parceiro-quantidade" name="quantidade" class="form-control" min="1" required>
+          <!-- quantidade não é mais obrigatória quando empréstimo é usado -->
+          <input type="number" id="add-parceiro-quantidade" name="quantidade" class="form-control" min="1" >
         </div>
         <div class="form-group">
           <label class="form-label" for="add-parceiro-preco">Preço unitário</label>
@@ -1281,9 +1286,50 @@ document.getElementById('form-add-parceiro').onsubmit = function(e) {
   e.preventDefault();
   const parceiro = document.getElementById('add-parceiro-select').value;
   const data = document.getElementById('add-parceiro-data').value;
-  const quantidade = parseFloat(document.getElementById('add-parceiro-quantidade').value);
+  const quantidadeRaw = document.getElementById('add-parceiro-quantidade').value;
+  const quantidade = quantidadeRaw === '' ? NaN : parseFloat(quantidadeRaw);
   const preco = parseFloat(document.getElementById('add-parceiro-preco').value);
-  const observacao = document.getElementById('add-parceiro-observacao').value || '';
+   const observacao = document.getElementById('add-parceiro-observacao').value || '';
+   const emprestimoRaw = document.getElementById('add-parceiro-emprestimo').value;
+   const emprestimo = emprestimoRaw === '' ? 0 : parseFloat(emprestimoRaw);
+   
+   // Se preenchido empréstimo, registra como 1 unidade com preço NEGATIVO (empréstimo)
+   if (emprestimoRaw !== '' && !isNaN(emprestimo) && emprestimo !== 0) {
+     const valorEmprestimo = -Math.abs(emprestimo);
+     if (parceiro === 'Gelo') {
+       const tipoRadio = document.querySelector('input[name="tipo-gelo-modal"]:checked');
+       registrosParceiros.Gelo.unshift({
+         tipo: tipoRadio ? tipoRadio.value : '',
+         data,
+         quantidade: 1,
+         preco: valorEmprestimo,
+         observacao: observacao ? observacao + ' (Empréstimo)' : 'Empréstimo'
+       });
+     } else {
+       registrosParceiros[parceiro].unshift({
+         data,
+         quantidade: 1,
+         preco: valorEmprestimo,
+         observacao: observacao ? observacao + ' (Empréstimo)' : 'Empréstimo'
+       });
+     }
+     salvarParceiros();
+     renderParceiroCards();
+     renderRegistrosTodosParceiros();
+     document.getElementById('modal-add-parceiro').classList.add('hidden');
+     document.getElementById('modal-add-parceiro').style.display = 'none';
+     // Limpa campo emprestimo para próxima abertura
+     document.getElementById('add-parceiro-emprestimo').value = '';
+     if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Empréstimo registrado!', 'success');
+     return;
+   }
+  
+  // Validar quantidade quando NÃO for empréstimo
+  if (isNaN(quantidade) || quantidade < 1) {
+    alert('Por favor informe a quantidade (ou preencha o campo Empréstimo).');
+    return;
+  }
+
   if (parceiro === 'Gelo') {
     const tipoRadio = document.querySelector('input[name="tipo-gelo-modal"]:checked');
     if (!tipoRadio) {
@@ -1307,51 +1353,12 @@ document.getElementById('form-add-parceiro').onsubmit = function(e) {
     });
     salvarParceiros();
   }
-  renderParceiroCards();
-  renderRegistrosTodosParceiros();
-  document.getElementById('modal-add-parceiro').classList.add('hidden');
-  document.getElementById('modal-add-parceiro').style.display = 'none';
-  if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicionado com sucesso!', 'success');
-};
-
-// Exporta vendas do dia em CSV
-function exportVendasDiaCSV() {
-    const lista = document.querySelectorAll('#lista-venda-dia li');
-    if (!lista.length) {
-        alert('Nenhuma venda registrada para exportar.');
-        return;
-    }
-    let csv = 'Data,Valor,Observação\n';
-    lista.forEach(li => {
-        // Extrai o texto do primeiro <div> do <li>
-        const div = li.querySelector('div');
-        if (div) {
-            // Exemplo: "13/07/2025: R$ 100,00 (obs)"
-            let texto = div.textContent.trim();
-            let data = '', valor = '', obs = '';
-            // Extrai data
-            const dataMatch = texto.match(/^(\d{2}\/\d{2}\/\d{4})/);
-            if (dataMatch) data = dataMatch[1];
-            // Extrai valor
-            const valorMatch = texto.match(/R\$ (-?[\d.,]+)/); // Permite valores negativos
-            if (valorMatch) valor = valorMatch[1];
-            // Extrai observação
-            const obsMatch = texto.match(/\((.*)\)/);
-            if (obsMatch) obs = obsMatch[1];
-            csv += `"${data}","${valor}","${obs}"\n`;
-        }
-    });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'relatorio_vendas_dia.csv';
-       document.body.appendChild(a);
-       a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-document.getElementById('export-vendas-dia').addEventListener('click', exportVendasDiaCSV);
+   renderParceiroCards();
+   renderRegistrosTodosParceiros();
+   document.getElementById('modal-add-parceiro').classList.add('hidden');
+   document.getElementById('modal-add-parceiro').style.display = 'none';
+   if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicionado com sucesso!', 'success');
+ };
 </script>
 <style>
 .section { display: none; }
