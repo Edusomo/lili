@@ -227,7 +227,7 @@ html {
 body {
   margin: 0;
   padding: 0;
-  padding-bottom: 56px; /* Espaço para a barra de navegação inferior */
+  padding-bottom: 100px; /* Espaço para a barra de navegação inferior */
 }
 
 *,
