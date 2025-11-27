@@ -8,6 +8,7 @@ class SalaryTracker {
         this.currentPage = 1;
         this.recordsPerPage = 8;
         this.currentFilter = null; // null = todos, string = funcionário específico
+        this.dateFilter = null; // null = sem filtro de data, string = data específica (YYYY-MM-DD)
         this.editingId = null;
         this.pendingAction = null;
         
@@ -530,14 +531,36 @@ class SalaryTracker {
         this.render();
     }
 
+    filterByDate(date) {
+        this.dateFilter = date;
+        this.currentPage = 1;
+        this.render();
+    }
+
+    clearDateFilter() {
+        this.dateFilter = null;
+        this.currentPage = 1;
+        this.render();
+    }
+
     getFilteredRecords() {
         if (!this.currentFilter) {
             // Só mostra registros não invisíveis
-            return this.records.filter(r => !r.invisivel);
+            let filtered = this.records.filter(r => !r.invisivel);
+            // Aplicar filtro de data se existir
+            if (this.dateFilter) {
+                filtered = filtered.filter(r => r.date === this.dateFilter);
+            }
+            return filtered;
         }
-        return this.records.filter(record =>
+        let filtered = this.records.filter(record =>
             record.employee.toLowerCase() === this.currentFilter.toLowerCase() && !record.invisivel
         );
+        // Aplicar filtro de data se existir
+        if (this.dateFilter) {
+            filtered = filtered.filter(r => r.date === this.dateFilter);
+        }
+        return filtered;
     }
 
     getEmployeeSummary() {
