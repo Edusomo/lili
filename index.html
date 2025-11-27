@@ -1007,6 +1007,28 @@ tabs.forEach(tab => {
   });
 });
 
+// Ao trocar de aba, garantir que o gráfico de Vendas seja renderizado/atualizado
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const sectionId = tab.getAttribute('data-section');
+    if (sectionId === 'vendas') {
+      // Re-renderiza os dados da aba Vendas (carrega agregado se necessário)
+      try {
+        renderVendasDia();
+        // Se o Chart já existir, força um resize/update após tornar o canvas visível
+        if (window._graficoVendasDia) {
+          setTimeout(() => {
+            try { window._graficoVendasDia.resize(); } catch (e) {}
+            try { window._graficoVendasDia.update(); } catch (e) {}
+          }, 60);
+        }
+      } catch (e) {
+        console.warn('Erro ao renderizar Vendas na ativação da aba:', e);
+      }
+    }
+  });
+});
+
 // --- VENDAS DO DIA ABA ---
 let vendasDia = JSON.parse(localStorage.getItem('vendasDia') || '[]');
 let editVendaIdx = null;
