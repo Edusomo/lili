@@ -78,7 +78,7 @@
   --radius-lg: 12px;
   --radius-full: 9999px;
 
-  /* Shadows */
+  /* Shadows */ 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
@@ -1712,4 +1712,58 @@ select.form-control {
 
 .parceiro-toggle .export-dropdown {
   margin-left: auto;
+}
+
+/* Date filter responsive layout */
+.date-filter-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.date-filter-row label {
+  flex: 1;
+  min-width: 150px;
+  max-width: 420px; /* evita que o input estique demais quando centralizado */
+}
+.date-filter-row {
+  justify-content: center; /* centraliza todo o grupo */
+}
+.date-filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center; /* centraliza os botões dentro do grupo */
+}
+
+@media (max-width: 600px) {
+  .date-filter-row {
+    gap: 8px;
+  }
+  .date-filter-row > label {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .date-filter-actions {
+    flex: 1 1 100%;
+    justify-content: center; /* manter botões centralizados no mobile */
+  }
+  .date-filter-actions .btn {
+    margin-top: 0;
+  }
+}
+
+/* Espaçamento entre transações de Vendas do Dia */
+#lista-venda-dia {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+#lista-venda-dia > li {
+  margin-bottom: 24px; /* aumenta espaço entre transações */
+}
+
+/* class for venda items (applies to bloco and main list) */
+.venda-item {
+  margin-bottom: 24px;
 }
