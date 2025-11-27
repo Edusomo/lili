@@ -1728,7 +1728,7 @@ select.form-control {
 }
 .date-filter-row {
   justify-content: center; /* centraliza todo o grupo */
-}
+} 
 .date-filter-actions {
   display: flex;
   gap: 8px;
