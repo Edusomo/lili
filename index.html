@@ -31,6 +31,23 @@
         </div>
     </section>
 
+    <!-- Filtro de Data -->
+    <section class="export-section" style="background: #f8fafb; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <label style="flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 4px;">
+                <span style="font-weight: 600; font-size: 0.95em;">📅 Filtrar por Data</span>
+                <input type="date" id="date-filter-input" class="form-control" style="margin: 0;">
+            </label>
+            <button id="btn-apply-date-filter" class="btn btn--primary" style="margin-top: auto;">
+                🔍 Filtrar
+            </button>
+            <button id="btn-clear-date-filter" class="btn btn--secondary" style="margin-top: auto;">
+                ✕ Limpar
+            </button>
+        </div>
+        <div id="date-filter-status" style="margin-top: 8px; font-size: 0.9em; color: #666; min-height: 20px;"></div>
+    </section>
+
     <!-- Controles de Exportação -->
     <section class="export-section">
         <div class="export-controls">
@@ -93,6 +110,24 @@
     <h2>Vendas do Dia</h2>
      <button id="export-vendas-dia" class="btn btn--secondary" style="margin-bottom:12px;">⬇️ Exportar Relatório de Vendas</button>
     <canvas id="grafico-vendas-dia" height="120" style="width:100%;max-width:600px;margin:0 auto 24px auto;display:block;"></canvas>
+    
+    <!-- Filtro de Data para Vendas do Dia -->
+    <div style="background: #f8fafb; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <label style="flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 4px;">
+          <span style="font-weight: 600; font-size: 0.95em;">📅 Filtrar por Data</span>
+          <input type="date" id="vendas-date-filter-input" class="form-control" style="margin: 0;">
+        </label>
+        <button id="btn-apply-vendas-date-filter" class="btn btn--primary" style="margin-top: auto;">
+          🔍 Filtrar
+        </button>
+        <button id="btn-clear-vendas-date-filter" class="btn btn--secondary" style="margin-top: auto;" disabled>
+          ✕ Limpar
+        </button>
+      </div>
+      <div id="vendas-date-filter-status" style="margin-top: 8px; font-size: 0.9em; color: #666; min-height: 20px;"></div>
+    </div>
+    
     <div style="margin:16px 0 24px 0; padding:16px; background:#f8fafb; border-radius:10px; border:1px solid #e0e0e0;">
       <form id="form-venda-dia" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
         <label style="flex:1;min-width:120px;">
@@ -853,10 +888,67 @@ document.addEventListener('click', function(e) {
     document.getElementById('edit-preco-parc').value = registro.preco;
     document.getElementById('edit-observacao-parc').value = registro.observacao || '';
 
+    // Salvar valores originais para comparação
+    editParceiroInfo.originalData = registro.data;
+    editParceiroInfo.originalQuantidade = registro.quantidade;
+    editParceiroInfo.originalPreco = registro.preco;
+    editParceiroInfo.originalObservacao = registro.observacao || '';
+    editParceiroInfo.originalTipo = registro.tipo || '';
+
+    // Se for Gelo, marcar o tipo original
+    if (parceiro === 'Gelo') {
+      const tipoGeloGroup = document.getElementById('edit-tipo-gelo-group');
+      tipoGeloGroup.style.display = '';
+      const radios = tipoGeloGroup.querySelectorAll('input[name="edit-tipo-gelo"]');
+      radios.forEach(r => r.checked = (r.value === registro.tipo));
+    }
+
+    // Desabilitar botão Salvar inicialmente
+    const saveBtn = document.querySelector('#edit-form-parceiro button[type="submit"]');
+    if (saveBtn) {
+      saveBtn.disabled = true;
+    }
+
+    // Adicionar listeners para detectar alterações
+    const inputs = document.querySelectorAll('#edit-form-parceiro input');
+    inputs.forEach(input => {
+      input.removeEventListener('input', checkParceiroChanges);
+      input.addEventListener('input', checkParceiroChanges);
+      input.removeEventListener('change', checkParceiroChanges);
+      input.addEventListener('change', checkParceiroChanges);
+    });
+
     document.getElementById('edit-modal-parceiro').classList.remove('hidden');
     document.getElementById('edit-modal-parceiro').style.display = 'block';
   }
 });
+
+function checkParceiroChanges() {
+  if (!editParceiroInfo) return;
+  
+  const saveBtn = document.querySelector('#edit-form-parceiro button[type="submit"]');
+  if (!saveBtn) return;
+
+  const currentData = document.getElementById('edit-data-parc').value;
+  const currentQuantidade = parseFloat(document.getElementById('edit-quantidade-parc').value);
+  const currentPreco = parseFloat(document.getElementById('edit-preco-parc').value);
+  const currentObservacao = document.getElementById('edit-observacao-parc').value || '';
+  
+  let currentTipo = editParceiroInfo.originalTipo;
+  if (editParceiroInfo.parceiro === 'Gelo') {
+    const tipoRadio = document.querySelector('input[name="edit-tipo-gelo"]:checked');
+    currentTipo = tipoRadio ? tipoRadio.value : '';
+  }
+
+  const hasChanges = 
+    currentData !== editParceiroInfo.originalData ||
+    currentQuantidade !== editParceiroInfo.originalQuantidade ||
+    currentPreco !== editParceiroInfo.originalPreco ||
+    currentObservacao !== editParceiroInfo.originalObservacao ||
+    currentTipo !== editParceiroInfo.originalTipo;
+
+  saveBtn.disabled = !hasChanges;
+}
 
 // Fechar modal de edição do parceiro ao clicar fora
 document.querySelector('#edit-modal-parceiro .modal__overlay').onclick = function(e) {
@@ -1032,13 +1124,30 @@ tabs.forEach(tab => {
 // --- VENDAS DO DIA ABA ---
 let vendasDia = JSON.parse(localStorage.getItem('vendasDia') || '[]');
 let editVendaIdx = null;
+let vendasDiaDateFilter = null; // Filtro de data para vendas do dia
 
 function renderVendasDia() {
   const ul = document.getElementById('lista-venda-dia');
   if (!ul) return;
   ul.innerHTML = '';
   // Ordena por data decrescente
-  const sorted = [...vendasDia].sort((a, b) => new Date(b.data) - new Date(a.data));
+  let sorted = [...vendasDia].sort((a, b) => new Date(b.data) - new Date(a.data));
+  
+  // Aplicar filtro de data se existir
+  if (vendasDiaDateFilter) {
+    sorted = sorted.filter(v => v.data === vendasDiaDateFilter);
+  }
+  
+  // Mostrar mensagem de vazio se não houver registros
+  if (sorted.length === 0) {
+    const aviso = document.createElement('div');
+    aviso.style.cssText = 'text-align:center;color:rgb(19 52 59);font-size:1.3em;padding:32px 0;';
+    aviso.innerHTML = '<b>📭 Nenhum registro encontrado</b>';
+    ul.appendChild(aviso);
+    renderGraficoVendasDia();
+    return;
+  }
+  
   sorted.forEach((venda) => {
   const realIdx = vendasDia.findIndex(v =>
     v.data === venda.data &&
@@ -1082,6 +1191,43 @@ document.getElementById('form-venda-dia').onsubmit = function(e) {
   document.getElementById('venda-dia-data').value = new Date().toISOString().slice(0,10);
   if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Venda registrada!', 'success');
 };
+
+// --- FILTRO DE DATA PARA VENDAS DO DIA ---
+const vendasDateFilterInput = document.getElementById('vendas-date-filter-input');
+const btnApplyVendasDateFilter = document.getElementById('btn-apply-vendas-date-filter');
+const btnClearVendasDateFilter = document.getElementById('btn-clear-vendas-date-filter');
+const vendasDateFilterStatus = document.getElementById('vendas-date-filter-status');
+
+if (btnApplyVendasDateFilter) {
+  btnApplyVendasDateFilter.addEventListener('click', function() {
+    const selectedDate = vendasDateFilterInput.value;
+    if (!selectedDate) {
+      alert('Por favor, selecione uma data.');
+      return;
+    }
+    vendasDiaDateFilter = selectedDate;
+    renderVendasDia();
+    const dateBr = selectedDate.split('-').reverse().join('/');
+    vendasDateFilterStatus.textContent = `✅ Filtrado por: ${dateBr}`;
+    vendasDateFilterStatus.style.color = '#21808d';
+    // Habilitar botão Limpar
+    if (btnClearVendasDateFilter) {
+      btnClearVendasDateFilter.disabled = false;
+    }
+  });
+}
+
+if (btnClearVendasDateFilter) {
+  btnClearVendasDateFilter.addEventListener('click', function() {
+    vendasDateFilterInput.value = '';
+    vendasDiaDateFilter = null;
+    renderVendasDia();
+    vendasDateFilterStatus.textContent = '';
+    vendasDateFilterStatus.style.color = '#666';
+    // Desabilitar botão Limpar
+    btnClearVendasDateFilter.disabled = true;
+  });
+}
 
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('btn-excluir-venda-dia')) {
@@ -1470,6 +1616,50 @@ window.marcarPagoParceiro = function(nome) {
 document.addEventListener('DOMContentLoaded', function() {
   renderVendasDia();
   renderRegistrosTodosParceiros();
+  
+  // --- FILTRO DE DATA PARA FUNCIONÁRIOS ---
+  const dateFilterInput = document.getElementById('date-filter-input');
+  const btnApplyDateFilter = document.getElementById('btn-apply-date-filter');
+  const btnClearDateFilter = document.getElementById('btn-clear-date-filter');
+  const dateFilterStatus = document.getElementById('date-filter-status');
+
+  // Inicializar botão como desabilitado
+  if (btnClearDateFilter) {
+    btnClearDateFilter.disabled = true;
+  }
+
+  if (btnApplyDateFilter) {
+    btnApplyDateFilter.addEventListener('click', function() {
+      const selectedDate = dateFilterInput.value;
+      if (!selectedDate) {
+        alert('Por favor, selecione uma data.');
+        return;
+      }
+      if (window.salaryTracker) {
+        window.salaryTracker.filterByDate(selectedDate);
+        const dateBr = selectedDate.split('-').reverse().join('/');
+        dateFilterStatus.textContent = `✅ Filtrado por: ${dateBr}`;
+        dateFilterStatus.style.color = '#21808d';
+        // Habilitar botão Limpar
+        if (btnClearDateFilter) {
+          btnClearDateFilter.disabled = false;
+        }
+      }
+    });
+  }
+
+  if (btnClearDateFilter) {
+    btnClearDateFilter.addEventListener('click', function() {
+      dateFilterInput.value = '';
+      if (window.salaryTracker) {
+        window.salaryTracker.clearDateFilter();
+        dateFilterStatus.textContent = '';
+        dateFilterStatus.style.color = '#666';
+        // Desabilitar botão Limpar
+        btnClearDateFilter.disabled = true;
+      }
+    });
+  }
 });
 </script>
 </body>
