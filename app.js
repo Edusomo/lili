@@ -6,7 +6,7 @@ class SalaryTracker {
         this.records = [];
         this.employees = [];
         this.currentPage = 1;
-        this.recordsPerPage = 8;
+        this.recordsPerPage = 8; 
         this.currentFilter = null; // null = todos, string = funcionário específico
         this.dateFilter = null; // null = sem filtro de data, string = data específica (YYYY-MM-DD)
         this.editingId = null;
