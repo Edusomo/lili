@@ -439,19 +439,23 @@ document.addEventListener('DOMContentLoaded', function() {
     e.stopPropagation(); // Impede o fechamento do menu antes do download
     const parceiro = btn.getAttribute('data-parceiro');
     let csv = 'Parceiro,Data,Quantidade,Preço,Observação,Tipo\n';
+    function timeOf(d) { const t = new Date(d); return isNaN(t) ? 0 : t.getTime(); }
     if (parceiro === 'Gelo') {
-      registrosParceiros.Gelo.forEach(reg => {
-        csv += `Gelo,"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${reg.observacao || ''}","${reg.tipo || ''}"\n`;
+      const regs = (registrosParceiros.Gelo || []).slice().sort((a,b) => timeOf(b.data) - timeOf(a.data));
+      regs.forEach(reg => {
+        csv += `Gelo,"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${(reg.observacao||'').replace(/"/g,'""')}","${reg.tipo || ''}"\n`;
       });
     } else {
-      registrosParceiros[parceiro].forEach(reg => {
-        csv += `${parceiro},"${reg.data}",${reg.quantidade},${reg.preco},"${reg.observacao||''}",\n`;
+      const regs = (registrosParceiros[parceiro] || []).slice().sort((a,b) => timeOf(b.data) - timeOf(a.data));
+      regs.forEach(reg => {
+        csv += `${parceiro},"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${(reg.observacao||'').replace(/"/g,'""')}",\n`;
       });
     }
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `${parceiro}.csv`;
+    const dateStr = new Date().toISOString().split('T')[0];
+    a.download = `${parceiro}-${dateStr}.csv`;
     a.click();
     // Fecha o menu após o clique
     btn.parentElement.style.display = 'none';
@@ -647,11 +651,17 @@ function renderRegistrosTodosParceiros() {
 
   datasOrdenadas.forEach(data => {
     const dataFormatada = data.split('-').reverse().join('/');
-    // Cabeçalho da data
+    // Cabeçalho da data com dia da semana (data numérica primeiro, separado por vírgula)
+    const weekdayDate = new Date(data + 'T00:00:00');
+    let weekday = '';
+    if (!isNaN(weekdayDate)) {
+      weekday = weekdayDate.toLocaleDateString('pt-BR', { weekday: 'long' });
+      weekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    }
     const header = document.createElement('div');
     header.className = 'registros-group-header';
     header.style = 'margin-top:24px;margin-bottom:8px;font-weight:bold;color:#1976d2;';
-    header.textContent = dataFormatada;
+    header.textContent = weekday ? `${dataFormatada}, ${weekday}` : dataFormatada;
     ul.appendChild(header);
     // Adiciona os registros desse dia
     grupos[data].forEach(reg => {
@@ -661,6 +671,14 @@ function renderRegistrosTodosParceiros() {
       const tipo = reg.tipo ? `<div style="font-weight:600;margin-top:4px;">Tipo: <span style="font-weight:bold;">${reg.tipo}</span></div>` : '';
       const obs = reg.observacao ? `<div class="record-item__note">📝 ${reg.observacao}</div>` : '';
       const dataFormatada = reg.data ? reg.data.split('-').reverse().join('/') : '';
+      let regWeekday = '';
+      if (reg.data) {
+        const dDate = new Date(reg.data + 'T00:00:00');
+        if (!isNaN(dDate)) {
+          regWeekday = dDate.toLocaleDateString('pt-BR', { weekday: 'long' });
+          regWeekday = regWeekday.charAt(0).toUpperCase() + regWeekday.slice(1);
+        }
+      }
       const card = document.createElement('div');
       card.className = 'record-item';
       card.innerHTML = `
@@ -672,7 +690,7 @@ function renderRegistrosTodosParceiros() {
           ${quantidade} x R$ ${precoUnit} = <span style="font-size:1.2em;font-weight:bold;">R$ ${total}</span>
         </div>
         ${tipo}
-        <div class="record-item__date">📅 ${dataFormatada}</div>
+        <div class="record-item__date">📅 ${dataFormatada}${regWeekday ? ', ' + regWeekday : ''}</div>
         ${obs}
         <div class="record-item__actions" style="margin-top:10px;">
           <button class="btn btn--secondary btn-editar" data-parceiro="${reg.parceiro}" data-idx="${reg._originalIdx}">✏️ Editar</button>
@@ -853,22 +871,52 @@ renderRegistrosTodosParceiros();
   // Exportar Planilha (Excel)
   document.getElementById('export-parceiros-excel').onclick = function() {
   let csv = 'Parceiro,Data,Quantidade,Preço,Observação,Tipo\n';
+  function timeOf(d) { const t = new Date(d); return isNaN(t) ? 0 : t.getTime(); }
   ['Coco','Pastel','Gelo'].forEach(parc => {
     if (parc === 'Gelo') {
-      registrosParceiros.Gelo.forEach(reg => {
-        csv += `Gelo,"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${reg.observacao || ''}","${reg.tipo || ''}"\n`;
+      const regs = (registrosParceiros.Gelo || []).slice().sort((a,b) => timeOf(b.data) - timeOf(a.data));
+      regs.forEach(reg => {
+        csv += `Gelo,"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${(reg.observacao||'').replace(/"/g,'""')}","${reg.tipo || ''}"\n`;
       });
     } else {
-      registrosParceiros[parc].forEach(reg => {
-        csv += `${parc},"${reg.data}",${reg.quantidade},${reg.preco},"${reg.observacao||''}",\n`;
+      const regs = (registrosParceiros[parc] || []).slice().sort((a,b) => timeOf(b.data) - timeOf(a.data));
+      regs.forEach(reg => {
+        csv += `${parc},"${reg.data || ''}",${reg.quantidade || ''},${reg.preco || ''},"${(reg.observacao||'').replace(/"/g,'""')}",\n`;
       });
     }
   });
-  const blob = new Blob([csv], { type: 'text/csv' });
+  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'parceiros.csv';
+  const dateStr = new Date().toISOString().split('T')[0];
+  a.download = `parceiros-${dateStr}.csv`;
   a.click();
+};
+
+// Exportar Vendas do Dia com data no nome do arquivo
+document.getElementById('export-vendas-dia').onclick = function() {
+  let csv = 'Data,Valor,Observação\n';
+  // Se houver filtro de data para vendas, usar apenas esses registros
+  const exportList = (typeof vendasDiaDateFilter !== 'undefined' && vendasDiaDateFilter) ? vendasDia.filter(v => v.data === vendasDiaDateFilter) : vendasDia.slice();
+  // Ordena por data decrescente antes de exportar
+  exportList.sort((a,b) => {
+    const ta = new Date(a.data); const tb = new Date(b.data);
+    const va = isNaN(ta) ? 0 : ta.getTime();
+    const vb = isNaN(tb) ? 0 : tb.getTime();
+    return vb - va;
+  });
+  exportList.forEach(v => {
+    const obs = (v.obs || '').replace(/"/g, '""');
+    const valor = Number(v.valor || 0).toFixed(2).replace('.', ',');
+    csv += `"${v.data}","R$ ${valor}","${obs}"\n`;
+  });
+  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const fileDate = vendasDiaDateFilter || new Date().toISOString().split('T')[0];
+  a.download = `vendas-dia-${fileDate}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 };
 
 // Edição de registros de parceiros
@@ -1159,10 +1207,19 @@ function renderVendasDia() {
     (v.obs || '') === (venda.obs || '')
   );
   const obs = venda.obs ? ` <span style="color:#888;">(${venda.obs})</span>` : '';
+  // calcular dia da semana (exibir data numérica primeiro, depois weekday separado por vírgula)
+  let weekday = '';
+  if (venda.data) {
+    const d = new Date(venda.data + 'T00:00:00');
+    if (!isNaN(d)) {
+      weekday = d.toLocaleDateString('pt-BR', { weekday: 'long' });
+      weekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    }
+  }
   ul.innerHTML += `
   <li class="venda-item">
     <div>
-      <strong>${venda.data.split('-').reverse().join('/')}</strong>: 
+      <strong>${venda.data.split('-').reverse().join('/')}${weekday ? ', ' + weekday : ''}</strong>: 
       <span style="font-weight:600;color:#21808d;">R$ ${parseFloat(venda.valor).toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
       ${obs}
     </div>
@@ -1319,9 +1376,17 @@ function renderVendasDiaBloco() {
     (v.obs || '') === (venda.obs || '')
   );
   const obs = venda.obs ? ` <span style="color:#888;">(${venda.obs})</span>` : '';
+  let weekday = '';
+  if (venda.data) {
+    const d = new Date(venda.data + 'T00:00:00');
+    if (!isNaN(d)) {
+      weekday = d.toLocaleDateString('pt-BR', { weekday: 'long' });
+      weekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    }
+  }
   ul.innerHTML += `
     <li class="venda-item">
-      <strong>${venda.data.split('-').reverse().join('/')}</strong>: 
+      <strong>${venda.data.split('-').reverse().join('/')}${weekday ? ', ' + weekday : ''}</strong>: 
       <span style="font-weight:600;color:#21808d;">R$ ${parseFloat(venda.valor).toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
       ${obs}
       <button class="btn btn--outline btn-editar-venda-dia" data-idx="${realIdx}" style="margin-left:8px;padding:2px 10px;">✏️</button>
@@ -1668,4 +1733,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
- 
