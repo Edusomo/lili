@@ -283,7 +283,7 @@ class SalaryTracker {
             this.records.unshift({
                 id: 'ghost-' + Date.now(),
                 employee: employeeName,
-                date: new Date().toISOString().split('T')[0],
+                date: formatDateInput(new Date()),
                 amount: 0,
                 note: '',
                 paid: false,
@@ -309,7 +309,7 @@ class SalaryTracker {
         // Definir data atual como padrão
         const dateInput = document.getElementById('date');
         if (dateInput) {
-            dateInput.value = new Date().toISOString().split('T')[0];
+            dateInput.value = formatDateInput(new Date());
         }
 
         this.showFeedback('✅ Registro salvo com sucesso!', 'success');
@@ -327,7 +327,7 @@ class SalaryTracker {
     this.records.unshift({
       id: 'ghost-' + Date.now(),
       employee: employeeName,
-      date: new Date().toISOString().split('T')[0],
+                date: formatDateInput(new Date()),
       amount: 0,
       note: '',
       paid: false,
@@ -920,7 +920,7 @@ renderRecords() {
         const url = URL.createObjectURL(blob);
         
         link.setAttribute('href', url);
-        link.setAttribute('download', `relatorio-salarios-${new Date().toISOString().split('T')[0]}.csv`);
+        link.setAttribute('download', `relatorio-salarios-${formatDateInput(new Date())}.csv`);
         link.style.visibility = 'hidden';
         
         document.body.appendChild(link);
@@ -1048,6 +1048,14 @@ renderRecords() {
 }
 
 // Inicializar aplicação com proteções contra modais automáticos
+// Helper: local YYYY-MM-DD for date inputs (avoid UTC shift)
+function formatDateInput(d) {
+    const date = d instanceof Date ? d : new Date(d);
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
 document.addEventListener('DOMContentLoaded', function() {
     // Garantir que todos os modais estejam forçadamente ocultos
     const confirmModal = document.getElementById('confirmation-modal');
@@ -1073,7 +1081,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Definir data atual como padrão no formulário
         const dateInput = document.getElementById('date');
         if (dateInput) {
-            dateInput.value = new Date().toISOString().split('T')[0];
+            dateInput.value = formatDateInput(new Date());
         }
 
         // Configurar eventos apenas após inicialização completa
@@ -1150,7 +1158,7 @@ function updateEmployeeSuggestionsModal() {
         // Esconde o botão flutuante ao abrir o modal
         btnAdd.style.display = 'none';
         // Data de hoje por padrão
-        document.getElementById('add-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('add-date').value = formatDateInput(new Date());
         document.getElementById('add-employee').focus();
         updateEmployeeSuggestionsModal();
       };
