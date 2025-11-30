@@ -417,6 +417,15 @@
   });
 </script>
 <script>
+// Utility: produce a local YYYY-MM-DD string for date inputs (avoids UTC shift)
+function formatDateInput(d) {
+  const date = d instanceof Date ? d : new Date(d);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   renderParceiroCards();
   renderVendasDia();
@@ -454,7 +463,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    const dateStr = new Date().toISOString().split('T')[0];
+    const dateStr = formatDateInput(new Date());
     a.download = `${parceiro}-${dateStr}.csv`;
     a.click();
     // Fecha o menu após o clique
@@ -474,7 +483,7 @@ document.getElementById('fab-add-parceiro').onclick = function() {
   const select = document.getElementById('add-parceiro-select');
   select.value = 'Coco';
   document.getElementById('modal-add-parceiro-title').textContent = 'Adicionar Registro';
-  document.getElementById('add-parceiro-data').value = new Date().toISOString().slice(0,10);
+  document.getElementById('add-parceiro-data').value = formatDateInput(new Date());
 
   // Atualiza campos conforme o parceiro padrão
   if (select.value === 'Gelo') {
@@ -503,7 +512,7 @@ document.querySelectorAll('.btn-parceiro-add').forEach(btn => {
     const parceiro = btn.getAttribute('data-parceiro');
     document.getElementById('add-parceiro-select').value = parceiro;
     document.getElementById('modal-add-parceiro-title').textContent = 'Adicionar Registro';
-    document.getElementById('add-parceiro-data').value = new Date().toISOString().slice(0,10);
+    document.getElementById('add-parceiro-data').value = formatDateInput(new Date());
     // Dispara o evento change para atualizar preço e campos
     document.getElementById('add-parceiro-select').dispatchEvent(new Event('change'));
     document.getElementById('modal-add-parceiro').classList.remove('hidden');
@@ -888,7 +897,7 @@ renderRegistrosTodosParceiros();
   const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  const dateStr = new Date().toISOString().split('T')[0];
+  const dateStr = formatDateInput(new Date());
   a.download = `parceiros-${dateStr}.csv`;
   a.click();
 };
@@ -913,7 +922,7 @@ document.getElementById('export-vendas-dia').onclick = function() {
   const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  const fileDate = vendasDiaDateFilter || new Date().toISOString().split('T')[0];
+  const fileDate = vendasDiaDateFilter || formatDateInput(new Date());
   a.download = `vendas-dia-${fileDate}.csv`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
@@ -1073,7 +1082,7 @@ document.getElementById('form-config-parceiros').onsubmit = function(e) {
 // Define a data de hoje nos inputs de data ao carregar a página
 document.querySelectorAll('.parceiro-form input[type="date"]').forEach(input => {
   const hoje = new Date();
-  input.value = hoje.toISOString().slice(0,10);
+  input.value = formatDateInput(hoje);
 });
 
 // Ao carregar a página, defina o preço padrão conforme o tipo selecionado
@@ -1249,7 +1258,7 @@ document.getElementById('form-venda-dia').onsubmit = function(e) {
   localStorage.setItem('vendasDia', JSON.stringify(vendasDia));
   renderVendasDia();
   this.reset();
-  document.getElementById('venda-dia-data').value = new Date().toISOString().slice(0,10);
+  document.getElementById('venda-dia-data').value = formatDateInput(new Date());
   if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Venda registrada!', 'success');
 };
 
@@ -1309,7 +1318,7 @@ document.addEventListener('click', function(e) {
 });
 
 // Data de hoje por padrão
-document.getElementById('venda-dia-data').value = new Date().toISOString().slice(0,10);
+document.getElementById('venda-dia-data').value = formatDateInput(new Date());
 
 function renderGraficoVendasDia() {
   const canvas = document.getElementById('grafico-vendas-dia');
@@ -1407,7 +1416,7 @@ if (formVendaBloco) {
     localStorage.setItem('vendasDiaBloco', JSON.stringify(vendasDiaBloco));
     renderVendasDiaBloco();
     this.reset();
-    document.getElementById('venda-dia-data-bloco').value = new Date().toISOString().slice(0,10);
+    document.getElementById('venda-dia-data-bloco').value = formatDateInput(new Date());
     if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Venda registrada!', 'success');
   };
 }
@@ -1424,7 +1433,7 @@ document.addEventListener('click', function(e) {
 
 // Data de hoje por padrão
 const inputDataBloco = document.getElementById('venda-dia-data-bloco');
-if (inputDataBloco) inputDataBloco.value = new Date().toISOString().slice(0,10);
+if (inputDataBloco) inputDataBloco.value = formatDateInput(new Date());
 
 renderVendasDiaBloco();
 
