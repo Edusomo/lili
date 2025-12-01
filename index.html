@@ -11,12 +11,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Sistema de Backup -->
+    <script src="backup.js"></script>
+    <script src="backup-ui.js"></script>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
-        <header class="header">
-            <img src="favicon.png" alt="Logo" style="height:56px; margin-bottom: 8px;" />
+        <header class="header" style="position: relative;">
+          <img src="favicon.png" alt="Logo" style="height:56px; margin-bottom: 8px;" />
+          <button id="btn-backup-top" title="💾 Backup & Restauração" 
+              style="position: absolute; top: 8px; right: 12px; background: #ffc107; color: #333; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+            💾 Backup
+          </button>
         </header>
 
         <!-- Conteúdo das Abas -->
@@ -396,6 +403,70 @@
         <button type="submit" class="btn btn--primary" style="flex:1;">Salvar</button>
         <button type="button" id="cancelar-editar-venda-dia" class="btn btn--secondary" style="flex:1;">Cancelar</button>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Backup -->
+<div id="modal-backup" class="modal hidden" style="display: none;">
+  <div class="modal__overlay">
+    <div class="modal__content" style="max-width: 500px; max-height: 85vh; overflow-y: auto;">
+      <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
+        💾 Backup & Restauração
+        <button onclick="document.getElementById('modal-backup').classList.add('hidden'); document.getElementById('modal-backup').style.display='none';" 
+                style="margin-left: auto; background: none; border: none; font-size: 1.2em; cursor: pointer; color: #666;">✕</button>
+      </h3>
+
+      <!-- Seção de Informações -->
+      <div style="background: #f8fafb; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.95em;">
+        <p style="margin: 0 0 8px 0;"><strong>📊 Informações dos Dados:</strong></p>
+        <p style="margin: 4px 0;"><strong>Tamanho total:</strong> <span id="backup-size">0 KB</span></p>
+        <p style="margin: 4px 0;"><strong>Registros de salários:</strong> <span id="backup-salary-count">0</span></p>
+        <p style="margin: 4px 0;"><strong>Funcionários:</strong> <span id="backup-employees-count">0</span></p>
+        <p style="margin: 4px 0;"><strong>Registros de parceiros:</strong> <span id="backup-parceiros-count">0</span></p>
+        <p style="margin: 4px 0;"><strong>Vendas do dia:</strong> <span id="backup-vendas-count">0</span></p>
+        <p style="margin: 4px 0; color: #666;"><strong>Última exportação:</strong> <span id="backup-last-export">Nenhuma exportação</span></p>
+      </div>
+
+      <!-- Seção de Exportação -->
+      <div style="background: #f0f7ff; padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #1976d2;">
+        <p style="margin: 0 0 12px 0; font-weight: 600; color: #1976d2;">📥 Exportar Dados (Backup)</p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn--primary" onclick="try { backupSystem.exportAsJSON(); } catch(e) { alert('Erro: ' + e.message); }" style="flex: 1; min-width: 120px; padding: 10px;">
+            📄 JSON
+          </button>
+        </div>
+        <small style="color: #666; display: block; margin-top: 8px;">
+          ✅ Salva todos os seus dados em um arquivo que você pode guardar com segurança.
+        </small>
+      </div>
+
+      <!-- Seção de Importação -->
+      <div style="background: #f0fff4; padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #21808d;">
+        <p style="margin: 0 0 12px 0; font-weight: 600; color: #21808d;">📤 Restaurar de Arquivo</p>
+        <div>
+          <input type="file" id="backup-file-input" accept=".json" style="display: none;">
+          <button class="btn btn--secondary" onclick="document.getElementById('backup-file-input').click();" style="width: 100%; padding: 10px;">
+            📂 Selecionar Arquivo
+          </button>
+        </div>
+        <small style="color: #666; display: block; margin-top: 8px;">
+          🔄 Carregue um arquivo de backup anterior para recuperar seus dados.
+        </small>
+      </div>
+
+      <!-- Seção de Backups Automáticos removida da UI por solicitação do usuário -->
+
+      <!-- Informações -->
+      <div style="background: #f0f0f0; padding: 12px; border-radius: 8px; font-size: 0.85em; color: #666;">
+        <p style="margin: 0;"><strong>💡 Dicas:</strong></p>
+        <ul style="margin: 8px 0 0 0; padding-left: 16px;">
+          <li>Exporte regularmente para ter backups seguros</li>
+          <li>Guarde os arquivos em múltiplos lugares (Google Drive, OneDrive, etc)</li>
+          <li>Use a restauração para recuperar dados perdidos</li>
+          <li>Guarde os arquivos de backup em múltiplos locais (ex.: Google Drive)</li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
@@ -1093,6 +1164,80 @@ if (geloForm) {
   if (checked && precoInput) precoInput.value = precosGelo[checked.value].toFixed(2);
 }
 });
+
+// ========== DIAGNÓSTICO DE BACKUP ==========
+
+// Atualização personalizada das contagens do modal de backup
+function computeSalaryCountFromBackupData(backupData) {
+  if (!backupData) return 0;
+  if (Array.isArray(backupData.salaryRecords)) return backupData.salaryRecords.length;
+  const possibleKeys = ['salaryRecords','registros','registrosSalarios','registrosFuncionarios','funcionariosRecords','records','registros_funcionarios','employees','funcionarios'];
+  for (const k of possibleKeys) {
+    if (Array.isArray(backupData[k])) return backupData[k].length;
+  }
+
+  // Fallback: soma arrays cujos itens parecem registros salariais
+  let count = 0;
+  for (const [k, v] of Object.entries(backupData)) {
+    if (!Array.isArray(v) || v.length === 0) continue;
+    const looksLikeSalary = v.some(item => item && (item.employee || item.funcionario || item.valor || item.amount || item.date || item.data));
+    if (looksLikeSalary) count += v.length;
+  }
+  return count;
+}
+
+function updateBackupModalCounts() {
+  try {
+    const stats = (window.backupSystem && backupSystem.getStatistics) ? backupSystem.getStatistics() : null;
+    const data = (window.backupSystem && backupSystem.captureAllData) ? backupSystem.captureAllData().data : null;
+    const salaryCount = computeSalaryCountFromBackupData(data);
+    const sizeElem = document.getElementById('backup-size');
+    const salaryElem = document.getElementById('backup-salary-count');
+    const empElem = document.getElementById('backup-employees-count');
+    const parceirosElem = document.getElementById('backup-parceiros-count');
+    const vendasElem = document.getElementById('backup-vendas-count');
+    const lastExportElem = document.getElementById('backup-last-export');
+
+    if (sizeElem && stats) sizeElem.textContent = (stats.totalSize ? (Math.round(stats.totalSize/1024*100)/100 + ' KB') : '0 KB');
+    if (salaryElem) salaryElem.textContent = (typeof salaryCount === 'number' ? salaryCount : (stats ? (stats.recordsCount.salary || 0) : '0'));
+    if (empElem && stats) empElem.textContent = stats.recordsCount.employees || 0;
+    if (parceirosElem && stats) parceirosElem.textContent = stats.recordsCount.parceiroRegistros || 0;
+    if (vendasElem && stats) vendasElem.textContent = stats.recordsCount.vendas || 0;
+    if (lastExportElem && stats) {
+      const iso = stats.lastManualExport;
+      lastExportElem.textContent = iso ? new Date(iso).toLocaleString('pt-BR') : 'Nenhuma exportação';
+    }
+  } catch (e) {
+    console.warn('Erro ao atualizar contagens de backup:', e);
+  }
+}
+
+// Hook ao abrir o modal de backup
+const __btnBackupTop = document.getElementById('btn-backup-top');
+if (__btnBackupTop) {
+  __btnBackupTop.addEventListener('click', () => {
+    setTimeout(updateBackupModalCounts, 60);
+  });
+}
+
+// Expor para compatibilidade
+window.updateBackupModalCounts = updateBackupModalCounts;
+
+console.log('=== DIAGNÓSTICO DE BACKUP ===');
+console.log('backupSystem disponível?', typeof backupSystem !== 'undefined');
+console.log('backupUI disponível?', typeof backupUI !== 'undefined');
+if (typeof backupSystem !== 'undefined') {
+  console.log('✅ backupSystem carregado');
+  console.log('backupSystem.exportAsJSON?', typeof backupSystem.exportAsJSON);
+} else {
+  console.error('❌ backupSystem NÃO carregado');
+}
+if (typeof backupUI !== 'undefined') {
+  console.log('✅ backupUI carregado');
+  console.log('backupUI.updateStats?', typeof backupUI.updateStats);
+} else {
+  console.error('❌ backupUI NÃO carregado');
+}
 </script>
 
 <!-- Modal de confirmação de exclusão de venda do dia -->
@@ -1148,6 +1293,8 @@ const sections = document.querySelectorAll('.sections .section');
 
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
+    // tabs normais continuam
+    
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     sections.forEach(sec => sec.classList.remove('active'));
@@ -1159,6 +1306,19 @@ tabs.forEach(tab => {
     }
   });
 });
+
+// Botão de backup no header (canto superior direito)
+const topBackupBtn = document.getElementById('btn-backup-top');
+if (topBackupBtn) {
+  topBackupBtn.addEventListener('click', () => {
+    const modal = document.getElementById('modal-backup');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+      if (backupUI && backupUI.updateStats) backupUI.updateStats();
+    }
+  });
+}
 
 // Ao trocar de aba, garantir que o gráfico de Vendas seja renderizado/atualizado
 tabs.forEach(tab => {
@@ -1742,3 +1902,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+
