@@ -69,62 +69,8 @@ class SalaryTracker {
     }
 
     getInitialData() {
-        return [
-            {
-                id: "1",
-                employee: "João Silva",
-                date: "2025-05-30",
-                amount: 120.00,
-                note: "Trabalho normal 8h",
-                paid: false,
-                timestamp: "2025-05-30T20:00:00.000Z"
-            },
-            {
-                id: "2", 
-                employee: "Maria Santos",
-                date: "2025-05-30",
-                amount: -20.00,
-                note: "Desconto material",
-                paid: false,
-                timestamp: "2025-05-30T20:30:00.000Z"
-            },
-            {
-                id: "3",
-                employee: "João Silva", 
-                date: "2025-05-29",
-                amount: 150.00,
-                note: "Trabalho extra",
-                paid: false,
-                timestamp: "2025-05-29T18:00:00.000Z"
-            },
-            {
-                id: "4",
-                employee: "Ana Costa",
-                date: "2025-05-28",
-                amount: 100.00,
-                note: "Meio período",
-                paid: false,
-                timestamp: "2025-05-28T15:00:00.000Z"
-            },
-            {
-                id: "5",
-                employee: "Maria Santos",
-                date: "2025-05-28",
-                amount: 130.00,
-                note: "Trabalho normal",
-                paid: false,
-                timestamp: "2025-05-28T16:00:00.000Z"
-            },
-            {
-                id: "6",
-                employee: "Pedro Lima",
-                date: "2025-05-27",
-                amount: 80.00,
-                note: "4 horas",
-                paid: false,
-                timestamp: "2025-05-27T14:00:00.000Z"
-            }
-        ];
+        // Retornar lista vazia para não inserir transações de exemplo por padrão
+        return [];
     }
 
     bindEvents() {
