@@ -51,15 +51,36 @@ class BackupSystem {
               if (window && window.salaryTracker && Array.isArray(window.salaryTracker.records)) {
                 // Clonar para não alterar o array original
                 source = window.salaryTracker.records.slice();
+                console.log(`[captureAllData] Usando fonte em memória: ${source.length} registros`);
               }
             } catch (err) {
+              console.warn('[captureAllData] Erro ao acessar window.salaryTracker:', err);
               source = null;
             }
 
-            if (!source && Array.isArray(parsed)) source = parsed.slice();
+            if (!source && Array.isArray(parsed)) {
+              source = parsed.slice();
+              console.log(`[captureAllData] Usando localStorage: ${source.length} registros`);
+            }
 
             if (Array.isArray(source)) {
-              backup.data[key] = source.filter(item => !(item && item.invisivel));
+              // Deduplicar por ID para evitar registros duplicados (por segurança)
+              const seen = new Set();
+              const deduped = [];
+              source.forEach(item => {
+                if (item && item.id) {
+                  if (!seen.has(item.id)) {
+                    seen.add(item.id);
+                    deduped.push(item);
+                  } else {
+                    console.warn(`[captureAllData] Registro duplicado removido: ${item.id}`);
+                  }
+                } else {
+                  deduped.push(item); // Registros sem ID sempre são incluídos
+                }
+              });
+              console.log(`[captureAllData] ${source.length} registros capturados, ${deduped.length} após deduplicação`);
+              backup.data[key] = deduped;
             } else {
               backup.data[key] = parsed;
             }
@@ -147,7 +168,33 @@ class BackupSystem {
   }
 
   exportAsJSON(filename = null) {
+    // FORÇA sincronização: salva os dados em memória para localStorage ANTES de capturar
+    // Isso resolve o problema de registros faltando na exportação
+    if (window && window.salaryTracker && Array.isArray(window.salaryTracker.records)) {
+      try {
+        const records = window.salaryTracker.records;
+        // Verificar duplicatas por ID em memória
+        const idSet = new Set();
+        let duplicados = 0;
+        records.forEach(r => {
+          if (r && r.id) {
+            if (idSet.has(r.id)) duplicados++;
+            idSet.add(r.id);
+          }
+        });
+        if (duplicados > 0) {
+          console.warn(`[exportAsJSON] ⚠️ Detectados ${duplicados} IDs duplicados em memória!`);
+        }
+        localStorage.setItem('salaryRecords', JSON.stringify(records));
+        console.log(`[exportAsJSON] Sincronizados ${records.length} registros de salário para localStorage`);
+      } catch (err) {
+        console.warn('[exportAsJSON] Erro ao sincronizar salaryRecords:', err);
+      }
+    }
+
     const backup = this.captureAllData();
+    const recordsCount = backup.data.salaryRecords ? (Array.isArray(backup.data.salaryRecords) ? backup.data.salaryRecords.length : 0) : 0;
+    console.log(`[exportAsJSON] Capturados ${recordsCount} registros no backup`);
     const json = JSON.stringify(backup, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -159,6 +206,7 @@ class BackupSystem {
     document.body.appendChild(link);
     try {
       link.click();
+      console.log('[exportAsJSON] JSON exportado com sucesso');
       try {
         localStorage.setItem('lastManualExport', new Date().toISOString());
       } catch (e) { /* ignore storage errors */ }
@@ -271,7 +319,16 @@ class BackupSystem {
     const stats = { totalSize: this.calculateDataSize(), recordsCount: { salary:0, employees:0, parceiroRegistros:0, vendas:0 }, lastBackup: null, autoBackupsCount:0 };
 
     try {
-      const salary = localStorage.getItem('salaryRecords'); if (salary) { try { stats.recordsCount.salary = JSON.parse(salary).length; } catch(e){} }
+      const salary = localStorage.getItem('salaryRecords'); 
+      if (salary) { 
+        try { 
+          const records = JSON.parse(salary);
+          // Contar apenas registros visíveis (sem "invisivel: true")
+          const visibleCount = records.filter(r => !r.invisivel).length;
+          stats.recordsCount.salary = visibleCount;
+          console.log(`[getStatistics] Salários: ${records.length} total, ${visibleCount} visíveis`);
+        } catch(e){} 
+      }
       const employees = localStorage.getItem('employees'); if (employees) { try { stats.recordsCount.employees = JSON.parse(employees).length; } catch(e){} }
       const parceiroRegistros = localStorage.getItem('parceiroRegistros'); if (parceiroRegistros) { try { const r = JSON.parse(parceiroRegistros); stats.recordsCount.parceiroRegistros = (r.Coco?.length||0)+(r.Pastel?.length||0)+(r.Gelo?.length||0); } catch(e){} }
       const vendasDia = localStorage.getItem('vendasDia'); if (vendasDia) { try { stats.recordsCount.vendas = JSON.parse(vendasDia).length; } catch(e){} }
