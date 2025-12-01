@@ -64,6 +64,8 @@ class SalaryTracker {
         if (savedEmployees) {
             this.employees = JSON.parse(savedEmployees);
         }
+        // Garantir que os registros estejam ordenados cronologicamente (mais recentes primeiro)
+        if (this.records && this.records.length) this.sortRecords();
     }
 
     getInitialData() {
@@ -302,7 +304,9 @@ class SalaryTracker {
             timestamp: new Date().toISOString()
         };
 
-        this.records.unshift(record);
+        // Inserir registro e garantir ordenação cronológica
+        this.records.push(record);
+        this.sortRecords();
         this.saveData();
         form.reset();
 
@@ -344,8 +348,10 @@ class SalaryTracker {
     paid: false,
     timestamp: new Date().toISOString()
   };
-  this.records.unshift(record);
-  this.saveData();
+    // Inserir registro de forma que a lista fique ordenada por data
+    this.records.push(record);
+    this.sortRecords();
+    this.saveData();
   this.showFeedback('✅ Registro salvo com sucesso!', 'success');
   this.render();
     }
@@ -421,6 +427,8 @@ class SalaryTracker {
             note: formData.get('note') || ''
         };
 
+        // Reordenar após edição (caso a data tenha sido alterada)
+        this.sortRecords();
         this.saveData();
         this.hideModal('edit-modal');
         this.editingId = null;
@@ -1035,6 +1043,22 @@ renderRecords() {
         } catch (e) {
             console.error('Erro ao salvar dados no localStorage:', e);
         }
+    }
+
+    // Ordena os registros por data (mais recentes primeiro). Usa timestamp como desempate.
+    sortRecords() {
+        if (!this.records || !Array.isArray(this.records)) return;
+        this.records.sort((a, b) => {
+            const da = a && a.date ? new Date(a.date) : (a && a.timestamp ? new Date(a.timestamp) : new Date(0));
+            const db = b && b.date ? new Date(b.date) : (b && b.timestamp ? new Date(b.timestamp) : new Date(0));
+            const diff = db - da;
+            if (diff !== 0) return diff;
+            const ta = a.timestamp || '';
+            const tb = b.timestamp || '';
+            if (tb > ta) return 1;
+            if (tb < ta) return -1;
+            return 0;
+        });
     }
 
     render() {
