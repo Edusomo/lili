@@ -36,21 +36,36 @@ class BackupSystem {
         return;
       }
 
-      try {
-        // Parse the stored value
-        const parsed = JSON.parse(value);
+        try {
+          // Parse the stored value
+          const parsed = JSON.parse(value);
 
-        // Ajuste específico: remover 6 registros padrão de salário ao exportar/gerar backup.
-        // Muitos usuários têm 6 registros "placeholder" (ex.: João, Mari, Ana...) que
-        // permanecem mesmo quando aparentam ter zerado os registros. Removemos até 6
-        // desses itens do array salvo para que o arquivo de backup não contenha os
-        // placeholders por padrão. Usamos Math.max para evitar valores negativos.
-        if (key === 'salaryRecords' && Array.isArray(parsed)) {
-          const DEFAULT_REMOVE = 6;
-          backup.data[key] = parsed.slice(0, Math.max(0, parsed.length - DEFAULT_REMOVE));
-        } else {
-          backup.data[key] = parsed;
-        }
+          // Corrigido: não remover arbitrariamente os últimos 6 registros.
+          // Em vez disso, excluímos apenas registros marcados como "invisivel"
+          // (ghost/placeholder) caso existam, preservando os demais dados.
+          if (key === 'salaryRecords') {
+            // Preferir a fonte em memória quando disponível — evita inconsistências
+            // se outra parte do app estiver atualizando localStorage ao mesmo tempo.
+            let source = null;
+            try {
+              if (window && window.salaryTracker && Array.isArray(window.salaryTracker.records)) {
+                // Clonar para não alterar o array original
+                source = window.salaryTracker.records.slice();
+              }
+            } catch (err) {
+              source = null;
+            }
+
+            if (!source && Array.isArray(parsed)) source = parsed.slice();
+
+            if (Array.isArray(source)) {
+              backup.data[key] = source.filter(item => !(item && item.invisivel));
+            } else {
+              backup.data[key] = parsed;
+            }
+          } else {
+            backup.data[key] = parsed;
+          }
       } catch (e) {
         console.warn(`backupSystem: valor não-JSON em localStorage['${key}'] - armazenando como string`);
         backup.data[key] = value;
@@ -63,16 +78,67 @@ class BackupSystem {
 
   restoreFromBackup(backup) {
     if (!backup || !backup.data) throw new Error('Formato de backup inválido');
-
     Object.entries(backup.data).forEach(([key, value]) => {
       if (value === null) {
         localStorage.removeItem(key);
-      } else {
+        return;
+      }
+
+      try {
+        // Merge strategy for critical keys to avoid data loss on import
+        if (key === 'salaryRecords' && Array.isArray(value)) {
+          // Parse existing records (if any) and merge by `id`, keeping the most recent by timestamp
+          let existing = [];
+          try { existing = JSON.parse(localStorage.getItem('salaryRecords') || '[]'); } catch (e) { existing = []; }
+
+          const map = new Map();
+          existing.forEach(item => {
+            if (item && item.id) map.set(item.id, item);
+            else map.set('existing-' + Math.random().toString(36).slice(2,8), item);
+          });
+
+          value.forEach(item => {
+            if (item && item.id) {
+              const cur = map.get(item.id);
+              if (!cur) map.set(item.id, item);
+              else {
+                const tCur = cur.timestamp ? new Date(cur.timestamp).getTime() : 0;
+                const tNew = item.timestamp ? new Date(item.timestamp).getTime() : 0;
+                if (tNew >= tCur) map.set(item.id, item);
+              }
+            } else {
+              // item without id: add with generated key to avoid losing it
+              map.set('import-' + Math.random().toString(36).slice(2,8), item);
+            }
+          });
+
+          const merged = Array.from(map.values()).sort((a, b) => {
+            const da = a && a.date ? new Date(a.date) : (a && a.timestamp ? new Date(a.timestamp) : new Date(0));
+            const db = b && b.date ? new Date(b.date) : (b && b.timestamp ? new Date(b.timestamp) : new Date(0));
+            return db - da;
+          });
+
+          localStorage.setItem(key, JSON.stringify(merged));
+          return;
+        }
+
+        if (key === 'employees' && Array.isArray(value)) {
+          // merge unique employee names
+          let existing = [];
+          try { existing = JSON.parse(localStorage.getItem('employees') || '[]'); } catch (e) { existing = []; }
+          const set = new Set([...existing, ...value]);
+          localStorage.setItem('employees', JSON.stringify(Array.from(set)));
+          return;
+        }
+
+        // Default behavior: overwrite
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) {
+        // fallback: if value is already a string
         try {
-          localStorage.setItem(key, JSON.stringify(value));
-        } catch (e) {
-          // fallback: if value is already a string
           localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+        } catch (err) {
+          console.error('Erro ao restaurar chave', key, err);
         }
       }
     });
