@@ -117,7 +117,10 @@
 <div id="vendas" class="section">
   <section class="vendas-dia-section" style="max-width:600px;margin:16px auto 0 auto;">
     <h2>Vendas do Dia</h2>
-     <button id="export-vendas-dia" class="btn btn--secondary" style="margin-bottom:12px;">⬇️ Exportar Relatório de Vendas</button>
+    <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+      <button id="export-vendas-dia" class="btn btn--secondary">⬇️ Exportar Relatório de Vendas</button>
+      <button id="btn-compare-vendas-mensais" class="btn btn--primary">📊 Comparar Vendas Mensais</button>
+    </div>
     <canvas id="grafico-vendas-dia" height="120" style="width:100%;max-width:600px;margin:0 auto 24px auto;display:block;"></canvas>
     
     <!-- Filtro de Data para Vendas do Dia -->
@@ -173,6 +176,27 @@
     <span id="notas-status" style="margin-left:12px;color:#888;font-size:0.95em;"></span>
   </div>
 </section>
+<script>
+// Função para renderizar as últimas 40 transações de vendas do dia
+function renderVendasDia() {
+  const vendas = JSON.parse(localStorage.getItem('vendasDia') || '[]');
+  const lista = document.getElementById('lista-venda-dia');
+  const limite = 40;
+  const vendasExibidas = vendas.slice(-limite);
+  lista.innerHTML = vendasExibidas.length
+    ? vendasExibidas.map(venda => `<li style="padding:8px 0;border-bottom:1px solid #eee;">
+        <strong>${venda.data || ''}</strong> - R$ ${venda.valor?.toFixed(2) || ''} ${venda.obs ? '📝 ' + venda.obs : ''}
+      </li>`).join('')
+    : '<li style="color:#888;padding:12px;">Nenhuma venda registrada.</li>';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderVendasDia();
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'vendasDia') renderVendasDia();
+  });
+});
+</script>
 </div>
     </div>
 
@@ -407,6 +431,42 @@
   </div>
 </div>
 
+<!-- Modal: Comparação de Vendas Mensais (2025-2030) -->
+<div id="modal-compare-vendas" class="modal hidden" style="display: none;">
+  <div class="modal__overlay">
+    <div class="modal__content" style="max-width: 900px; max-height: 85vh; overflow-y: auto;">
+      <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
+        📊 Comparação de Mensal de Vendas (2025-2030)
+        <button onclick="document.getElementById('modal-compare-vendas').classList.add('hidden'); document.getElementById('modal-compare-vendas').style.display='none';" 
+                style="margin-left: auto; background: none; border: none; font-size: 1.2em; cursor: pointer; color: #666;">✕</button>
+      </h3>
+      
+      <div style="overflow-x: auto; margin-top: 16px;">
+        <table id="tabela-comparacao-vendas" style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+          <thead style="background: #f0f7ff; border-bottom: 2px solid #21808d;">
+            <tr>
+              <th style="padding: 12px; text-align: left; font-weight: 600;">Mês</th>
+              <th style="padding: 12px; text-align: center; font-weight: 600;">2025</th>
+              <th style="padding: 12px; text-align: center; font-weight: 600;">2026</th>
+              <th style="padding: 12px; text-align: center; font-weight: 600;">2027</th>
+              <th style="padding: 12px; text-align: center; font-weight: 600;">2028</th>
+              <th style="padding: 12px; text-align: center; font-weight: 600;">2029</th>
+              <th style="padding: 12px; text-align: center; font-weight: 600;">2030</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-comparacao-vendas">
+            <!-- Será preenchido dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 16px; padding: 12px; background: #f5f5f5; border-radius: 8px; text-align: center; font-size: 0.9em; color: #666;">
+        <strong>Nota:</strong> Valores em R$ (reais). Apenas meses com vendas são exibidos.
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal de Backup -->
 <div id="modal-backup" class="modal hidden" style="display: none;">
   <div class="modal__overlay">
@@ -452,6 +512,17 @@
         </div>
         <small style="color: #666; display: block; margin-top: 8px;">
           🔄 Carregue um arquivo de backup anterior para recuperar seus dados.
+        </small>
+      </div>
+
+      <!-- Seção Apagar Tudo -->
+      <div style="background: #fff3f0; padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #c0152f;">
+        <p style="margin: 0 0 12px 0; font-weight: 600; color: #c0152f;">🗑️ Apagar Tudo</p>
+        <button class="btn btn--outline" onclick="if(confirm('⚠️ ATENÇÃO! Isso apagará TODOS os dados permanentemente. Tem certeza?')) { if(confirm('Última confirmação: Todos os dados serão perdidos. Continuar?')) { localStorage.clear(); location.reload(); } }" style="width: 100%; padding: 10px; border-color: #c0152f; color: #c0152f;">
+          ⚠️ Apagar Todos os Dados
+        </button>
+        <small style="color: #c0152f; display: block; margin-top: 8px;">
+          ⚠️ Esta ação é irreversível. Todos os dados serão deletados permanentemente.
         </small>
       </div>
 
@@ -1367,6 +1438,9 @@ function renderVendasDia() {
     sorted = sorted.filter(v => v.data === vendasDiaDateFilter);
   }
   
+  // Mostrar apenas as últimas 40 transações
+  sorted = sorted.slice(0, 40);
+  
   // Mostrar mensagem de vazio se não houver registros
   if (sorted.length === 0) {
     const aviso = document.createElement('div');
@@ -1500,7 +1574,13 @@ function renderGraficoVendasDia() {
     const chave = `${ano}-${mes}`;
     porMes[chave] = (porMes[chave] || 0) + Number(v.valor || 0);
   });
-  const meses = Object.keys(porMes).sort(); // ordem crescente
+  let meses = Object.keys(porMes).sort(); // ordem crescente
+  
+  // Manter apenas os últimos 12 meses
+  if (meses.length > 12) {
+    meses = meses.slice(-12);
+  }
+  
   const labels = meses.map(m => {
     const [ano, mes] = m.split('-');
     return `${mes}/${ano}`;
@@ -1905,6 +1985,161 @@ document.addEventListener('DOMContentLoaded', function() {
         btnClearDateFilter.disabled = true;
       }
     });
+  }
+});
+
+// ========== COMPARAÇÃO DE VENDAS MENSAIS (2025-2030) ==========
+
+function calcularVendasPorMesAno() {
+  // Estrutura: { '2025-01': total, '2025-02': total, ... }
+  const vendasPorMesAno = {};
+  
+  vendasDia.forEach(venda => {
+    if (!venda.data) return;
+    const [ano, mes] = venda.data.split('-');
+    const chave = `${ano}-${mes}`;
+    vendasPorMesAno[chave] = (vendasPorMesAno[chave] || 0) + Number(venda.valor || 0);
+  });
+  
+  return vendasPorMesAno;
+}
+
+function preencherTabelaComparacao() {
+  const vendasPorMesAno = calcularVendasPorMesAno();
+  const tbody = document.getElementById('tbody-comparacao-vendas');
+  if (!tbody) return;
+  
+  tbody.innerHTML = '';
+  
+  // Meses em português
+  const mesesNomes = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ];
+  
+  const anos = [2025, 2026, 2027, 2028, 2029, 2030];
+  
+  // Para cada mês (1-12)
+  for (let mes = 1; mes <= 12; mes++) {
+    const mesPadrao = String(mes).padStart(2, '0');
+    const nomeMes = mesesNomes[mes - 1];
+    
+    let temVenda = false;
+    for (const ano of anos) {
+      if (vendasPorMesAno[`${ano}-${mesPadrao}`]) {
+        temVenda = true;
+        break;
+      }
+    }
+    
+    if (!temVenda) continue; // Pula meses sem vendas
+    
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #e0e0e0';
+    
+    // Célula do mês
+    const tdMes = document.createElement('td');
+    tdMes.textContent = nomeMes;
+    tdMes.style.padding = '12px';
+    tdMes.style.fontWeight = '600';
+    tr.appendChild(tdMes);
+    
+    // Células para cada ano
+    for (const ano of anos) {
+      const chave = `${ano}-${mesPadrao}`;
+      const valor = vendasPorMesAno[chave] || 0;
+      
+      // Calcular variação (comparar com MÊS ANTERIOR do MESMO ano)
+      let variacao = null;
+      let percentualVariacao = 0;
+      let mostrarZero = false;
+      
+      if (mes > 1) {
+        // Tem mês anterior no mesmo ano
+        const mesAnterior = String(mes - 1).padStart(2, '0');
+        const chaveAnterior = `${ano}-${mesAnterior}`;
+        const valorAnterior = vendasPorMesAno[chaveAnterior] || 0;
+        
+        // Se não tem valor no mês anterior, mostra 0 e marca como "zero"
+        if (valorAnterior === 0) {
+          mostrarZero = true;
+          if (valor > 0) {
+            variacao = valor; // Tinha 0, agora tem valor
+            percentualVariacao = 100;
+          } else {
+            variacao = 0;
+            percentualVariacao = 0;
+          }
+        } else {
+          variacao = valor - valorAnterior;
+          percentualVariacao = ((variacao / valorAnterior) * 100).toFixed(1);
+        }
+      }
+      
+      const td = document.createElement('td');
+      td.style.padding = '12px';
+      td.style.textAlign = 'center';
+      
+      if (valor > 0) {
+        let html = `R$ ${valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+        
+        // Adicionar seta e cor de variação (apenas se não for janeiro)
+        if (variacao !== null) {
+          if (mostrarZero) {
+            // Mês anterior teve 0 (sem dados) - mostrar em azul
+            html += `<br><span style="color: #3498db; font-weight: bold; font-size: 0.9em;"> 0 </span>`;
+            td.style.backgroundColor = '#ebf5fb';
+          } else if (variacao > 0) {
+            // Subiu 📈
+            html += `<br><span style="color: #2ecc71; font-weight: bold; font-size: 0.9em;"> +${percentualVariacao}%</span>`;
+            td.style.backgroundColor = '#e8f8f5';
+          } else if (variacao < 0) {
+            // Caiu 📉
+            html += `<br><span style="color: #e74c3c; font-weight: bold; font-size: 0.9em;"> ${percentualVariacao}%</span>`;
+            td.style.backgroundColor = '#fadbd8';
+          } else {
+            // Igual
+            html += `<br><span style="color: #95a5a6; font-weight: bold; font-size: 0.9em;"> 0%</span>`;
+            td.style.backgroundColor = '#f5f5f5';
+          }
+        } else {
+          // Janeiro - sem comparação (é o primeiro mês do ano)
+          td.style.backgroundColor = '#f0f7ff';
+        }
+        
+        td.innerHTML = html;
+        td.style.color = '#21808d';
+        td.style.fontWeight = '600';
+      } else {
+        td.textContent = '-';
+        td.style.color = '#999';
+      }
+      
+      tr.appendChild(td);
+    }
+    
+    tbody.appendChild(tr);
+  }
+  
+  // Se não houver vendas, mostrar mensagem
+  if (tbody.children.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="padding: 20px; text-align: center; color: #999;">Nenhuma venda registrada no período.</td></tr>';
+  }
+}
+
+// Botão para abrir modal de comparação
+document.getElementById('btn-compare-vendas-mensais').addEventListener('click', function() {
+  preencherTabelaComparacao();
+  const modal = document.getElementById('modal-compare-vendas');
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+});
+
+// Fechar modal ao clicar no overlay
+document.getElementById('modal-compare-vendas').addEventListener('click', function(e) {
+  if (e.target === this || e.target.classList.contains('modal__overlay')) {
+    this.classList.add('hidden');
+    this.style.display = 'none';
   }
 });
 </script>
