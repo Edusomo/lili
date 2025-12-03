@@ -117,9 +117,11 @@
 <div id="vendas" class="section">
   <section class="vendas-dia-section" style="max-width:600px;margin:16px auto 0 auto;">
     <h2>Vendas do Dia</h2>
-    <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
-      <button id="export-vendas-dia" class="btn btn--secondary">⬇️ Exportar Relatório de Vendas</button>
-      <button id="btn-compare-vendas-mensais" class="btn btn--primary">📊 Comparar Vendas Mensais</button>
+    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:640px;margin:0 auto;width:100%;">
+        <button id="export-vendas-dia" class="btn btn--secondary" title="Exportar relatório de vendas" style="white-space:nowrap;padding:10px 12px;font-size:1.05em;flex:1;min-width:140px;max-width:320px;">⬇️ Exportar</button>
+        <button id="btn-compare-vendas-mensais" class="btn btn--primary" title="Comparar vendas mensais" style="white-space:nowrap;padding:10px 14px;font-size:1.05em;flex:1;min-width:140px;max-width:320px;">📊 Comparar</button>
+      </div>
     </div>
     <canvas id="grafico-vendas-dia" height="120" style="width:100%;max-width:600px;margin:0 auto 24px auto;display:block;"></canvas>
     
@@ -432,17 +434,17 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- Modal: Comparação de Vendas Mensais (2025-2030) -->
-<div id="modal-compare-vendas" class="modal hidden" style="display: none;">
+    <div id="modal-compare-vendas" class="modal hidden" style="display: none;">
   <div class="modal__overlay">
-    <div class="modal__content" style="max-width: 900px; max-height: 85vh; overflow-y: auto;">
+    <div class="modal__content" style="max-width: 95vw; max-height: 85vh; overflow: auto; display: block; padding: 16px; box-sizing: border-box;">
       <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
         📊 Comparação de Mensal de Vendas (2025-2030)
         <button onclick="document.getElementById('modal-compare-vendas').classList.add('hidden'); document.getElementById('modal-compare-vendas').style.display='none';" 
                 style="margin-left: auto; background: none; border: none; font-size: 1.2em; cursor: pointer; color: #666;">✕</button>
       </h3>
       
-      <div style="overflow-x: auto; margin-top: 16px;">
-        <table id="tabela-comparacao-vendas" style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+      <div style="display:flex; justify-content:flex-start; width:100%; overflow-x: auto; overflow-y: visible; -webkit-overflow-scrolling: touch; margin-top: 16px;">
+        <table id="tabela-comparacao-vendas" style="width: auto; min-width:900px; border-collapse: collapse; font-size: 0.9em; margin:0;">
           <thead style="background: #f0f7ff; border-bottom: 2px solid #21808d;">
             <tr>
               <th style="padding: 12px; text-align: left; font-weight: 600;">Mês</th>
