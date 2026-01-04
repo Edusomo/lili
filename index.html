@@ -359,9 +359,9 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-group">
           <label class="form-label" for="add-parceiro-select">Parceiro</label>
           <select id="add-parceiro-select" name="parceiro" class="form-control" required>
-            <option value="Coco">Coco</option>
-            <option value="Pastel">Pastel</option>
-            <option value="Gelo">Gelo</option>
+            <option value="Coco">Coco - Diego</option>
+            <option value="Pastel">Pastel - Daniel</option>
+            <option value="Gelo">Gelo - Luís</option>
           </select>
         </div>
         <input type="hidden" id="add-parceiro-nome" name="parceiro">
@@ -378,6 +378,26 @@ document.addEventListener('DOMContentLoaded', function() {
             </label>
           </div>
         </div>
+        <div id="add-parceiro-gelo-fields" style="display:none;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="add-gelo-cubo-qtd">Qtd Cubo</label>
+              <input type="number" id="add-gelo-cubo-qtd" class="form-control" min="0" step="1" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="add-gelo-cubo-preco">Preço Cubo</label>
+              <input type="number" id="add-gelo-cubo-preco" class="form-control" step="0.01" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="add-gelo-triturado-qtd">Qtd Triturado</label>
+              <input type="number" id="add-gelo-triturado-qtd" class="form-control" min="0" step="1" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="add-gelo-triturado-preco">Preço Triturado</label>
+              <input type="number" id="add-gelo-triturado-preco" class="form-control" step="0.01" readonly>
+            </div>
+          </div>
+        </div>
         <div class="form-group">
           <label class="form-label" for="add-parceiro-data">📅 Data</label>
           <input type="date" id="add-parceiro-data" name="data" class="form-control" required>
@@ -386,12 +406,12 @@ document.addEventListener('DOMContentLoaded', function() {
           <label class="form-label" for="add-parceiro-emprestimo" style="color:#c0152f;">💸 Empréstimo (opcional)</label>
           <input type="number" id="add-parceiro-emprestimo" name="emprestimo" class="form-control" step="0.01" placeholder="Ex: 50.00">
         </div>
-        <div class="form-group">
+        <div id="add-parceiro-quantidade-group" class="form-group">
           <label class="form-label" for="add-parceiro-quantidade">Quantidade</label>
           <!-- quantidade não é mais obrigatória quando empréstimo é usado -->
           <input type="number" id="add-parceiro-quantidade" name="quantidade" class="form-control" min="1" >
         </div>
-        <div class="form-group">
+        <div id="add-parceiro-preco-group" class="form-group">
           <label class="form-label" for="add-parceiro-preco">Preço unitário</label>
           <input type="number" id="add-parceiro-preco" name="preco" class="form-control" step="0.01" required>
         </div>
@@ -627,17 +647,22 @@ document.getElementById('fab-add-parceiro').onclick = function() {
 
   // Atualiza campos conforme o parceiro padrão
   if (select.value === 'Gelo') {
-    document.getElementById('add-parceiro-tipo-gelo-group').style.display = '';
-    // Marca "Cubo" por padrão
-    const radios = document.querySelectorAll('input[name="tipo-gelo-modal"]');
-    radios.forEach(r => r.checked = (r.value === 'Cubo'));
-    document.getElementById('add-parceiro-preco').value = precosGelo.Cubo.toFixed(2);
-  } else if (select.value === 'Coco') {
+    document.getElementById('add-parceiro-tipo-gelo-group').style.display = 'none'; // Ocultar radios antigos
+    document.getElementById('add-parceiro-gelo-fields').style.display = '';
+    document.getElementById('add-parceiro-quantidade-group').style.display = 'none';
+    document.getElementById('add-parceiro-preco-group').style.display = 'none';
+    document.getElementById('add-gelo-cubo-preco').value = precosGelo.Cubo.toFixed(2);
+    document.getElementById('add-gelo-triturado-preco').value = precosGelo.Triturado.toFixed(2);
+  } else {
     document.getElementById('add-parceiro-tipo-gelo-group').style.display = 'none';
-    document.getElementById('add-parceiro-preco').value = precosParceiros.Coco.toFixed(2);
-  } else if (select.value === 'Pastel') {
-    document.getElementById('add-parceiro-tipo-gelo-group').style.display = 'none';
-    document.getElementById('add-parceiro-preco').value = precosParceiros.Pastel.toFixed(2);
+    document.getElementById('add-parceiro-gelo-fields').style.display = 'none';
+    document.getElementById('add-parceiro-quantidade-group').style.display = '';
+    document.getElementById('add-parceiro-preco-group').style.display = '';
+    if (select.value === 'Coco') {
+      document.getElementById('add-parceiro-preco').value = precosParceiros.Coco.toFixed(2);
+    } else if (select.value === 'Pastel') {
+      document.getElementById('add-parceiro-preco').value = precosParceiros.Pastel.toFixed(2);
+    }
   }
 
   document.getElementById('modal-add-parceiro').classList.remove('hidden');
@@ -836,7 +861,7 @@ function renderRegistrosTodosParceiros() {
           <span style="color:#888;font-size:0.95em;margin-left:8px;">(${reg.parceiro})</span>
         </div>
         <div style="font-size:1.1em;font-weight:500;">
-          ${quantidade} x R$ ${precoUnit} = <span style="font-size:1.2em;font-weight:bold;">R$ ${total}</span>
+          ${quantidade} x R$ ${precoUnit} = <span style="font-size:1.2em;font-weight:bold;${reg.preco < 0 ? 'color:#ff5722;' : ''}">R$ ${total}</span>
         </div>
         ${tipo}
         <div class="record-item__date">📅 ${dataFormatada}${regWeekday ? ', ' + regWeekday : ''}</div>
@@ -1747,25 +1772,24 @@ document.getElementById('form-editar-venda-dia').onsubmit = function(e) {
 document.getElementById('add-parceiro-select').onchange = function() {
   const parceiro = this.value;
   if (parceiro === 'Gelo') {
-    document.getElementById('add-parceiro-tipo-gelo-group').style.display = '';
-    // Marca "Cubo" por padrão
-    const radios = document.querySelectorAll('input[name="tipo-gelo-modal"]');
-    radios.forEach(r => r.checked = (r.value === 'Cubo'));
-    document.getElementById('add-parceiro-preco').value = precosGelo.Cubo.toFixed(2);
-  } else if (parceiro === 'Coco') {
     document.getElementById('add-parceiro-tipo-gelo-group').style.display = 'none';
-    document.getElementById('add-parceiro-preco').value = precosParceiros.Coco.toFixed(2);
-  } else if (parceiro === 'Pastel') {
+    document.getElementById('add-parceiro-gelo-fields').style.display = '';
+    document.getElementById('add-parceiro-quantidade-group').style.display = 'none';
+    document.getElementById('add-parceiro-preco-group').style.display = 'none';
+    document.getElementById('add-gelo-cubo-preco').value = precosGelo.Cubo.toFixed(2);
+    document.getElementById('add-gelo-triturado-preco').value = precosGelo.Triturado.toFixed(2);
+  } else {
     document.getElementById('add-parceiro-tipo-gelo-group').style.display = 'none';
-    document.getElementById('add-parceiro-preco').value = precosParceiros.Pastel.toFixed(2);
+    document.getElementById('add-parceiro-gelo-fields').style.display = 'none';
+    document.getElementById('add-parceiro-quantidade-group').style.display = '';
+    document.getElementById('add-parceiro-preco-group').style.display = '';
+    if (parceiro === 'Coco') {
+      document.getElementById('add-parceiro-preco').value = precosParceiros.Coco.toFixed(2);
+    } else if (parceiro === 'Pastel') {
+      document.getElementById('add-parceiro-preco').value = precosParceiros.Pastel.toFixed(2);
+    }
   }
 };
-
-document.querySelectorAll('input[name="tipo-gelo-modal"]').forEach(radio => {
-  radio.addEventListener('change', function() {
-    document.getElementById('add-parceiro-preco').value = precosGelo[this.value].toFixed(2);
-  });
-});
 
 // Fechar modal ao cancelar no modal de adicionar parceiro
 document.getElementById('add-parceiro-cancel').onclick = function() {
@@ -1778,65 +1802,81 @@ document.getElementById('form-add-parceiro').onsubmit = function(e) {
   e.preventDefault();
   const parceiro = document.getElementById('add-parceiro-select').value;
   const data = document.getElementById('add-parceiro-data').value;
-  const quantidadeRaw = document.getElementById('add-parceiro-quantidade').value;
-  const quantidade = quantidadeRaw === '' ? NaN : parseFloat(quantidadeRaw);
-  const preco = parseFloat(document.getElementById('add-parceiro-preco').value);
-   const observacao = document.getElementById('add-parceiro-observacao').value || '';
-   const emprestimoRaw = document.getElementById('add-parceiro-emprestimo').value;
-   const emprestimo = emprestimoRaw === '' ? 0 : parseFloat(emprestimoRaw);
-   
-   // Se preenchido empréstimo, registra como 1 unidade com preço NEGATIVO (empréstimo)
-   if (emprestimoRaw !== '' && !isNaN(emprestimo) && emprestimo !== 0) {
-     const valorEmprestimo = -Math.abs(emprestimo);
-     if (parceiro === 'Gelo') {
-       const tipoRadio = document.querySelector('input[name="tipo-gelo-modal"]:checked');
-       registrosParceiros.Gelo.unshift({
-         tipo: tipoRadio ? tipoRadio.value : '',
-         data,
-         quantidade: 1,
-         preco: valorEmprestimo,
-         observacao: observacao ? observacao + ' (Empréstimo)' : 'Empréstimo'
-       });
-     } else {
-       registrosParceiros[parceiro].unshift({
-         data,
-         quantidade: 1,
-         preco: valorEmprestimo,
-         observacao: observacao ? observacao + ' (Empréstimo)' : 'Empréstimo'
-       });
-     }
-     salvarParceiros();
-     renderParceiroCards();
-     renderRegistrosTodosParceiros();
-     document.getElementById('modal-add-parceiro').classList.add('hidden');
-     document.getElementById('modal-add-parceiro').style.display = 'none';
-     // Limpa campo emprestimo para próxima abertura
-     document.getElementById('add-parceiro-emprestimo').value = '';
-     if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Empréstimo registrado!', 'success');
-     return;
-   }
+  const observacao = document.getElementById('add-parceiro-observacao').value || '';
+  const emprestimoRaw = document.getElementById('add-parceiro-emprestimo').value;
+  const emprestimo = emprestimoRaw === '' ? 0 : parseFloat(emprestimoRaw);
   
-  // Validar quantidade quando NÃO for empréstimo
-  if (isNaN(quantidade) || quantidade < 1) {
-    alert('Por favor informe a quantidade (ou preencha o campo Empréstimo).');
+  // Se preenchido empréstimo, registra como 1 unidade com preço NEGATIVO (empréstimo)
+  if (emprestimoRaw !== '' && !isNaN(emprestimo) && emprestimo !== 0) {
+    const valorEmprestimo = -Math.abs(emprestimo);
+    if (parceiro === 'Gelo') {
+      registrosParceiros.Gelo.unshift({
+        tipo: 'Empréstimo',
+        data,
+        quantidade: 1,
+        preco: valorEmprestimo,
+        observacao: observacao ? observacao + ' (Empréstimo)' : 'Empréstimo'
+      });
+    } else {
+      registrosParceiros[parceiro].unshift({
+        data,
+        quantidade: 1,
+        preco: valorEmprestimo,
+        observacao: observacao ? observacao + ' (Empréstimo)' : 'Empréstimo'
+      });
+    }
+    salvarParceiros();
+    renderParceiroCards();
+    renderRegistrosTodosParceiros();
+    document.getElementById('modal-add-parceiro').classList.add('hidden');
+    document.getElementById('modal-add-parceiro').style.display = 'none';
+    // Limpa campo emprestimo para próxima abertura
+    document.getElementById('add-parceiro-emprestimo').value = '';
+    if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Empréstimo registrado!', 'success');
     return;
   }
-
+  
   if (parceiro === 'Gelo') {
-    const tipoRadio = document.querySelector('input[name="tipo-gelo-modal"]:checked');
-    if (!tipoRadio) {
-      alert('Selecione o tipo de gelo.');
+    const qtdCubo = parseFloat(document.getElementById('add-gelo-cubo-qtd').value) || 0;
+    const precoCubo = parseFloat(document.getElementById('add-gelo-cubo-preco').value);
+    const qtdTriturado = parseFloat(document.getElementById('add-gelo-triturado-qtd').value) || 0;
+    const precoTriturado = parseFloat(document.getElementById('add-gelo-triturado-preco').value);
+    
+    if (qtdCubo <= 0 && qtdTriturado <= 0) {
+      alert('Informe pelo menos uma quantidade para Cubo ou Triturado.');
       return;
     }
-    registrosParceiros.Gelo.unshift({
-      tipo: tipoRadio.value,
-      data,
-      quantidade,
-      preco,
-      observacao
-    });
+    
+    if (qtdCubo > 0) {
+      registrosParceiros.Gelo.unshift({
+        tipo: 'Cubo',
+        data,
+        quantidade: qtdCubo,
+        preco: precoCubo,
+        observacao
+      });
+    }
+    if (qtdTriturado > 0) {
+      registrosParceiros.Gelo.unshift({
+        tipo: 'Triturado',
+        data,
+        quantidade: qtdTriturado,
+        preco: precoTriturado,
+        observacao
+      });
+    }
     salvarParceiros();
   } else {
+    const quantidadeRaw = document.getElementById('add-parceiro-quantidade').value;
+    const quantidade = quantidadeRaw === '' ? NaN : parseFloat(quantidadeRaw);
+    const preco = parseFloat(document.getElementById('add-parceiro-preco').value);
+    
+    // Validar quantidade quando NÃO for empréstimo
+    if (isNaN(quantidade) || quantidade < 1) {
+      alert('Por favor informe a quantidade.');
+      return;
+    }
+    
     registrosParceiros[parceiro].unshift({
       data,
       quantidade,
@@ -1845,16 +1885,20 @@ document.getElementById('form-add-parceiro').onsubmit = function(e) {
     });
     salvarParceiros();
   }
-   renderParceiroCards();
-   renderRegistrosTodosParceiros();
-   document.getElementById('modal-add-parceiro').classList.add('hidden');
-   document.getElementById('modal-add-parceiro').style.display = 'none';
-   if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicionado com sucesso!', 'success');
- };
+  
+  renderParceiroCards();
+  renderRegistrosTodosParceiros();
+  document.getElementById('modal-add-parceiro').classList.add('hidden');
+  document.getElementById('modal-add-parceiro').style.display = 'none';
+  if (window.salaryTracker) window.salaryTracker.showFeedback('✅ Registro adicionado com sucesso!', 'success');
+};
 </script>
 <style>
 .section { display: none; }
 .section.active { display: block; }
+.parceiro-card__valor--emprestimo {
+  color: #ff5722; /* Cor diferente para empréstimos, ex: laranja */
+}
 </style>
 <script>
 const parceirosList = [
