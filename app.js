@@ -611,6 +611,8 @@ renderRecords() {
     const container = document.getElementById('records-list');
     const title = document.getElementById('records-title');
     const count = document.getElementById('records-count');
+    const summaryBox = document.getElementById('employee-summary-box');
+    const summaryText = document.getElementById('employee-summary-text');
     if (!container) return;
 
     const filteredRecords = this.getFilteredRecords();
@@ -628,6 +630,19 @@ renderRecords() {
     }
     if (count) {
         count.textContent = `${filteredRecords.length} registro${filteredRecords.length !== 1 ? 's' : ''}`;
+    }
+
+    // Mostrar/ocultar resumo do funcionário
+    if (this.currentFilter && summaryBox && summaryText) {
+        const summary = this.generateEmployeeSummary(this.currentFilter);
+        if (summary) {
+            summaryBox.style.display = 'block';
+            summaryText.innerHTML = summary;
+        } else {
+            summaryBox.style.display = 'none';
+        }
+    } else if (summaryBox) {
+        summaryBox.style.display = 'none';
     }
 
     if (pageRecords.length === 0) {
@@ -1005,6 +1020,101 @@ renderRecords() {
             if (tb < ta) return -1;
             return 0;
         });
+    }
+
+    generateEmployeeSummary(employee) {
+        // Filtrar registros não invisíveis e não pagos (apenas abertos/pendentes)
+        let records = this.records.filter(r => 
+            r.employee.toLowerCase() === employee.toLowerCase() && !r.invisivel && !r.paid
+        );
+
+        // Filtrar registros com valor 0
+        records = records.filter(r => r.amount !== 0);
+
+        if (records.length === 0) return null;
+
+        // Agrupar por tipo e valor
+        const groupedByValue = {};
+        records.forEach(record => {
+            const key = `${record.amount.toFixed(2)}`;
+            if (!groupedByValue[key]) {
+                groupedByValue[key] = [];
+            }
+            groupedByValue[key].push(record);
+        });
+
+        // Calcular total
+        const totalAmount = records.reduce((sum, r) => sum + r.amount, 0);
+
+        // Data mínima e máxima - ordernar e pegar primeira e última
+        const sortedDates = records.map(r => r.date).sort();
+        const minDateStr = sortedDates[0];
+        const maxDateStr = sortedDates[sortedDates.length - 1];
+
+        // Formatar datas (converte YYYY-MM-DD para DD/MM/YYYY)
+        const formatDate = (dateStr) => {
+            const [year, month, day] = dateStr.split('-');
+            return `${day}/${month}/${year}`;
+        };
+
+        const minDateFormatted = formatDate(minDateStr);
+        const maxDateFormatted = formatDate(maxDateStr);
+
+        // Determinar tipo de transação (baseado no sinal do valor)
+        const getTransactionType = (amount) => {
+            if (amount > 0) return 'pagamento';
+            if (amount < 0) return 'empréstimo';
+            return 'transferência';
+        };
+
+        // Construir partes do resumo
+        const summaryParts = [];
+        const sortedValues = Object.keys(groupedByValue)
+            .map(Number)
+            .sort((a, b) => b - a); // Ordem decrescente
+
+        sortedValues.forEach(value => {
+            const recordsForValue = groupedByValue[value.toFixed(2)];
+            const count = recordsForValue.length;
+            const type = getTransactionType(value);
+            const totalForValue = value * count;
+            const color = value >= 0 ? '#21808d' : '#c0152f'; // Verde para positivo, vermelho para negativo
+
+            let part = '';
+            if (count === 1) {
+                // Para transações únicas, incluir data
+                const record = recordsForValue[0];
+                const recordDate = formatDate(record.date);
+                const valueStr = Math.abs(value).toFixed(2);
+                const totalStr = Math.abs(totalForValue).toFixed(2);
+                const sign = value >= 0 ? '+' : '-';
+                part = `1 ${type} de ${valueStr} reais no dia ${recordDate} (= <span style="color:${color};font-weight:600;">${sign}R$ ${totalStr}</span>)`;
+            } else {
+                // Para múltiplas transações, mostrar contagem
+                const valueStr = Math.abs(value).toFixed(2);
+                const totalStr = Math.abs(totalForValue).toFixed(2);
+                const sign = value >= 0 ? '+' : '-';
+                part = `${count} ${type}s de ${valueStr} reais (= <span style="color:${color};font-weight:600;">${sign}R$ ${totalStr}</span>)`;
+            }
+            summaryParts.push(part);
+        });
+
+        // Montar o texto final
+        const partsText = summaryParts.join('; ');
+        const totalColor = totalAmount >= 0 ? '#21808d' : '#c0152f';
+        const totalStr = Math.abs(totalAmount).toFixed(2);
+
+        // Determinar texto final baseado no sinal do total
+        let finalText = '';
+        if (totalAmount > 0) {
+            finalText = `totalizando um pagamento de <span style="color:${totalColor};font-weight:600;">R$ ${totalStr}</span> a ${employee}`;
+        } else if (totalAmount < 0) {
+            finalText = `totalizando um crédito de <span style="color:${totalColor};font-weight:600;">R$ ${totalStr}</span> em relação a ${employee}`;
+        }
+
+        const summary = `De um total de <span style="color:#21808d;font-weight:600;">${records.length} transferências</span> em aberto desde o dia <span style="color:#21808d;font-weight:600;">${minDateFormatted}</span> até a data de <span style="color:#21808d;font-weight:600;">${maxDateFormatted}</span>, houve ${partsText}, ${finalText}.`;
+
+        return summary;
     }
 
     render() {
